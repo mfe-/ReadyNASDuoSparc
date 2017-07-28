@@ -52,7 +52,24 @@ Use the new gcc by setting CC and CXX. For example ./configure CC=/opt/gcc-4/bin
 
 Install last gnu enviroment libraries
 
-25. 
+25. install with dpkg -i -f perl-base_5.8.8-7.infrant2_sparc.deb, perl-modules_5.8.8-7.infrant2_all.deb, perl_5.8.8-7.infrant2_sparc.deb from this repository
+26. install last make
+27. install last automake
+28. install last m4
+29. install last gmp, mpfr, mpc
+30. install libiconv
+31. install Bison
+32. install libtool
+33. install ncurse
+34. install expat
+35. install libxml
+36. install gettext
+37. install texinfo version <5 otherwise you can compile gcc 4.6
+38. install ils
+
+Install gcc 4.6
+
+39. install gcc 4.6 with gcc-4.6-compiled# ../gcc-4.6/configure CC=/opt/gcc-4/bin/gcc CXX=/opt/gcc-4/bin/g++ --enable-languages=c,c++ --prefix=/opt/gcc-4.6 --enable-shared --enable-__cxa_atexit --with-system-zlib --enable-nls --enable-clocale=gnu --enable-debug --with-cpu=v7 --enable-objc-gc sparc-linux --with-system-zlib=/usr/local  --with-mpc=/usr/local  --with-mpfr=/usr/local --with-gmp=/usr/local --with-isl=/usr/local/
 
 
 
