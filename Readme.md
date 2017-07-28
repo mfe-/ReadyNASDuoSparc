@@ -71,6 +71,11 @@ Install gcc 4.6
 
 39. install gcc 4.6 with gcc-4.6-compiled# ../gcc-4.6/configure CC=/opt/gcc-4/bin/gcc CXX=/opt/gcc-4/bin/g++ --enable-languages=c,c++ --prefix=/opt/gcc-4.6 --enable-shared --enable-__cxa_atexit --with-system-zlib --enable-nls --enable-clocale=gnu --enable-debug --with-cpu=v7 --enable-objc-gc sparc-linux --with-system-zlib=/usr/local  --with-mpc=/usr/local  --with-mpfr=/usr/local --with-gmp=/usr/local --with-isl=/usr/local/
 
+Compile kernel modules
+
+1. Download last firmware from [Netgear](https://kb.netgear.com/2649/NETGEAR-Open-Source-Code-for-Programmers-GPL) ReadyNAS devices running RAIDiator 4.1 (NV / NV+ / 1100 / Duo) GPL Bundle, RAIDiator 4.1.16
+
+
 
 
 
