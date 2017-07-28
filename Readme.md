@@ -8,7 +8,7 @@ For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_Re
 I reset my readynas and did the following steps:
 
 Because netgear turned off there package repository you can't get the customized netgear packages like libc6-dev for the debian system.
-You can get the contained files from the libc6-dev folder. You only need to copy them to the system root partion /.
+You can get the contained files from the [libc6-dev](https://github.com/mfe-/ReadyNASDuoSparc/tree/master/libc6-dev) folder. You only need to copy them to the system root partion /.
 
 1. Remove netgear sources from apt.sources
 2. apt-get update
