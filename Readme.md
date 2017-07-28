@@ -5,7 +5,7 @@ This repository contains information, binaries, scripts regarding the readynas d
 For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_ReadyNAS
 
 <h2>Init</h2>
-I did a factory reset on the readynas and did the following steps:
+I reset my readynas and did the following steps:
 
 Because netgear turned off there package repository you can't get the customized netgear packages like libc6-dev for the debian system.
 You can get the contained files from the libc6-dev folder. You only need to copy them to the system root partion /.
