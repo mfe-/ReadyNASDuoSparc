@@ -45,4 +45,15 @@ Install gcc 4.0.4 from source
 19. create a new folder outside of the gcc sourcefolder called gcc-4.0.4-compiled
 20. cd to gcc-4.0.4-compiled
 21. ../gcc-4.0.4/configure --prefix=/opt/gcc-4.0.4 --mandir=/usr/share/man --infodir=/usr/share/info --with-cpu=v7 --enable-objc-gc --enable-shared --enable-__cxa_atexit --with-system-zlib --enable-nls --without-included-gettext --enable-clocale=gnu --enable-languages=c,c++ --build=sparc-linux --host=sparc-linux
+22. make && make install
+23. export LD_LIBRARY_PATH=/opt/gcc-4/lib:/usr/local/lib/ or add it to /root/.bashrc
+24. checkinstall --dpkgflags=--force-overwrite make install #create .deb package
+Use the new gcc by setting CC and CXX. For example ./configure CC=/opt/gcc-4/bin/gcc CXX=/opt/gcc-4/bin/g++
+
+Install last gnu enviroment libraries
+
+25. 
+
+
+
 
