@@ -3,7 +3,10 @@
 This repository contains information, binaries, scripts regarding the readynas duo v1 sparc machine from netgear.</p>
 "The ReadyNAS RAIDiator 4.1.x firmware is a 32-bit SPARC Debian derivative mated to a Linux 2.6.17 kernel with numerous proprietary drivers"
 For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_ReadyNAS
-
+<h2>Hints</h2>
+If there is no space left on the root partition you can workaround the issue with:
+<li>mount --bind /path/to/dir/with/plenty/of/space /tmp</ li>
+<li>symlink</ li>
 <h2>Init</h2>
 I reset my readynas and did the following steps:
 
