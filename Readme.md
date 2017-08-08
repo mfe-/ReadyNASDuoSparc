@@ -79,6 +79,9 @@ Compile kernel modules
 1. Download last firmware from [Netgear](https://kb.netgear.com/2649/NETGEAR-Open-Source-Code-for-Programmers-GPL) ReadyNAS devices running RAIDiator 4.1 (NV / NV+ / 1100 / Duo) GPL Bundle, RAIDiator 4.1.16
 
 
-
+<h2>Issues</h2>
+<br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81579 sanitizer_platform_limits_linux.cc:37:15: error: conflicting declaration ‘typedef __gid_t __kernel_gid_t’ </br>
+<br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81451 - missing futex check - libgo/runtime/thread-linux.c:12:0 futex.h:13:12: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘long’</br>
+<br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56827 Building Go support for gcc 4.8.0 fails on Linux: undefined type ‘SockFilter’ </br>
 
 
