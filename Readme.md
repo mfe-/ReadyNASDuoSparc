@@ -67,7 +67,7 @@ Install last gnu enviroment libraries
 34. install expat
 35. install libxml
 36. install gettext
-37. install texinfo version <5 otherwise you can compile gcc 4.6
+37. install texinfo version <5 otherwise you can't compile gcc 4.6
 38. install ils
 
 Install gcc 4.6
