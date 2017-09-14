@@ -86,4 +86,5 @@ Compile kernel modules
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81449 - runtime.inc:782:28: error: field ‘__sem_lock’ has incomplete type
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82043 - error: redefinition of ... 
-
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE' 
