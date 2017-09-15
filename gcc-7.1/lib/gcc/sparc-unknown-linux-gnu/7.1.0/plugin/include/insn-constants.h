@@ -1,0 +1,182 @@
+/* Generated automatically by the program `genconstants'
+   from the machine description file `md'.  */
+
+#ifndef GCC_INSN_CONSTANTS_H
+#define GCC_INSN_CONSTANTS_H
+
+#define O3_REG 11
+#define F0_REG 32
+#define L3_REG 19
+#define FCC2_REG 98
+#define I3_REG 27
+#define O6_REG 14
+#define F3_REG 35
+#define L6_REG 22
+#define F24_REG 56
+#define I6_REG 30
+#define F48_REG 80
+#define F6_REG 38
+#define F11_REG 43
+#define F31_REG 63
+#define F9_REG 41
+#define F17_REG 49
+#define F15_REG 47
+#define G2_REG 2
+#define F34_REG 66
+#define F40_REG 72
+#define F50_REG 82
+#define F28_REG 60
+#define F46_REG 78
+#define CC_REG 100
+#define L1_REG 17
+#define I1_REG 25
+#define FCC3_REG 99
+#define O4_REG 12
+#define F10_REG 42
+#define F1_REG 33
+#define L2_REG 18
+#define L4_REG 20
+#define I4_REG 28
+#define F56_REG 88
+#define O7_REG 15
+#define F4_REG 36
+#define FCC0_REG 96
+#define L7_REG 23
+#define F44_REG 76
+#define I7_REG 31
+#define F2_REG 34
+#define F7_REG 39
+#define I2_REG 26
+#define F19_REG 51
+#define G0_REG 0
+#define GSR_REG 102
+#define SFP_REG 101
+#define F54_REG 86
+#define G5_REG 5
+#define G3_REG 3
+#define F62_REG 94
+#define G6_REG 6
+#define F5_REG 37
+#define F38_REG 70
+#define F27_REG 59
+#define F25_REG 57
+#define F16_REG 48
+#define FCC1_REG 97
+#define O2_REG 10
+#define F36_REG 68
+#define F32_REG 64
+#define F42_REG 74
+#define F26_REG 58
+#define O5_REG 13
+#define F23_REG 55
+#define O1_REG 9
+#define L5_REG 21
+#define I5_REG 29
+#define F52_REG 84
+#define F60_REG 92
+#define F14_REG 46
+#define F30_REG 62
+#define F8_REG 40
+#define F29_REG 61
+#define F22_REG 54
+#define G1_REG 1
+#define F58_REG 90
+#define F12_REG 44
+#define F20_REG 52
+#define G4_REG 4
+#define F18_REG 50
+#define O0_REG 8
+#define G7_REG 7
+#define L0_REG 16
+#define F21_REG 53
+#define I0_REG 24
+#define F13_REG 45
+
+enum unspec {
+  UNSPEC_MOVE_PIC = 0,
+  UNSPEC_UPDATE_RETURN = 1,
+  UNSPEC_LOAD_PCREL_SYM = 2,
+  UNSPEC_FRAME_BLOCKAGE = 3,
+  UNSPEC_MOVE_PIC_LABEL = 4,
+  UNSPEC_SETH44 = 5,
+  UNSPEC_SETM44 = 6,
+  UNSPEC_SETHH = 7,
+  UNSPEC_SETLM = 8,
+  UNSPEC_EMB_HISUM = 9,
+  UNSPEC_EMB_TEXTUHI = 10,
+  UNSPEC_EMB_TEXTHI = 11,
+  UNSPEC_EMB_TEXTULO = 12,
+  UNSPEC_EMB_SETHM = 13,
+  UNSPEC_MOVE_GOTDATA = 14,
+  UNSPEC_MEMBAR = 15,
+  UNSPEC_ATOMIC = 16,
+  UNSPEC_TLSGD = 17,
+  UNSPEC_TLSLDM = 18,
+  UNSPEC_TLSLDO = 19,
+  UNSPEC_TLSIE = 20,
+  UNSPEC_TLSLE = 21,
+  UNSPEC_TLSLD_BASE = 22,
+  UNSPEC_FPACK16 = 23,
+  UNSPEC_FPACK32 = 24,
+  UNSPEC_FPACKFIX = 25,
+  UNSPEC_FEXPAND = 26,
+  UNSPEC_MUL16AU = 27,
+  UNSPEC_MUL16AL = 28,
+  UNSPEC_MUL8UL = 29,
+  UNSPEC_MULDUL = 30,
+  UNSPEC_ALIGNDATA = 31,
+  UNSPEC_FCMP = 32,
+  UNSPEC_PDIST = 33,
+  UNSPEC_EDGE8 = 34,
+  UNSPEC_EDGE8L = 35,
+  UNSPEC_EDGE16 = 36,
+  UNSPEC_EDGE16L = 37,
+  UNSPEC_EDGE32 = 38,
+  UNSPEC_EDGE32L = 39,
+  UNSPEC_ARRAY8 = 40,
+  UNSPEC_ARRAY16 = 41,
+  UNSPEC_ARRAY32 = 42,
+  UNSPEC_SP_SET = 43,
+  UNSPEC_SP_TEST = 44,
+  UNSPEC_EDGE8N = 45,
+  UNSPEC_EDGE8LN = 46,
+  UNSPEC_EDGE16N = 47,
+  UNSPEC_EDGE16LN = 48,
+  UNSPEC_EDGE32N = 49,
+  UNSPEC_EDGE32LN = 50,
+  UNSPEC_BSHUFFLE = 51,
+  UNSPEC_CMASK8 = 52,
+  UNSPEC_CMASK16 = 53,
+  UNSPEC_CMASK32 = 54,
+  UNSPEC_FCHKSM16 = 55,
+  UNSPEC_PDISTN = 56,
+  UNSPEC_FUCMP = 57,
+  UNSPEC_FHADD = 58,
+  UNSPEC_FHSUB = 59,
+  UNSPEC_XMUL = 60,
+  UNSPEC_MUL8 = 61,
+  UNSPEC_MUL8SU = 62,
+  UNSPEC_MULDSU = 63,
+  UNSPEC_ADDV = 64,
+  UNSPEC_SUBV = 65,
+  UNSPEC_NEGV = 66
+};
+#define NUM_UNSPEC_VALUES 67
+extern const char *const unspec_strings[];
+
+enum unspecv {
+  UNSPECV_BLOCKAGE = 0,
+  UNSPECV_PROBE_STACK_RANGE = 1,
+  UNSPECV_FLUSHW = 2,
+  UNSPECV_SAVEW = 3,
+  UNSPECV_FLUSH = 4,
+  UNSPECV_LDSTUB = 5,
+  UNSPECV_SWAP = 6,
+  UNSPECV_CAS = 7,
+  UNSPECV_LDFSR = 8,
+  UNSPECV_STFSR = 9
+};
+#define NUM_UNSPECV_VALUES 10
+extern const char *const unspecv_strings[];
+
+#endif /* GCC_INSN_CONSTANTS_H */
