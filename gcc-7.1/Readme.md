@@ -1,4 +1,3 @@
-
 # Install
 
 1. Copy this folder (gcc-7.1) to /c/opt/
@@ -9,3 +8,7 @@
 5. Add folder to LD_LIBRARY with `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-7.1/lib/`
 6. `chmod +x /opt/gcc-7.1/bin/*`
 7. Set CC and CXX param when compiling stuff e.g. ./configure CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++
+
+# Requirements:
+
+1. libisl.so.15
