@@ -11,4 +11,7 @@
 
 # Requirements:
 
-1. libisl.so.15
+1. libisl
+2. mpc
+3. gmp
+4. mpfr
