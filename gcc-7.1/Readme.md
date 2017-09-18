@@ -11,6 +11,8 @@
 
 # Requirements:
 
+When installing the packages and you encounter an error while processing the deb packages try for example ` dpkg -i --force-overwrite ../mpc-1.0.3_1.0.3-1_sparc.deb     `
+
 1. libisl
 2. mpc
 3. gmp
