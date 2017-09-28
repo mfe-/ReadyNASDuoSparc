@@ -1,0 +1,43 @@
+#!/bin/sh
+# Trigger a segfault-inducing bug with -i in grep-2.14 on Cygwin.
+
+# Copyright (C) 2013-2017 Free Software Foundation, Inc.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. "${srcdir=.}/init.sh"; path_prepend_ ../src
+
+require_en_utf8_locale_
+require_compiled_in_MB_support
+
+fail=0
+
+printf '\360\220\220\205\n' > in || framework_failure_
+
+LC_ALL=en_US.UTF-8
+export LC_ALL
+
+# On Cygwin, before grep-2.15, this would segfault.
+# Require not just non-zero exit status, but exactly 1.
+returns_ 1 grep -i anything-else in > out 2>&1 || fail=1
+# Expect no output.
+compare /dev/null out || fail=1
+
+# Also test whether a surrogate-pair in the search string works.
+for opt in '' -i -E -F -iE -iF; do
+  grep --file=in $opt in > out 2>&1 || fail=1
+  compare out in || fail=1
+done
+
+Exit $fail

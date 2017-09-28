@@ -1,0 +1,79 @@
+open-safer.o: open-safer.c ../config.h fcntl-safer.h sys/types.h \
+ /usr/include/sys/types.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h \
+ /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+ /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ /usr/include/bits/typesizes.h time.h /usr/include/time.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/bits/time.h \
+ /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+ /usr/include/bits/sched.h fcntl.h /usr/include/fcntl.h \
+ /usr/include/bits/fcntl.h sys/stat.h /usr/include/xlocale.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/sys/stat.h \
+ /usr/include/bits/stat.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h \
+ unistd-safer.h
+
+../config.h:
+
+fcntl-safer.h:
+
+sys/types.h:
+
+/usr/include/sys/types.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/wordsize.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+/usr/include/bits/typesizes.h:
+
+time.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/sched.h:
+
+fcntl.h:
+
+/usr/include/fcntl.h:
+
+/usr/include/bits/fcntl.h:
+
+sys/stat.h:
+
+/usr/include/xlocale.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/sys/stat.h:
+
+/usr/include/bits/stat.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h:
+
+unistd-safer.h:

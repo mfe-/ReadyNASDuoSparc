@@ -1,0 +1,46 @@
+#!/bin/sh
+# Ensure that case-insensitive matching works with all Turkish i's
+
+# Copyright (C) 2014-2017 Free Software Foundation, Inc.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+. "${srcdir=.}/init.sh"; path_prepend_ ../src
+
+require_compiled_in_MB_support
+
+fail=0
+
+L=tr_TR.UTF-8
+
+# Check for a broken tr_TR.UTF-8 locale definition.
+# In this locale, 'i' is not a lower-case 'I'.
+echo I | LC_ALL=$L grep -i i > /dev/null \
+    && skip_ "your $L locale appears to be broken"
+
+# Ensure that this matches:
+# printf 'I:İ ı:i\n'|LC_ALL=tr_TR.utf8 grep -i 'ı:i I:İ'
+I=$(printf '\304\260') # capital I with dot
+i=$(printf '\304\261') # lowercase dotless i
+
+      data="I:$I $i:i"
+search_str="$i:i I:$I"
+printf "$data\n" > in || framework_failure_
+
+for opt in -E -F -G; do
+  LC_ALL=$L grep $opt -i "$search_str" in > out || fail=1
+  compare out in || fail=1
+done
+
+Exit $fail

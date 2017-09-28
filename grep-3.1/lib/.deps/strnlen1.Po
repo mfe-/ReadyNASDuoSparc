@@ -1,0 +1,34 @@
+strnlen1.o: strnlen1.c ../config.h strnlen1.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ string.h /usr/include/string.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h \
+ /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h /usr/include/xlocale.h \
+ /usr/include/bits/string.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h \
+ stdlib.h /usr/include/stdlib.h
+
+../config.h:
+
+strnlen1.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+string.h:
+
+/usr/include/string.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/bits/string.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h:
+
+stdlib.h:
+
+/usr/include/stdlib.h:

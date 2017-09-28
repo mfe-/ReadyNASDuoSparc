@@ -1,0 +1,36 @@
+#!/bin/sh
+# Test Perl regex with context
+. "${srcdir=.}/init.sh"; path_prepend_ ../src
+require_pcre_
+
+cat >in <<'EOF'
+Preceded by 0 empty lines.
+
+Preceded by 1 empty line.
+
+
+Preceded by 2 empty lines.
+
+
+
+Preceded by 3 empty lines.
+
+
+
+
+Preceded by 4 empty lines.
+
+EOF
+test $? -eq 0 || framework_failure_
+
+printf '%s\0' \
+       'Preceded by 2 empty lines.' \
+       'Preceded by 3 empty lines.' \
+       'Preceded by 4 empty lines.' >exp || framework_failure_
+
+fail=0
+
+grep -Pzo '(?<=\n\n\n).*' in >out || fail_ 'grep -Pzo failed'
+compare exp out || fail=1
+
+Exit $fail

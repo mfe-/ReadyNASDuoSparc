@@ -1,0 +1,82 @@
+unistd.o: unistd.c ../config.h unistd.h unistd.h /usr/include/unistd.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h \
+ /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/wordsize.h /usr/include/bits/types.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ /usr/include/bits/typesizes.h /usr/include/bits/confname.h getopt.h \
+ /usr/include/getopt.h getopt-cdefs.h getopt-pfx-core.h getopt-core.h \
+ getopt-pfx-ext.h getopt-ext.h sys/types.h /usr/include/sys/types.h \
+ time.h /usr/include/time.h /usr/include/endian.h \
+ /usr/include/bits/endian.h /usr/include/sys/select.h \
+ /usr/include/bits/select.h /usr/include/bits/sigset.h \
+ /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/bits/sched.h
+
+../config.h:
+
+unistd.h:
+
+unistd.h:
+
+/usr/include/unistd.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/bits/types.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/bits/confname.h:
+
+getopt.h:
+
+/usr/include/getopt.h:
+
+getopt-cdefs.h:
+
+getopt-pfx-core.h:
+
+getopt-core.h:
+
+getopt-pfx-ext.h:
+
+getopt-ext.h:
+
+sys/types.h:
+
+/usr/include/sys/types.h:
+
+time.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/sched.h:

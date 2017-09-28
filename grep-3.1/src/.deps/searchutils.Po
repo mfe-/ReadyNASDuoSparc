@@ -1,0 +1,265 @@
+searchutils.o: searchutils.c ../config.h search.h ../lib/sys/types.h \
+ /usr/include/sys/types.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h \
+ /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+ /usr/include/bits/types.h /usr/include/bits/wordsize.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ /usr/include/bits/typesizes.h ../lib/time.h /usr/include/time.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/bits/time.h \
+ /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+ /usr/include/bits/sched.h ../lib/stdint.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdint.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/stdint.h \
+ /usr/include/bits/wchar.h ../lib/limits.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/limits.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/stdio_lim.h ../lib/wchar.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/wchar.h \
+ ../lib/stdio.h /usr/include/stdio.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h \
+ /usr/include/xlocale.h ../lib/wctype.h /usr/include/libio.h \
+ /usr/include/_G_config.h /usr/include/gconv.h \
+ /usr/include/bits/sys_errlist.h /usr/include/wctype.h ../lib/regex.h \
+ system.h ../lib/fcntl.h /usr/include/fcntl.h /usr/include/bits/fcntl.h \
+ ../lib/sys/stat.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/sys/stat.h \
+ /usr/include/bits/stat.h ../lib/unistd.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h ../lib/getopt.h /usr/include/getopt.h \
+ ../lib/getopt-cdefs.h ../lib/getopt-pfx-core.h ../lib/getopt-core.h \
+ ../lib/getopt-pfx-ext.h ../lib/getopt-ext.h /usr/include/errno.h \
+ /usr/include/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/asm/errno.h /usr/include/asm-generic/errno-base.h \
+ ../lib/configmake.h ../lib/dirname.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h \
+ ../lib/dosname.h ../lib/ignore-value.h ../lib/minmax.h \
+ /usr/include/sys/param.h /usr/include/linux/param.h \
+ /usr/include/asm/param.h ../lib/same-inode.h ../lib/stdlib.h \
+ /usr/include/stdlib.h /usr/include/bits/waitflags.h \
+ /usr/include/bits/waitstatus.h ../lib/alloca.h ../lib/string.h \
+ /usr/include/string.h /usr/include/bits/string.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h \
+ ../lib/ctype.h /usr/include/ctype.h ../lib/gettext.h \
+ /usr/include/libintl.h ../lib/locale.h /usr/include/locale.h \
+ /usr/include/bits/locale.h ../lib/unlocked-io.h grep.h ../lib/dfa.h \
+ kwset.h ../lib/arg-nonnull.h ../lib/xalloc.h ../lib/xalloc-oversized.h \
+ ../lib/localeinfo.h
+
+../config.h:
+
+search.h:
+
+../lib/sys/types.h:
+
+/usr/include/sys/types.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/wordsize.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+/usr/include/bits/typesizes.h:
+
+../lib/time.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/sched.h:
+
+../lib/stdint.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdint.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/stdint.h:
+
+/usr/include/bits/wchar.h:
+
+../lib/limits.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/limits.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/usr/include/bits/stdio_lim.h:
+
+../lib/wchar.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/wchar.h:
+
+../lib/stdio.h:
+
+/usr/include/stdio.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h:
+
+/usr/include/xlocale.h:
+
+../lib/wctype.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/gconv.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/wctype.h:
+
+../lib/regex.h:
+
+system.h:
+
+../lib/fcntl.h:
+
+/usr/include/fcntl.h:
+
+/usr/include/bits/fcntl.h:
+
+../lib/sys/stat.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/sys/stat.h:
+
+/usr/include/bits/stat.h:
+
+../lib/unistd.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+../lib/getopt.h:
+
+/usr/include/getopt.h:
+
+../lib/getopt-cdefs.h:
+
+../lib/getopt-pfx-core.h:
+
+../lib/getopt-core.h:
+
+../lib/getopt-pfx-ext.h:
+
+../lib/getopt-ext.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+../lib/configmake.h:
+
+../lib/dirname.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h:
+
+../lib/dosname.h:
+
+../lib/ignore-value.h:
+
+../lib/minmax.h:
+
+/usr/include/sys/param.h:
+
+/usr/include/linux/param.h:
+
+/usr/include/asm/param.h:
+
+../lib/same-inode.h:
+
+../lib/stdlib.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+../lib/alloca.h:
+
+../lib/string.h:
+
+/usr/include/string.h:
+
+/usr/include/bits/string.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h:
+
+../lib/ctype.h:
+
+/usr/include/ctype.h:
+
+../lib/gettext.h:
+
+/usr/include/libintl.h:
+
+../lib/locale.h:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+../lib/unlocked-io.h:
+
+grep.h:
+
+../lib/dfa.h:
+
+kwset.h:
+
+../lib/arg-nonnull.h:
+
+../lib/xalloc.h:
+
+../lib/xalloc-oversized.h:
+
+../lib/localeinfo.h:
