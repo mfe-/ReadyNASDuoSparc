@@ -1,4 +1,4 @@
- <h1>ReadyNASDuoSparc</h1>
+<h1>ReadyNASDuoSparc</h1>
 
 This repository contains information, binaries, scripts regarding the readynas duo v1 sparc machine from netgear.</p>
 "The ReadyNAS RAIDiator 4.1.x firmware is a 32-bit SPARC Debian derivative mated to a Linux 2.6.17 kernel with numerous proprietary drivers"
@@ -9,7 +9,7 @@ If there is no space left on the root partition you can workaround the issue wit
 1. mount --bind /path/to/dir/with/plenty/of/space /tmp</ li>
 2. symlink
 3. create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /usr/local/share/ make install`
-4. use `dpkg -i --force-all whatever.deb`
+4. use ` dpkg -i --force-overwrite whatever.deb`
 
 <h2>Init</h2>
 I reset my readynas and did the following steps:
