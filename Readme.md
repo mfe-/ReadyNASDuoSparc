@@ -6,9 +6,10 @@ For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_Re
 <h2>Hints</h2>
 If there is no space left on the root partition you can workaround the issue with:
 
-1.  mount --bind /path/to/dir/with/plenty/of/space /tmp</ li>
-2.  symlink
-3.  create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /var/backups/infodir.bak //-D make install`
+1. mount --bind /path/to/dir/with/plenty/of/space /tmp</ li>
+2. symlink
+3. create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /usr/local/share/ make install`
+4. use `dpkg -i --force-all whatever.deb`
 
 <h2>Init</h2>
 I reset my readynas and did the following steps:
