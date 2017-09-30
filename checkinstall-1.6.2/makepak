@@ -1,0 +1,191 @@
+#!/bin/sh
+# Copyright 1994, 1998  Patrick Volkerding, Moorhead, Minnesota USA 
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# Wed Mar 18 15:32:33 CST 1998
+# Patched to avoid possible symlink attacks in /tmp.
+#
+# Sat Dec 09 2000 - Felipe Sanchez <izto@asic-linux.com.mx>
+# Removed the code for the questions about symlinks and sane permissions
+# They are useless to CheckInstall
+#
+# Fri Jul 20 2001 - Felipe Sanchez <izto@asic-linux.com.mx>
+# Included the patch made to makepkg in the Slackware 8.0 release.
+#
+# Fri Jun 04 2004 - Felipe Sanchez <izto@asic-linux.com.mx>
+# Check for the existence of the directory before creating the
+# symlinks in make_install_script().
+
+
+make_install_script() {
+ COUNT=1
+ LINE="`sed -n "$COUNT p" $1`"
+ while [ ! "$LINE" = "" ]; do
+  LINKGOESIN="`echo "$LINE" | cut -f 1 -d " "`" 
+  LINKGOESIN="`dirname $LINKGOESIN`" 
+  LINKNAMEIS="`echo "$LINE" | cut -f 1 -d ' '`"
+  LINKNAMEIS="`basename "$LINKNAMEIS"`"
+  LINKPOINTSTO="`echo "$LINE" | cut -f 3 -d ' '`"
+  echo "( cd $LINKGOESIN && rm -rf $LINKNAMEIS )"
+  echo "( cd $LINKGOESIN && ln -sf $LINKPOINTSTO $LINKNAMEIS )"
+  COUNT=`expr $COUNT + 1`
+  LINE="`sed -n "$COUNT p" $1`"
+ done
+}
+
+usage() {
+ cat << EOF
+
+Usage: makepkg package_name.tgz
+
+Makes a Slackware compatible "*.tgz" package containing the contents of the 
+current and all subdirectories. If symbolic links exist, they will be removed
+and an installation script will be made to recreate them later. This script
+will be called "install/doinst.sh". You may add any of your own ash-compatible
+shell scripts to this file and rebuild the package if you wish.
+
+EOF
+}
+
+TMP=/tmp # This can be a hole, but I'm going to be careful about file
+         # creation in there, so don't panic. :^)
+
+# These tests, while by no means exhaustive, will give a usage message
+# and exit with a wide range of bad input.
+
+if [ ! $# = 1 -a ! $# = 0 ]; then
+ usage;
+ exit
+fi
+echo
+echo "Slackware package maker, version 1.1-CheckInstall"
+if [ $# = 0 ]; then
+ usage;
+ echo "You have not provided a name for this package."
+ echo -n "What would you like to call it? "
+ read PACKAGE_NAME;
+else
+ PACKAGE_NAME=$1
+fi
+TARGET_NAME="`dirname $PACKAGE_NAME`"
+PACKAGE_NAME="`basename $PACKAGE_NAME`"
+TAR_NAME="`basename $PACKAGE_NAME .tgz`"
+echo
+echo "Searching for symbolic links:"
+# Get rid of possible pre-existing trouble:
+rm -rf $TMP/iNsT-a.$$
+touch $TMP/iNsT-a.$$
+
+# In Slackware 8.0 the makepkg script is patched to fix an "off-by-one"
+# problem in the "find . -type ....." line below. This will set the
+# right number to use if we're running on that version.
+
+if ( grep 8 /etc/slackware-version &> /dev/null ); then 
+   BYTE_COUNT=59
+else
+   BYTE_COUNT=58
+fi
+
+find . -type l -exec ls -l {} \; | cut -b${BYTE_COUNT}- | tee $TMP/iNsT-a.$$
+if [ ! "`filesize $TMP/iNsT-a.$$`" = "0" ]; then
+ echo
+ echo "Making symbolic link creation script:"
+ make_install_script $TMP/iNsT-a.$$ | tee doinst.sh
+fi
+echo
+if [ ! "`filesize $TMP/iNsT-a.$$`" = "0" ]; then
+# if [ -r install/doinst.sh ]; then
+#  echo "Unless your existing installation script already comtains the code"
+#  echo "to create these links, you should append these lines to your existing"
+#  echo "install script. Now's your chance. :^)"
+#  echo
+#  echo "Would you like to add this stuff to the existing install script and"
+#  echo -n "remove the symbolic links ([y]es, [n]o)? "
+# else
+#  echo "It is recommended that you make these lines your new installation script."
+#  echo
+#  echo "Would you like to make this stuff the install script for this package"
+#  echo -n "and remove the symbolic links ([y]es, [n]o)? "
+# fi
+# read SCRIPTADD;
+SCRIPTADD="y"
+ if [ "$SCRIPTADD" = "y" ]; then
+  if [ -r install/doinst.sh ]; then
+   UPDATE="t"
+   cat doinst.sh >> install/doinst.sh
+  else
+   mkdir install
+   cat doinst.sh > install/doinst.sh
+  fi
+  echo
+  echo "Removing symbolic links:"
+  find . -type l -exec rm -v {} \;
+  echo
+  if [ "$UPDATE" = "t" ]; then
+   echo "Updating your ./install/doinst.sh..."
+  else
+   echo "Creating your new ./install/doinst.sh..."
+  fi
+ fi
+else
+ echo "No symbolic links were found, so we won't make an installation script."
+ echo "You can make your own later in ./install/doinst.sh and rebuild the"
+ echo "package if you like."
+fi
+rm -f doinst.sh $TMP/iNsT-a.$$
+#echo
+#echo "This next step is optional - you can set the directories in your package"
+#echo "to some sane permissions. If any of the directories in your package have"
+#echo "special permissions, then DO NOT reset them here!"
+#echo 
+#echo "Would you like to reset all directory permissions to 755 (drwxr-xr-x) and"
+#echo -n "directory ownerships to root.root ([y]es, [n]o)? "
+#read PERMS;
+PERMS="n"
+echo
+if [ "$PERMS" = "y" ]; then
+ find . -type d -exec chmod -v 755 {} \; 
+ find . -type d -exec chown -v root.root {} \;
+fi
+echo
+echo "Creating tar file $TAR_NAME.tar..."
+echo
+$TAR -cvf $TAR_NAME.tar .
+# Warn of zero-length files:
+find . -type f -size 0c | while read file ; do
+  echo "WARNING: zero length file $file"
+done
+find . -type f -name '*.gz' -size 20c | while read file ; do
+  echo "WARNING: possible empty gzipped file $file"
+done
+echo
+echo "Gzipping $TAR_NAME.tar..."
+gzip -9 $TAR_NAME.tar
+echo
+echo "Renaming $TAR_NAME.tar.gz to $PACKAGE_NAME..."
+mv $TAR_NAME.tar.gz $PACKAGE_NAME
+if [ ! "$TARGET_NAME" = "." ]; then
+  echo
+  echo "Moving $PACKAGE_NAME to $TARGET_NAME..."
+  mv $PACKAGE_NAME $TARGET_NAME
+fi
+echo
+echo "Package creation complete."
+echo

@@ -1,0 +1,676 @@
+##############################################################################
+#                       #     checkinstall 1.6.2    #                        #
+#                       #############################                        #
+#                                                                            #
+#  Installs a compiled program from the program's source directory using     #
+#  "make install" or any other command supplied on checkinstall's command    #
+#  line. checkinstall will create a Slackware, RPM or Debian compatible      #
+#  package and install it using your distribution's standard package         #
+#  administration utilities.                                                 #
+#                                                                            #
+#  This version of checkinstall needs enough free space on the partition     #
+#  holding the temp dir (/var/tmp by default) to write there a               #
+#  temporary copy of the package.                                            #
+#                                                                            #
+##############################################################################
+
+====== CONTENTS ======
+
+1. Introduction
+
+2. Usage
+
+ 2.1. Download, configure, build
+
+ 2.2. The "doc-pak" directory
+
+ 2.3. Package description
+
+ 2.4. Preinstall, postinstall, preremove and postremove
+
+ 2.5. Package information
+
+ 2.6. Package creation
+
+    2.6.1 Slackware packages
+
+    2.6.2 RPM packages
+
+    2.6.3 Debian packages
+
+3. Customization
+
+    3.1. The checkinstallrc file
+
+    3.2. Command line switches
+
+    3.3. Native language support
+
+4. Notes
+
+
+====== 1. INTRODUCTION ====== 
+
+    A lot of people has asked me how can they remove from their boxes a program
+they compiled and installed from source. Some times - very few - the program's
+author adds an "uninstall" rule to the Makefile, but that's not usually the
+case. That's my primary reason to write checkinstall. After you ./configure;make
+your program, It will run "make install" (or whatever you tell it to run) and
+keep track of every file modified by this installation, using the excellent
+installwatch utility written by Pancrazio 'Ezio' de Mauro <p at demauro.net>.
+
+When "make install" is done, checkinstall will create a Slackware, RPM or
+Debian package and install it with Slackware's installpkg, "rpm -i" or "dpkg -i"
+as appropriate, so you can view it's contents in /var/log/packages or remove it 
+with removepkg (for Slackware), "rpm -ql" and "rpm -e" (RPM) or "dpkg -I" and
+"dpkg -r" (Debian).
+
+
+Additionally, this script will leave a copy of the installed package in the
+source directory or in the storage directory you specify (see the PAK_DIR option
+later in the checkinstallrc file) so you can install it wherever you want,
+which is my second motivation: I don't have to compile the same software again 
+and again every time I need to install it on another box  :-).
+
+
+Another nice thing about checkinstall is that it can be run simultaneously by 
+any number of users and each instance will get only the files modified by it's 
+processes and no one else's, unlike some other tools based on a
+"find / -atime etc etc etc". Not to mention that checkinstall is A LOT faster =)
+
+
+It is important to note that checkinstall can keep track of files modified by
+any command line, not just a "make install". You can create your own
+installation script with lots of command in it and then have checkinstall track 
+them for you.
+
+
+
+====== 2. USAGE ====== 
+
+
+== 2.1 ==  Download, configure, build
+
+o Download your software, i.e. Afterstep-1.8.4.tgz
+
+o Extract the files:
+
+  tar xzvf Afterstep-1.8.4
+
+o cd to the source directory, configure and compile:
+
+  cd Afterstep-1.8.4
+  ./configure
+  make
+
+== 2.2 ==  The "doc-pak" directory
+
+o Optionally you can make a directory called "doc-pak" whose contents
+  will be installed in /usr/doc/<package_name> inside the package you're
+  about to create. checkinstall will remind you about this one if it notices
+  there is no "doc-pak" on the source directory. Good candidates to be there
+  are: README, INSTALL, COPYING, Changelog, TODO, CREDITS, etc. It's up to you
+  what to copy in there.
+
+  mkdir doc-pak
+  cp README INSTALL COPYING Changelog TODO CREDITS doc-pak
+
+  As of checkinstall-1.1 if you don't create the "doc-pak" directory then
+  checkinstall will ask if you want it to build a default documentation 
+  directory with files having common documentation names like those mentioned 
+  in the above paragraph. If you say no, your package will have no 
+  documentation.
+
+
+== 2.3 ==  Package description (Changed in checkinstall-1.3.0)
+
+  If you create a file named "description-pak" it's contents will be used to
+  include a description and summary in the new package, which will be
+  displayed when you use "pkgtool" or "rpm -qi". For example:
+
+  Create the file "description-pak":
+
+  ----------------------  Cut here ----------------------
+  AfterStep window manager
+
+  The one and only!
+  This is a window manager with a NexT inspiration.
+  ----------------------  Cut here ----------------------
+
+  If checkinstall doesn't find that file it will create one, asking you
+  for a description to put in it.
+
+  NOTE: Slackware's pkgtool doesn't seem to handle package filenames longer
+  than 8 characters when displaying the package list in the "Remove" section,
+  but the "View" option works OK. I hope that Pat or someone can take the
+  time to fix this. I'll try to fix it myself if i find the time to do it.
+
+  As a result, I've decided not to prepend every line in the PACKAGE
+  DESCRIPTION section of the /var/log/packages entry with package-name:. It is
+  difficult to read in the /var/log/packages file and it's pretty useless in
+  the pkgtool's remove package section listing. The description is stored
+  "as is".
+
+  Anyway, it's not that bad.. ;-)
+
+  NOTE 2: As of checkinstall 1.5.3, support for the new (8.1+) Slackware 
+  description file format is included, available when using the "--newslack"
+  command line switch. 
+
+== 2.4 ==  Preinstall, postinstall, preremove and postremove scripts
+
+ CheckInstall supports preinstall, postinstall, preremove and postremove
+ scripts for RPM and Debian packages.
+
+ For Debian, these scripts must meet some requirements to be accepted by dpkg
+ while building the .deb package. See:
+
+ http://www.debian.org/doc/debian-policy/ch-maintainerscripts.html
+
+ In short, any shell script will do as long as it specifies an interpreter
+ (i.e. put #!/bin/sh as the first line) and has an exit status of zero for
+ success or non-zero for failure.
+
+ To include the scripts in your package, put them in the current directory
+ and name them:
+
+ +-----------------+--------------------------------------+
+ |  Script name    |                Action                |
+ +--------------------------------------------------------+
+ | preinstall-pak  | Run BEFORE the package is INSTALLED  |
+ +--------------------------------------------------------+
+ | postinstall-pak | Run AFTER the package is INSTALLED   |
+ +--------------------------------------------------------+
+ | preremove-pak   | Run BEFORE the package is REMOVED    |
+ +--------------------------------------------------------+
+ | postremove-pak  | Run AFTER the package is REMOVED     |
+ +--------------------------------------------------------+
+
+ All scripts are optional. You can write all of them if you need them, or
+ only the ones you need, or even none.
+
+ Remember that the scripts are run only when the .rpm or .deb package is
+ installed or removed. NOT when the initial install command (i.e. "make
+ install") is run.
+
+ For Slackware packages, the "postinstall-pak" script is already supported as
+ "install-pak". Either name will work.
+
+
+== 2.5 ==  Package information
+
+  CheckInstall will display a menu with several values that can be customized
+  for this package, like the package's name, version, release number, etc.
+
+  Most of the values are self-descriptive, however there are three values that
+  deserve special attention: "Name", "Source Location" and "Alternate Source
+  Location".
+
+  The "Name" field allows you to change the name for the package you are about
+  to create. This is useful when CheckInstall fails to properly set this name
+  from the source directory's name. This also applies to the version field.
+
+  The "Source Location" values are -for now- only hooks for the upcoming
+  "auto-unpack-configure-compile-install" feature in future CheckInstall's
+  versions. The "Source Location" will tipically be the original source archive
+  and the "Alternate Source Location" would be some FTP or HTTP URL where the
+  source archive can be retrieved from. Keep your eyes on these ones  ;-).
+
+  Please note that as of checkinstall-1.5.0 (not 1.5.0betax) all of these values
+  can be specified via command line options. See the COMMAND LINE OPTIONS
+  section below.
+
+== 2.6 ==  Package creation
+
+o You normally would su and make install. Now it's only su:
+
+  su
+  password: xxxxx
+
+o Run checkinstall:
+
+  checkinstall
+
+  NOTE: If you give no arguments to checkinstall it will run a "make install".
+  If you give arguments, the first non-option argument will be used as the
+  install command. This is useful when the install command is not "make install"
+  but something else like "make install_packages" or "setup" or whatever, i.e. 
+
+  checkinstall make install_packages
+  checkinstall make modules_install
+  checkinstall install.sh
+  checkinstall setup
+  checkinstall rpm -i my-package-1.0.i386-1.rpm
+
+
+== 2.6.1 ==  Slackware packages
+
+o checkinstall will ask if you want to see the installation results, then run
+  the modified Slackware package maker "makepak". If you want checkinstall to
+  use the original Slackware's "makepkg" then change the MAKEPKG variable
+  inside the checkinstall script and read this:
+
+  makepkg will ask you a couple of questions:
+  
+  If there are any symbolic links in the installed package it will ask you
+  to remove them and make an installation script to re-create them whenever
+  you install the package. This is a GOOD THING, so answer YES. --> BTW,
+  makepkg doesn't always ask you this (depending on whether you have symbolic
+  links or not) so be careful and read before you answer, you could be
+  answering the wrong question. Read on:
+  
+  makepkg will *always* ask if you want to change the owner, group and
+  permissions of EVERY file in the package to root:root:755. This is BAD most
+  of the times, always answer NO to that question, unless you know
+  what you are doing, of course  ;)
+  
+
+o In the end, checkinstall will install the package with installpkg so you
+  can remove it later with Slackware's removepkg (Our initial intention :) ).
+  Additionally, it will leave a copy of the package in the source directory, 
+  the package's name will be name-version-architecture-release.tgz. Using the
+  Afterstep example, the file would be named Afterstep-1.8.4-i386-1.tgz.
+
+  Starting with checkinstall-1.5.1, the created packages will be named
+  using the new (post-Slackware 8.0) Slackware package naming scheme.
+
+o You can add a customized installation script which will be run by "installpkg"
+  every time you use it to install your new package.
+
+  Write it and name it "install-pak" or "postinstall-pak" and checkinstall will
+  include it for you.
+
+  This script can be useful to set up the system to fit the newly installed
+  package: create new users, set permissions, initialize databases, rcscripts,
+  etc.
+
+
+== 2.6.2 ==  RPM package creation support
+
+ CheckInstall has the ability to build binary RPM packages. After you write 
+ the package's description the script will prompt you to choose a package
+ type. If you chose RPM ("R") then it will figure out some sane values and write
+ a minimal spec file. You can of course supply your own file, in this case
+ checkinstall will use the values you put in there to build the rpm and skip
+ the spec file writing step. If any problems arise while building/installing
+ the rpm you'll get a chance to see the log files and figure out what went
+ wrong.
+
+
+== 2.6.3 ==  Debian package creation support
+
+
+That's right, CheckInstall can now create Debian packages. Do I need to say
+more?  =)
+
+The Debian support in CheckInstall is still new, so handle it with care.
+It has been reported to work OK in some Debian systems and it certainly works 
+OK in my Slackware development system with dpkg installed. Your mileage may
+vary. 
+
+And of course, it it *does* vary, I'd really like it if you send me a message
+telling me about it so I can fix it  ;-).
+
+NOTE to non-Debian-based users:
+===============================
+
+To build Debian packages you need the dpkg utility. I got mine from:
+
+   http://www.debian.org/Packages/unstable/base/dpkg.html
+
+Also, you should have all of your basic filesystem structure included
+("installed") in your dpkg database, or you won't be able to remove most
+.deb packages installed (either checkinstall-generated ones or not). dpkg 
+seems to be unwilling to remove things like "/", "/usr" and such, wich are
+obviously included in nearly every package you install. The way to avoid this
+particular problem is to have a "base" package installed containing those
+directories, in this way dpkg won't complain about removing other packages.
+
+I've put a "aaa_base-1.0-1.deb" package in the CheckInstall's home page as a
+work-around for this problem. Install it with "dpkg -i aaa_base-1.0-1.deb" and 
+then forget about it  =).
+
+"dpkg -I aaa_base-1.0-1.deb" should give you some useful info about the package.
+
+
+
+====== 3. CheckInstall customization ======
+
+
+== 3.1 ==  The checkinstallrc file
+
+CHANGE in CheckInstall 1.4.0:
+
+ The variable declaration section in the checkinstall script has been removed,
+ you should now edit the checkinstallrc file, normally installed under 
+ /usr/local/lib/checkinstall.
+
+
+ In the checkinstallrc file you will find some variables wich modify
+ checkinstall's default behaviour. They're described here (and are also well
+ commented in the file, BTW).
+
+
+The checkinstallrc values are these:
+
+o DEBUG: Set the debug level               (Default: 0)
+   0 => No debug
+   1 => Keep all files except the ones inside the package
+   3 => Keep those files too.
+   
+o INSTALLWATCH_PREFIX: Prefix to installwatch's library and program
+   
+o INSTALLWATCH: Location of the installwatch program
+
+o MAKEPKG: Location of Slackware's makepkg
+
+   Location of the makepkg program. "makepak" is the default, and is
+   included with checkinstall. If you want to use Slackware's native "makepkg"
+   then set this to "makepkg"                                                 
+
+o MAKEPKG_FLAGS: makepkg optional flags. 
+
+   These are recommended if running a newer Slackware version: "-l y -c n"
+
+o SHOW_MAKEPKG: Boolean (Default: 0)
+
+   Show -or not- the results of the MAKEPKG command as it runs. Useful when
+   running it with interactive options. If checkinstall seems to halt and
+   sleep after saying "Building Slackware package..." then you might want to
+   set this to 1.
+
+o BASE_TMP_DIR: Prefix to all checkinstall's temporary files/dirs
+   
+   NEVER, EVER set this to "/tmp" or "/". Setting it to "/tmp" will
+   change /tmp's permission to 700 (definitely no good) and setting it
+   to "/" one will erase all of your files by means of a "rm -rf /*". 
+   
+   You have been warned!
+
+o DOC_DIR: Where to place the installed document files
+
+o ARCHITECTURE: Default target architecture for the package.  (Default: empty)
+
+   If your rpm program is configured to build packages for i686 instead of i386
+   (for example) then you'll find this handy to avoid the need to tell
+   checkinstall your architecture type every time it is run. The default is
+   auto-detect.
+
+o INSTYPE: What kind of packages are we building?       (Default: empty)
+
+   Set it to "S" for Slackware's .tgz, "R" for RedHat and friends' .rpm,
+   "D" for Debian and leave it empty to have checkinstall ask you every time.
+
+o RPM_FLAGS: RPM install command optional flags.
+
+o DPKG_FLAGS: dpkg install command optional flags.
+
+o PAK_DIR: Package storage directory
+
+   If non-empty, all the created packages will be saved in this directory.
+   In this way you can keep all of your packages in one place.
+
+o CKUMASK: Set the umask to this value (Default: 0022)
+
+o SHOW_INSTALL: Boolean  (0 or 1)  (Default: 1)
+   Show -or not- the results of the install command as it runs. Useful for
+   interactive install commands.
+
+o SHOW_SLACK_INSTALL: Boolean  (0 or 1)  (Default: 0)
+   Show -or not- the results of the Slackware's installpkg command as it runs. 
+   As the option above, this can be useful for interactive install scripts.
+
+o DEL_DOCPAK: Boolean (Default: 1)
+   Delete -or not- the "doc-pak" directory upon program's termination.
+
+o DEL_SPEC: Boolean   (Default: 1)
+   Delete -or not- the .spec file upon termination.
+
+o DEL_DESC: Boolean   (Default: 1)
+   Delete -or not- the "description-pak" file.
+
+o STRIP_ELF: Boolean  (Default: 1)
+   Strip -or not- any ELF binaries found inside the package.
+
+o STRIP_SO_ELF: Boolean (Default: 0)
+   Automatically strip all ELF shared libraries?
+   Note: this setting will automatically be set to "0" if STRIP_ELF=0
+
+o ADD_SO: Boolean (Default: 0)
+   Automatically search for shared libraries and add them to /etc/ld.so.conf?
+
+o COMPRESS_MAN: Boolean (Default: 1)
+   Automatically compress all man pages?
+
+o BACKUP: Boolean (Default: 1)
+   Backup -or not- any pre-existent files that would be overwritten by the
+   package installation.
+
+o AUTODOINST: Boolean (Default: 1)
+   Write a doinst.sh script wich will be executed everytime you install the
+   package with installpkg.
+
+o NEW_SLACK: Boolean (Default: 1) 
+   Use the new (8.1+) Slackware description file format?
+         
+o EXCLUDE: Comma delimited list
+   List of files/directories to be ignored when searching for files to be
+   included in the package.
+
+   Example: EXCLUDE="/dev,/tmp,bad_file,bad_dir"
+
+o CK_INCLUDE_FILE: Path to a file
+   This file should contain a list of files and directories that will
+   be included in the package in addition to the ones installed by your
+   installation command. The files or directories should be listed one per line.
+
+   Example: INCLUDE="/home/include-list.txt"
+
+o ACCEPT_DEFAULT: Boolean (Default: 0)
+  Accept default values for all questions?
+
+o CK_INSPECT: Boolean
+   Enable inspection of the list of files that will be included in the package,
+   before the package is created.
+
+o REVIEW_SPEC: Boolean
+   Enable review of the .spec file before the creation of a RPM package.
+
+o REVIEW_CONTROL: Boolean
+   Enable review of the Debian control file before the creation of
+   a Debian package.
+
+o INSTALL: Boolean
+   Install or not the package as we create it.
+
+== 3.2 ==  Command line options
+
+Starting at version 1.4.0, checkinstall supports a lot of command line
+switches, which if specified will override the options set in the
+checkinstallrc file.
+
+
+The command line options are these:
+ 
+Usage: checkinstall [options] [command [command arguments]]
+Options:
+
+*Package type selection*
+
+-t,--type=<slackware|rpm|debian> Choose packaging system
+-S                               Build a Slackware package
+-R                               Build a RPM package
+-D                               Build a Debian package
+
+*Install options*
+
+--install=<yes|no>             Toggle created package installation
+--fstrans=<yes|no>             Enable/disable the filesystem translation code
+
+*Scripting options*
+
+-y, --default                  Accept default answers to all questions
+--pkgname=<name>               Set name
+--pkgversion=<version>         Set version
+-A, --arch, --pkgarch=<arch>   Set architecture
+--pkgrelease=<release>         Set release
+--pkglicense=<license>         Set license
+--pkggroup=<group>             Set software group
+--pkgsource=<source>           Set source location
+--pkgaltsource=<altsource>     Set alternate source location
+--pakdir=<directory>           The new package will be saved here
+--maintainer=<email addr>      The package maintainer (.deb)
+--provides=<list>              Features provided by this package (.rpm)
+--requires=<list>              Features required by this package (.rpm)
+--rpmflags=<flags>             Pass this flags to the rpm installer
+--rpmi                         Use the -i flag for rpm when installing a .rpm
+--rpmu                         Use the -U flag for rpm when installing a .rpm
+--dpkgflags=<flags>            Pass this flags to the dpkg installer
+--spec=<path>                  .spec file location
+--nodoc                        Do not include documentacion files
+
+*Info display options*
+
+-d<0|1|2>                      Set debug level
+-si                            Run an interactive install command
+--showinstall=<yes|no>         Toggle interactive install command
+-ss                            Run an interactive Slackware installation script
+--showslack=<yes|no>           Toggle interactive Slackware installation script
+
+*Package tuning options*
+
+--autodoinst=<yes|no>          Toggle the creation of a doinst.sh script
+--strip=<yes|no>               Strip any ELF binaries found inside the package
+--stripso=<yes|no>             Strip any ELF binary libraries (.so files)
+--addso=<yes|no>               Search for any shared libs and add
+                               them to /etc/ld.so.conf
+--reset-uids=<yes|no>          Reset perms for all files/dirs to 755 aand
+                               the owner/group for all dirs to root.root
+--gzman=<yes|no>               Compress any man pages found inside the package
+--docdir=<path>                Where to put documentation files
+--umask=<mask>                 Set the umask value
+--exclude=<file|dir[,...]>     Exclude these files/directories from the package
+--include=<listfile>           Force the inclusion in the package of the
+                               files/dirs listed in "listfile"
+--inspect                      Inspect the package's file list
+--review-spec                  Review the spec file before creating a .rpm
+--review-control               Review the control file before creating a .deb
+--newslack                     Use the new (8.1+) Slackware description format
+                               ("--newslack" implies "-S")
+--with-tar=/path/to/tar        Manually set the path to the tar binary
+                               in this system
+
+*Cleanup options*
+
+--deldoc=<yes|no>              Delete doc-pak upon termination
+--deldesc=<yes|no>             Delete description-pak upon termination
+--delspec=<yes|no>             Delete spec file upon termination
+--bk                           Backup any overwritten files
+--backup=<yes|no>              Toggle backup
+
+*About CheckInstall*
+
+--help, -h                     Show this message
+--copyright                    Show Copyright information
+--version                      Show version information
+
+
+== 3.3 ==  Native Language Support
+
+Checkinstall now uses GNU gettext to support native language translation of
+all messages sent to the terminal. Set your LC_ALL variable to your
+ISO-639 language and ISO-3166 country codes. For example, to set spanish and
+Mexico you would use:
+
+export LC_ALL=es_MX
+
+
+Translators needed!
+
+Please read the file NLS_SUPPORT for information on how to translate
+checkinstall if your language is not already supported.
+
+The supported languages so far are:
+
+o English
+o Spanish
+
+
+====== 4. Notes ======
+
+ So far I've seen -or heard of- checkinstall running and building packages
+ in these distributions/operating systems:
+
+  o Slackware 7.x/8.x,9.x
+  o RedHat 6.2/7.x/8.x
+  o SuSe 7.x/8.x/9.x
+  o Mandrake 7.x/8.x/9.x
+  o Gentoo Linux
+  o Solaris (version?)
+  o Debian 2.x/3.0
+
+  In x86, ppc, sparc and arm, BTW.
+
+ If you have succesfully used checkinstall in some other distro I'd really
+ appreciate if you let me know  =).
+
+ CheckInstall currently is unable to track any file system changes made by
+ statically linked programs. This is being worked on and I hope to have it ready
+ in a couple of weeks or so. Then again, it could be a couple of months, but the
+ important thing is that it will be ready soon  ;). 
+
+ NOTE ON SUID/SGID PROGRAMS: CheckInstall can't track their actions because of
+ some limitations in the LD_PRELOAD system that installwatch uses. This is 
+ good for security reasons, but it can generate unexpected results when
+ the installation process uses SUID/SGID binaries. 
+
+ So, before asking questions about some files not being included in your
+ package, check the binaries that you're using   ;-).
+
+ SLACKWARE 8.0 USERS:
+
+ Slack8.0 ships with a statically linked "ln", so any symlinks your installation
+ process creates WON'T be detected nor included in your package. The way to
+ fix this is to substitute your static "ln" for a dynamically linked one, like
+ the one from a Slackware 7.x installation. There's link to download it
+ from the CheckInstall's homepage.
+
+ Debian support is now included!
+  
+ UPDATE jan-18-2001: RPM support is already in place, inst2rpm supplied the
+ template for the mini-spec file used by checkinstall. Thanks to
+ Jon A. Christopher for writing it.
+
+ Another thing in the works is the addition of a friendlier interface based on 
+ the dialog tool (which will give us curses-like character based menus AND X11
+ graphical menus at no extra cost =) )
+                    
+ There are some extra features planned like package updating, automated friendly
+ installation process going from extracting the files to the installation
+ including configure options, build, etc. 
+ 
+ Sometime in the future I will rewrite this in C/Gtk or something, too.
+
+ Ideas, bug reports, patches, etc:
+
+  * CheckInstall author:     <izto at asic-linux.com.mx>
+
+------------
+
+  * CheckInstall users list: <checkinstall-list at asic-linux.com.mx>
+
+  To join the list, send an empty message to: 
+
+    <checkinstall-list-subscribe at asic-linux.com.mx>
+
+------------
+
+  * CheckInstall developers list: <checkinstall-devel at asic-linux.com.mx>
+
+  To join the list, send an empty message to: 
+
+    <checkinstall-devel-subscribe at asic-linux.com.mx>
+
+
+==========
+

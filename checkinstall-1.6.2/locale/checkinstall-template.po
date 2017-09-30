@@ -1,0 +1,633 @@
+# MESSAGES FOR CHECKINSTALL-1.6.0beta1 in <put your language here>
+# Copyright (C) 2002 Felipe Eduardo Sanchez Diaz Duran
+# Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>, 2002.
+#
+#
+# Replace the above and following info with the appropriate data for
+# your name, date and language.
+#
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.6.0beta1\n"
+"POT-Creation-Date: 2002-11-27 00:58-0600\n"
+"PO-Revision-Date:  2002-11-27 00:58-0600\n"
+"Last-Translator: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>\n"
+"Language-Team: ES <izto@asic-linux.com.mx>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "           This software is released under the GNU GPL."
+msgstr ""
+
+msgid "Usage: checkinstall [options] [command [command arguments]]"
+msgstr ""
+
+msgid "Options:"
+msgstr ""
+
+msgid "*Package type selection*"
+msgstr ""
+
+msgid "-t,--type=<slackware|rpm|debian> Choose packaging system"
+msgstr ""
+
+msgid "-S                               Build a Slackware package"
+msgstr ""
+
+msgid "-R                               Build a RPM package"
+msgstr ""
+
+msgid "-D                               Build a Debian package"
+msgstr ""
+
+msgid "*Install options*"
+msgstr ""
+
+msgid "--install=<yes|no>             Toggle created package installation"
+msgstr ""
+
+msgid "*Scripting options*"
+msgstr ""
+
+msgid "-y, --default                  Accept default answers to all questions"
+msgstr ""
+
+msgid "--pkgname=<name>               Set name"
+msgstr ""
+
+msgid "--pkgversion=<version>         Set version"
+msgstr ""
+
+msgid "-A, --arch, --pkgarch=<arch>   Set architecture"
+msgstr ""
+
+msgid "--pkgrelease=<release>         Set release"
+msgstr ""
+
+msgid "--pkglicense=<license>         Set license"
+msgstr ""
+
+msgid "--pkggroup=<group>             Set software group"
+msgstr ""
+
+msgid "--pkgsource=<source>           Set source location"
+msgstr ""
+
+msgid "--pkgaltsource=<altsource>     Set alternate source location"
+msgstr ""
+
+msgid "--pakdir=<directory>           The new package will be saved here"
+msgstr ""
+
+msgid "--maintainer=<email addr>      The package maintainer (.deb)"
+msgstr ""
+
+msgid "--provides=<list>              Features provided by this package (.rpm)"
+msgstr ""
+
+msgid "--requires=<list>              Features required by this package (.rpm)"
+msgstr ""
+
+msgid "--rpmflags=<flags>             Pass this flags to the rpm installer"
+msgstr ""
+
+msgid "--dpkgflags=<flags>            Pass this flags to the dpkg installer"
+msgstr ""
+
+msgid "--spec=<path>                  .spec file location"
+msgstr ""
+
+msgid "--nodoc                        Do not include documentation files"
+msgstr ""
+
+msgid "*Info display options*"
+msgstr ""
+
+msgid "-d<0|1|2>                      Set debug level"
+msgstr ""
+
+msgid "-si                            Run an interactive install command"
+msgstr ""
+
+msgid "--showinstall=<yes|no>         Toggle interactive install command"
+msgstr ""
+
+msgid ""
+"-ss                            Run an interactive Slackware installation "
+"script"
+msgstr ""
+
+msgid ""
+"--showslack=<yes|no>           Toggle interactive Slackware installation "
+"script"
+msgstr ""
+
+msgid "*Package tuning options*"
+msgstr ""
+
+msgid ""
+"--autodoinst=<yes|no>          Toggle the creation of a doinst.sh script"
+msgstr ""
+
+msgid ""
+"--strip=<yes|no>               Strip any ELF binaries found inside the "
+"package"
+msgstr ""
+
+msgid ""
+"--stripso=<yes|no>             Strip any ELF binary libraries (.so files)"
+msgstr ""
+
+msgid ""
+"--gzman=<yes|no>               Compress any man pages found inside the "
+"package"
+msgstr ""
+
+msgid "--docdir=<path>                Where to put documentation files"
+msgstr ""
+
+msgid "--umask=<mask>                 Set the umask value"
+msgstr ""
+
+msgid ""
+"--exclude=<file|dir[,...]>     Exclude these files/directories from the "
+"package"
+msgstr ""
+
+msgid "--include=<listfile>           Force the inclusion in the package of the"
+msgstr ""
+
+msgid "--inspect                      Inspect the package's file list"
+msgstr ""
+
+msgid ""
+"--review-spec                  Review the spec file before creating a .rpm"
+msgstr ""
+
+msgid ""
+"--review-control               Review the control file before creating a .deb"
+msgstr ""
+
+
+msgid ""
+"--newslack                     Use the new (8.1+) Slackware description "
+"format"
+msgstr ""
+
+msgid "                               (\"--newslack\" implies \"-S\")"
+msgstr ""
+
+msgid "*Cleanup options*"
+msgstr ""
+
+msgid "--deldoc=<yes|no>              Delete doc-pak upon termination"
+msgstr ""
+
+msgid "--deldesc=<yes|no>             Delete description-pak upon termination"
+msgstr ""
+
+msgid "--delspec=<yes|no>             Delete spec file upon termination"
+msgstr ""
+
+msgid "--bk                           Backup any overwritten files"
+msgstr ""
+
+msgid "--backup=<yes|no>              Toggle backup"
+msgstr ""
+
+msgid "*About CheckInstall*"
+msgstr ""
+
+msgid "--help, -h                     Show this message"
+msgstr ""
+
+msgid "--copyright                    Show Copyright information"
+msgstr ""
+
+msgid "--version                      Show version information"
+msgstr ""
+
+msgid "Use --help or -h to get more information"
+msgstr ""
+
+msgid "is an invalid value for"
+msgstr ""
+
+msgid "Restoring overwritten files from backup..."
+msgstr ""
+
+msgid "*** SIGINT received ***"
+msgstr ""
+
+msgid "Cleaning up..."
+msgstr ""
+
+msgid "Bye."
+msgstr ""
+
+msgid "The checkinstallrc file was not found at:"
+msgstr ""
+
+msgid "Assuming default values."
+msgstr ""
+
+msgid "I can't find $INSTALLWATCH."
+msgstr ""
+
+msgid "I can't continue. Either install installwatch or"
+msgstr ""
+
+msgid "modify the INSTALLWATCH variable in this script,"
+msgstr ""
+
+msgid "then run checkinstall again."
+msgstr ""
+
+msgid "My temp dir exists already."
+msgstr ""
+
+msgid "This looks like a symlink attack!"
+msgstr ""
+
+msgid "*** Aborting"
+msgstr ""
+
+msgid "is an unacceptable value for the temp dir. Please"
+msgstr ""
+
+msgid "edit the variable definition for"
+msgstr ""
+
+msgid "and try again."
+msgstr ""
+
+msgid "**** Failed to create temp dir!"
+msgstr ""
+
+msgid "**** Do you have write permission for ${BASE_TMP_DIR}?"
+msgstr ""
+
+msgid "The package documentation directory ./doc-pak does not exist."
+msgstr ""
+
+msgid "Should I create a default set of package docs? "
+msgstr ""
+
+msgid "Preparing package documentation..."
+msgstr ""
+
+msgid "*** No known documentation files were found. The new package"
+msgstr ""
+
+msgid "*** won't include a documentation directory."
+msgstr ""
+
+msgid "Copying documentation directory..."
+msgstr ""
+
+msgid "Installing with"
+msgstr ""
+
+msgid ""
+"========================= Installation results ==========================="
+msgstr ""
+
+msgid ""
+"======================== Installation successful =========================="
+msgstr ""
+
+msgid "****  Installation failed. Aborting package creation."
+msgstr ""
+
+msgid "Do you want to view the installation log file? "
+msgstr ""
+
+msgid "Some of the files created by the installation are inside the build"
+msgstr ""
+
+msgid "directory: `pwd`"
+msgstr ""
+
+msgid "You probably don't want them to be included in the package,"
+msgstr ""
+
+msgid "especially if they are inside your home directory."
+msgstr ""
+
+msgid "Do you want me to list them? "
+msgstr ""
+
+msgid "Should I exclude them from the package? (Saying yes is a good idea) "
+msgstr ""
+
+msgid "You requested to review the list of files that will be"
+msgstr ""
+
+msgid "included in this package."
+msgstr ""
+
+msgid "Now you'll have the chance to review and optionally modify it."
+msgstr ""
+
+msgid "Now you'll have the chance to review and optionally modify this file."
+msgstr ""
+
+msgid "Press ENTER to continue."
+msgstr ""
+
+msgid "Copying files to the temporary directory..."
+msgstr ""
+
+msgid "Striping ELF binaries and libraries..."
+msgstr ""
+
+msgid "Striping ELF binaries..."
+msgstr ""
+
+msgid "Compressing man pages..."
+msgstr ""
+
+msgid "Building file list..."
+msgstr ""
+
+msgid "Please choose the packaging method you want to use."
+msgstr ""
+
+msgid "Slackware [S], RPM [R] or Debian [D]? "
+msgstr ""
+
+msgid "Please write a description for the package."
+msgstr ""
+
+msgid " Remember that pkgtool shows"
+msgstr ""
+
+msgid "only the first one when listing packages so make that one descriptive."
+msgstr ""
+
+msgid "End your description with an empty line or EOF."
+msgstr ""
+
+msgid "Package created with checkinstall $CHECKINSTALL_VERSION"
+msgstr ""
+
+msgid "Warning: Your package description is bigger than 11 lines."
+msgstr ""
+
+msgid "Warning: The Slackware 8.1+ pkgtools might not like it."
+msgstr ""
+
+msgid "*** Warning: The package name"
+msgstr ""
+
+msgid "contains upper case"
+msgstr ""
+
+msgid "*** Warning: letters. dpkg might not like that so I changed"
+msgstr ""
+
+msgid "*** Warning: them to lower case."
+msgstr ""
+
+msgid "*** Warning: The package version \"${VERSION}\" does not"
+msgstr ""
+
+msgid "*** Warning: contain any digits. dpkg might not like that."
+msgstr ""
+
+msgid "This package will be built according to these values: "
+msgstr ""
+
+msgid "0 -  Maintainer:"
+msgstr ""
+
+msgid "1 -  Summary:"
+msgstr ""
+
+msgid "2 -  Name:"
+msgstr ""
+
+msgid "3 -  Version:"
+msgstr ""
+
+msgid "5 -  License:"
+msgstr ""
+
+msgid "6 -  Group:"
+msgstr ""
+
+msgid "7 -  Architecture:"
+msgstr ""
+
+msgid "8 -  Source location:"
+msgstr ""
+
+msgid "9 -  Alternate source location:"
+msgstr ""
+
+msgid "10 - Provides:"
+msgstr ""
+
+msgid "11 - Requires:"
+msgstr ""
+
+msgid "Enter a number to change any of them or press ENTER to continue: "
+msgstr ""
+
+msgid "Enter new summary: "
+msgstr ""
+
+msgid "Enter new name: "
+msgstr ""
+
+msgid "Enter new version: "
+msgstr ""
+
+msgid "Enter new release number: "
+msgstr ""
+
+msgid "Enter the license type: "
+msgstr ""
+
+msgid "Enter the new software group: "
+msgstr ""
+
+msgid "Enter the architecture type: "
+msgstr ""
+
+msgid "Enter the source location: "
+msgstr ""
+
+msgid "Enter the alternate source location: "
+msgstr ""
+
+msgid "Enter the maintaner's name and e-mail address: "
+msgstr ""
+
+msgid "Enter the provided features: "
+msgstr ""
+
+msgid "Enter the additional requirements: "
+msgstr ""
+
+msgid "********************************************"
+msgstr ""
+
+msgid "**** Slackware package creation selected ***"
+msgstr ""
+
+msgid "*** The \"installpkg\" program is not in your PATH!"
+msgstr ""
+
+msgid "*** Slackware package creation aborted"
+msgstr ""
+
+msgid "Preparing Slackware install directory..."
+msgstr ""
+
+msgid "Writing package description..."
+msgstr ""
+
+msgid "Writing Slackware install script..."
+msgstr ""
+
+msgid "Appending your script to the main install script..."
+msgstr ""
+
+msgid "Creating package ${SLACK_PKG_BASENAME}..."
+msgstr ""
+
+msgid "Installing package..."
+msgstr ""
+
+msgid "*** Failed to install the package"
+msgstr ""
+
+msgid "Do you want to see the log file? "
+msgstr ""
+
+msgid "NOTE: The package will not be installed."
+msgstr ""
+
+msgid "**************************************"
+msgstr ""
+
+msgid "**** RPM package creation selected ***"
+msgstr ""
+
+msgid "*** The \"rpm\" program is not in your PATH!"
+msgstr ""
+
+msgid "*** RPM package creation aborted"
+msgstr ""
+
+msgid "$RPMSOURCEDIR has no SOURCES directory. Please write the path to"
+msgstr ""
+
+msgid "the RPM source directory tree: "
+msgstr ""
+
+msgid "You requested to review the .spec file for this package."
+msgstr ""
+
+msgid "Building RPM package..."
+msgstr ""
+
+msgid "*** Failed to build the package"
+msgstr ""
+
+msgid "Warning: the use of RPMFLAGS is deprecated."
+msgstr ""
+
+msgid "Warning: You should now use RPM_FLAGS,"
+msgstr ""
+
+msgid "Warning: please update your checkinstallrc file."
+msgstr ""
+
+msgid "Installing RPM package..."
+msgstr ""
+
+msgid "NOTE: The package will not be installed"
+msgstr ""
+
+msgid "*****************************************"
+msgstr ""
+
+msgid "**** Debian package creation selected ***"
+msgstr ""
+
+msgid "*** The \"dpkg\" program is not in your PATH!"
+msgstr ""
+
+msgid "*** Debian package creation aborted"
+msgstr ""
+
+msgid "You requested to review the control file for this package."
+msgstr ""
+
+msgid "Building Debian package..."
+msgstr ""
+
+msgid "Installing Debian package..."
+msgstr ""
+
+msgid "*** No method was selected, I won't build any package."
+msgstr ""
+
+msgid "*** The installation command \"$INSTALLCMD\""
+msgstr ""
+
+msgid "*** has already been executed."
+msgstr ""
+
+msgid "The package storage directory"
+msgstr ""
+
+msgid "doesn't exist. Do you want to create it?"
+msgstr ""
+
+msgid "Creating package storage directory..."
+msgstr ""
+
+msgid "*** Unable to create $PAK_DIR"
+msgstr ""
+
+msgid "Transferring package to"
+msgstr ""
+
+msgid "There's no package storage directory, the package"
+msgstr ""
+
+msgid "will be stored at the default location."
+msgstr ""
+
+msgid "Erasing temporary files..."
+msgstr ""
+
+msgid "Deleting doc-pak directory..."
+msgstr ""
+
+msgid "Writing backup package..."
+msgstr ""
+
+msgid "Deleting temp dir..."
+msgstr ""
+
+msgid "Building debug information package..."
+msgstr ""
+
+msgid " Done. The new package has been installed and saved to"
+msgstr ""
+
+msgid " You can remove it from your system anytime using: "
+msgstr ""
+
+msgid " Done. The new package has been saved to"
+msgstr ""
+
+msgid " You can install it in your system anytime using: "
+msgstr ""

@@ -1,0 +1,70 @@
+FAQ
+
+   1. I ran CheckInstall and everything seems to run fine, but when I check my
+      new package I only find the documentation files!
+
+
+      CheckInstall can't trace (yet) the actions of three kind of binaries:
+          * SUID programs
+          * SGID programs
+          * Statically linked binaries
+
+      You may now go to check the binaries you're using in the installation
+      process   ;-).
+
+
+   2. I built my Linux system from scratch (LFS, anyone?) and nothing gets
+      included in the packages I create with CheckInstall!
+      
+
+      Most likely you installed GNU make from source, which by default installs
+      the make binary with SUID and/or SGID permissions. A quick fix:
+
+      chmod 0755 `which make`
+
+      Which means to remove the SUID and SGID bits from the make binary.
+
+      Please refer to the first question in this FAQ for the details.
+
+
+   3. I use Slackware Linux 8.0 and the symbolic links created by my
+      installation do not get into the package!
+      
+
+      The ln binary shipped with Slackware 8.0 is statically linked. Replace it
+      with a dynamically linked one.
+
+      The one shipped with Slackware 7.1 works just fine. You can download it
+      here: http://checkinstall.izto.org/ln.gz 
+
+      Please refer to the first question in this FAQ for the details.
+
+
+   4. I used CheckInstall to install the latest XFree86 distribution, but the
+      drivers are being corrupted! If I install XFree86 without CheckInstall
+      everything runs fine. Is this some evil bug?
+      
+
+      It's not a bug. It's your driver's files being stripped by the automatic
+      ELF stripping process. Run checkinstall with the "--strip=no" command
+      line option.
+
+
+   5. I use a RPM based distribution and CheckInstall says it built the rpm
+      package OK but reports an error when installing the .rpm file:
+      
+      Building RPM package...OK
+      Installing RPM package... FAILED!
+      And in the install.log file I find something like this:
+
+      error: open of /usr/src/RPM/RPMS/i386/package-1.0-1.i386.rpm failed no
+             such file or directory
+
+      What's wrong?
+
+      There's something wrong with your RPM installation. Check your system and
+      see if the "rpm-build" and "spec-helper" packages are installed. Also
+      verify that their versions match the version of the rpm binary installed
+      in your system.
+
+$Id: FAQ,v 1.6 2002/11/25 21:54:19 izto Exp $

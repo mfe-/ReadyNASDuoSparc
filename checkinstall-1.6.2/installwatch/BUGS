@@ -1,0 +1,12 @@
+Here's a list of things that need to be fixed, in no particular order.
+
+* Installwatch does not work with programs that statically link libc. 
+  Uhm... I should take a look at strace(1)
+
+* Due to LD_PRELOAD limitations, it does not work with suid binaries
+  neither. Believe me, this is a very good thing anyway :-)
+
+* mknod(2) is not watched
+
+=============
+$Id: BUGS,v 0.6 2001/04/17 19:38:09 izto Exp $

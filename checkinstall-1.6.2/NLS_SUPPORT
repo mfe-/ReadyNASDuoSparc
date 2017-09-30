@@ -1,0 +1,55 @@
+Native Language Support
+=======================
+
+Checkinstall now uses GNU gettext to support native language translation of
+all messages sent to the terminal. Set your LC_ALL variable to your
+ISO-639 language and ISO-3166 country codes. For example, to set spanish and
+Mexico you would use:
+
+export LC_ALL=es_MX
+
+
+How to translate to your language
+=================================
+
+5 simple steps:
+
+
+1) Edit the file checkinstall-template.po and fill in the msgstr lines with
+   the translation for the phrase located in the matching msgid line.
+
+Example:
+
+- Original lines
+
+msgid "Restoring overwritten files from backup..."
+msgstr ""
+
+- Translation to spanish:
+
+msgid "Restoring overwritten files from backup..."
+msgstr "Restaurando los archivos sobreescritos..."
+
+2) After editing the file, save it as checkinstall-ll.po, where "ll" stands for 
+   your language's ISO-639 two-letter code. In the case of the example, this
+   would be "es" for spanish:
+
+checkinstall-es.po
+
+3) Now create the locale directory for your language. Remember to use the same
+   ISO codes you use in your LC_ALL environment variable:
+
+mkdir -p /usr/local/lib/checkinstall/locale/es_MX/LC_MESSAGES
+
+4) Next, you should generate the .mo binary message file. Run msgfmt:
+
+msgfmt -o /usr/local/lib/checkinstall/locale/es_MX/LC_MESSAGES/checkinstall.mo \
+     checkinstall-es.po
+
+(The above goes all in one line)
+
+5) Finally, send me an e-mail message with the .po file attached so I can
+   include it in the next checkinstall release  :-).
+
+=====================================================
+$Id: NLS_SUPPORT,v 1.6.1.1 2006/11/01 07:30:26 izto Exp $

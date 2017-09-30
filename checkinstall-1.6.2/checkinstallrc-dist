@@ -1,0 +1,139 @@
+
+#############################################################################
+                   #    CheckInstall configuration file   #
+                   ########################################
+
+####################################################################
+# These are default settings for CheckInstall, modify them as you  #
+# need. Remember that command line switches will override them.    #
+####################################################################
+
+# Debug level
+#   0: No debug
+#   1: Keep all temp files except the package's files
+#   2: Keep the package's files too
+
+DEBUG=0
+
+# Location of the "installwatch" program
+INSTALLWATCH_PREFIX="/usr/local"
+INSTALLWATCH=${INSTALLWATCH_PREFIX}/bin/installwatch
+
+# Location of the makepkg program. "makepak" is the default, and is 
+# included with checkinstall. If you want to use Slackware's native "makepkg"
+# then set this to "makepkg"
+
+MAKEPKG=/sbin/makepkg
+
+# makepkg optional flags. These are recommended if running a newer Slackware
+# version: "-l y -c n"
+
+MAKEPKG_FLAGS="-l y -c n"
+
+# Is MAKEPKG running interactively? If so, you might want
+# to see what it's doing:
+
+SHOW_MAKEPKG=0
+
+# Where will we keep our temp files?
+BASE_TMP_DIR=/var/tmp   ##  Don't set this to /tmp or / !! 
+
+# Where to place the installed document files
+DOC_DIR=""
+
+# Default architecture type (Leave it empty to allow auto-guessing)
+ARCHITECTURE=""
+
+# Default package type. Leave it empty to enable asking everytime
+#   S : Slackware
+#   R : RPM
+#   D : Debian
+
+INSTYPE=""
+
+# Storage directory for newly created packages
+# By default they will be stored at the default
+# location defined for the package type
+
+PAK_DIR=""
+
+# RPM optional flags
+RPM_FLAGS=" --force --nodeps --replacepkgs "
+
+# dpkg optional flags
+DPKG_FLAGS=""
+
+
+## These are boolean. Set them to 1 or 0
+
+# Interactively show the results of the install command (i.e. "make install")?
+# This is useful for interactive installation commands
+SHOW_INSTALL=1
+
+# Show Slackware package installation script while it runs? Again, useful if
+# it's an interactive script
+SHOW_SLACK_INSTALL=0
+
+# Automatic deletion of "doc-pak" upon termination?
+DEL_DOCPAK=1
+
+# Automatic deletion of the spec file?
+DEL_SPEC=1
+
+# Automatic deletion of "description-pak"?
+DEL_DESC=1
+
+# Automatically strip all ELF binaries?
+STRIP_ELF=1
+
+# Automatically strip all ELF shared libraries?
+# Note: this setting will automatically be set to "0" if STRIP_ELF=0
+STRIP_SO_ELF=1
+
+# Automatically search for shared libraries and add them to /etc/ld.so.conf?
+# This is experimental and could mess up your dynamic loader configuration.
+# Use it only if you know what you are doing.
+ADD_SO=0
+
+# Automatically compress all man pages?
+COMPRESS_MAN=1
+
+# Set the umask to this value
+CKUMASK=0022
+
+# Backup files overwritten or modified by your install command?
+BACKUP=1 
+
+# Write a doinst.sh file that installs your description (Slackware)?
+AUTODOINST=1
+
+# Are we going to use filesystem translation?
+TRANSLATE=1            
+
+# Reset the owner/group of all files to root.root?
+RESET_UIDS=0               
+
+# Use the new (8.1+) Slackware description file format?
+NEW_SLACK=1
+
+# Comma delimited list of files/directories to be ignored
+EXCLUDE=""
+
+# Accept default values for all questions?
+ACCEPT_DEFAULT=0
+
+# Use "-U" flag in rpm by default when installing a rpm package
+# This tells rpm to (U)pdate the package instead of (i)nstalling it.
+RPM_IU=U
+
+# Inspect the file list before creating the package
+CK_INSPECT=0
+      
+# Review the .spec file before creating a .rpm
+REVIEW_SPEC=0
+      
+# Review the control file before creating a .deb
+REVIEW_CONTROL=0
+      
+# Install the package or just create it?
+INSTALL=0

@@ -1,0 +1,87 @@
+20061101 -- 
+* getwcd() patch from David Brown
+* utimes() support from David Brown
+* access() support from David Brown
+* Makefile patch from Felipe Sateler
+
+20040613 -- version 0.7.0beta4
+* _init() patch
+
+20031214 -- version 0.7.0beta3
+* fopen64() patch
+
+20030312 -- version 0.7.0beta2 -- Thomas Rausch
+* Small patch for correct symlink call reporting
+
+20021125 -- version 0.7.0beta1 -- olivier fleurigeon
+* Added translation fs support
+
+20011122 -- version 0.6.3 --  olivier fleurigeon <olivier.fleurigeon@cegedim.fr>
+* Fixed the test-installwatch test program.
+
+20011118 -- version 0.6.2  -- Felipe Sanchez 
+* Fixed two other descriptor leaks that were causing the "Too many open files"
+  problem when tracing large installations.
+
+20011111 -- olivier fleurigeon <olivier.fleurigeon@cegedim.fr>
+* Patched installwatch.c to trace the fopen() call
+
+20010625 -- version 0.6.1 -- Felipe Sanchez <izto@asic-linux.com.mx>
+* Fixed the installwatch shell script to make it report the return status from
+  the watched program
+
+20010624 --  David Jarvie
+* Patched create-localdecls to correctly detect the libc version in systems
+  without a libc-2* file
+
+20010610 -- Christian Tusche
+* Patched installwatch.c to make it close the file descriptors in backup().
+  This prevents the "Too many open files" problem when a watched program
+  opens lots of files in one run (i.e. cp -vr / /some/dir)
+
+20010608 -- version 0.6.0 -- Felipe Sanchez
+* The backup actually works now  ;)
+
+20010415 -- version 0.6.0beta -- Felipe Sanchez
+* Added functions: backup() and makepath(). Installwatch now can make a backup
+  of any file that will be overwritten or deleted by the true glibc functions.
+
+20010301 -- version 0.5.6 -- Development now continued by 
+                             Felipe Eduardo Sanchez Diaz Duran
+                             <izto@asic-linux.com.mx>
+* Removed the RTLD_NEXT line, we'll deal with all glibc's as if they were
+  broken.
+  
+19990514 -- version 0.5.5
+* Added support for glibc2.1 (used for example in RedHat 6.0)
+* Added a test program (run "make test" to see if installwatch works
+  correctly with your configuration)
+
+19990331 -- version 0.5.4
+* inst2rpm: patch from nbecker@fred.net to detect and use renamed
+  and linked files (often used by install.sh scripts)
+
+19990325 -- version 0.5.3
+* Fixed canonicize(). It always returns absolute paths now
+  Thanks to Jon A. Christopher <jon@quorum.tamu.edu>
+* Renamed canonicize() to canonicalize(), which happens to be an
+  existing word :-)
+* Improved inst2rpm script from Jon
+
+19981107 -- version 0.5.2
+* Fixed a bug regarding non-absolute paths used with the -o option.
+  Thanks to Jon A. Christopher <jon@quorum.tamu.edu> for pointing this
+  out
+* Greg Norris <haphazard@socketis.net> has volunteered to maintain then
+  Debian package of installwatch. Thanks Greg!
+* Added the contrib section. Thanks to
+  Jon A. Christopher <jon@quorum.tamu.edu>, first contributor with the
+  inst2rpm script. Very useful!
+
+19980930 -- version 0.5.1
+* Added libc5 support
+* Cosmetic fixes on the documentation
+* Removed support for mknod(2), I'll add it again later
+
+=================
+$Id: CHANGELOG,v 0.7 2001/11/18 08:32:33 izto Exp $

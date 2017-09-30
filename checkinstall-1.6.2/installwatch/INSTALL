@@ -1,0 +1,37 @@
+Installwatch has been tested on Linux only.
+
+To compile it, a simple `make' followed by `make install' should do
+the magic.
+
+By default, it will install itself to /usr/local/{bin,lib}
+but you can change that by specifying PREFIX during install as in
+
+  make
+  make PREFIX=/usr install
+
+Also, for packagers and such, Makefile obeys DESTDIR ala Autotools.
+
+You need an ELF system, but I don't think it's a problem today...
+
+Let me know if things go wrong. My address is izto@mayams.net
+Don't forget to tell me your OS version, libraries version and every
+other relevant detail.
+
+If you want to try installwatch on itself for the first time, do
+the following instead of `make install'.
+
+Bash family:
+
+LD_PRELOAD=./installwatch.so make install
+
+Tcsh family:
+
+setenv LD_PRELOAD ./installwatch.so ; make install
+
+Of course, you must be root in the installwatch source directory.
+Remember, if you belong to the tcsh family, LD_PRELOAD will remain
+set after `make install', so be sure to clear the variable.
+
+
+================
+$Id: INSTALL,v 0.6 2001/04/17 19:38:09 izto Exp $

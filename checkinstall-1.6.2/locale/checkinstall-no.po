@@ -1,0 +1,645 @@
+# MESSAGES FOR CHECKINSTALL-1.6.0beta1 in Norwegian 
+# Copyright (C) 2002 Felipe Eduardo Sanchez Diaz Duran
+# Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>, 2002.
+#
+#
+# Replace the above and following info with the appropriate data for
+# your name, date and language.
+#
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.6.0beta1\n"
+"POT-Creation-Date: 2002-11-27 00:58-0600\n"
+"PO-Revision-Date:  2002-11-27 00:58-0600\n"
+"Last-Translator: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>\n"
+"Language-Team: ES <izto@asic-linux.com.mx>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "           This software is released under the GNU GPL."
+msgstr "          Denne programvaren er lisensiert under GNU GPL."
+
+msgid "Usage: checkinstall [options] [command [command arguments]]"
+msgstr "Bruk: checkinstall [options] [command [command arguments]]"
+
+msgid "Options:"
+msgstr "Valg:"
+
+msgid "*Package type selection*"
+msgstr "*Velg pakke*"
+
+msgid "-t,--type=<slackware|rpm|debian> Choose packaging system"
+msgstr "-t,--type=<slackware|rpm|debian> Velg pakkesystem"
+
+msgid "-S                               Build a Slackware package"
+msgstr "-S                              Bygg en Slackware pakke"
+
+msgid "-R                               Build a RPM package"
+msgstr "-R                              Bygg en RPM pakke"
+
+msgid "-D                               Build a Debian package"
+msgstr "-D                              Bygg en Debian pakke"
+
+msgid "*Install options*"
+msgstr "*Installasjons valg"
+
+msgid "--install=<yes|no>             Toggle created package installation"
+msgstr "--install=<yes|no>            Bytt ferdig pakkeinstallasjon"
+
+msgid "*Scripting options*"
+msgstr "*Scripting valg*"
+
+msgid "-y, --default                  Accept default answers to all questions"
+msgstr "-y, --default                 Godta forvalgt svar på alle"
+
+msgid "--pkgname=<name>               Set name"
+msgstr "--pkgname=<name>              Sett navn"
+ 
+msgid "--pkgversion=<version>         Set version"
+msgstr "--pkgversion=<version>        Sett versjon"
+
+msgid "-A, --arch, --pkgarch=<arch>   Set architecture"
+msgstr "-A, --arch, --pkgarch=<arch>  Sett arkitektur"
+
+msgid "--pkgrelease=<release>         Set release"
+msgstr "--pkgrelease=<release>        Sett versjon"
+
+msgid "--pkglicense=<license>         Set license"
+msgstr "--pkglicense=<license>        Sett lisens"
+
+msgid "--pkggroup=<group>             Set software group"
+msgstr "--pkggroup=<group>            Sett pakkegruppe"
+
+msgid "--pkgsource=<source>           Set source location"
+msgstr "--pkgsource=<source>          Sett kildeplassering"
+
+msgid "--pkgaltsource=<altsource>     Set alternate source location"
+msgstr "--pkgaltsource=<altsource>    Sett alternativ kildeplassering"
+
+msgid "--pakdir=<directory>           The new package will be saved here"
+msgstr "--pakdir=<directory>          Den nye pakken vil bli lagret her"
+
+msgid "--maintainer=<email addr>      The package maintainer (.deb)"
+msgstr "--maintainer=<email addr>     Pakke byggeren (.deb)"
+
+msgid "--provides=<list>              Features provided by this package (.rpm)"
+msgstr ""
+
+msgid "--requires=<list>              Features required by this package (.rpm)"
+msgstr ""
+
+msgid "--rpmflags=<flags>             Pass this flags to the rpm installer"
+msgstr ""
+
+msgid "--dpkgflags=<flags>            Pass this flags to the dpkg installer"
+msgstr ""
+
+msgid "--spec=<path>                  .spec file location"
+msgstr ""
+
+msgid "--nodoc                        Do not include documentation files"
+msgstr ""
+
+msgid "*Info display options*"
+msgstr ""
+
+msgid "-d<0|1|2>                      Set debug level"
+msgstr ""
+
+msgid "-si                            Run an interactive install command"
+msgstr ""
+
+msgid "--showinstall=<yes|no>         Toggle interactive install command"
+msgstr ""
+
+msgid ""
+"-ss                            Run an interactive Slackware installation "
+"script"
+msgstr ""
+
+msgid ""
+"--showslack=<yes|no>           Toggle interactive Slackware installation "
+"script"
+msgstr ""
+
+msgid "*Package tuning options*"
+msgstr "*Tuning av pakker*"
+
+msgid ""
+"--autodoinst=<yes|no>          Toggle the creation of a doinst.sh script"
+msgstr ""
+"--autodoinst=<yes|no>         Valg av bygging av et doinst.sh script"
+
+msgid ""
+"--strip=<yes|no>               Strip any ELF binaries found inside the "
+"package"
+msgstr ""
+"--strip=<yes|no>               Avkle alle ELF Binærer funnet inni "
+"pakke"
+
+msgid ""
+"--stripso=<yes|no>             Strip any ELF binary libraries (.so files)"
+msgstr ""
+"--stripso=<yes|no>      Avkle alle ELF binære biblioteker (.so filer)"
+
+msgid ""
+"--gzman=<yes|no>               Compress any man pages found inside the "
+"package"
+msgstr "--gzman=<yes|no>        Kompress alle manualsider funnet inni "
+"pakke"
+
+msgid "--docdir=<path>                Where to put documentation files"
+msgstr "--docdir=<path>               Plassering av dokumentasjonsfiler"
+
+msgid "--umask=<mask>                 Set the umask value"
+msgstr "--umask=<mask>                Sett umask verdi"
+
+msgid ""
+"--exclude=<file|dir[,...]>     Exclude these files/directories from the "
+"package"
+msgstr ""
+"--exclude=<file|dir[,...]>     Eksluder disse filene/mappene fra "
+"pakke"
+
+msgid "--include=<listfile>           Force the inclusion in the package of the"
+msgstr "--include=<listfile>          Tving inkludering i pakken av"
+
+msgid "--inspect                      Inspect the package's file list"
+msgstr "--inspect                     Inspiser pakkens filliste"
+
+msgid ""
+"--review-spec                  Review the spec file before creating a .rpm"
+msgstr ""
+"--review-spec                  Forhåndsvis spec-filen før bygging av .rpm"
+
+msgid ""
+"--review-control               Review the control file before creating a .deb"
+msgstr ""
+"--review-control              Forhåndsvis kontrollfilen før bygging av .deb"
+
+msgid ""
+"--newslack                     Use the new (8.1+) Slackware description "
+"format"
+msgstr ""
+"--newslack                     Bruk den nye (8.1+) Slackware fortegnelsen "
+"format"
+ 
+msgid "                               (\"--newslack\" implies \"-S\")"
+msgstr ""
+
+msgid "*Cleanup options*"
+msgstr "*Resnings valg*"
+
+msgid "--deldoc=<yes|no>              Delete doc-pak upon termination"
+msgstr "--deldoc=<yes|no>             Slett doc-pak ved avslutt"
+
+msgid "--deldesc=<yes|no>             Delete description-pak upon termination"
+msgstr "--deldesc=<yes|no>            Slett fortegnelse-pak ved avslutt"
+
+msgid "--delspec=<yes|no>             Delete spec file upon termination"
+msgstr "--delspec=<yes|no>            Slett spec-fil ved avslutt"
+
+msgid "--bk                           Backup any overwritten files"
+msgstr "--bk                          Backup og overskrevne filer"
+
+msgid "--backup=<yes|no>              Toggle backup"
+msgstr "--backup=<yes|no>             Slå av/på backup"
+
+msgid "*About CheckInstall*"
+msgstr "*Om CheckInstall*"
+
+msgid "--help, -h                     Show this message"
+msgstr "--help, -h                    Vis denne beskjeden"
+
+msgid "--copyright                    Show Copyright information"
+msgstr "--copyright                   Vis Copyright info"
+
+msgid "--version                      Show version information"
+msgstr "--version                     Vis versjons info"
+
+msgid "Use --help or -h to get more information"
+msgstr "Bruk --help eller -h for mer informasjon"
+
+msgid "is an invalid value for"
+msgstr "er en ugyldig verdi for"
+
+msgid "Restoring overwritten files from backup..."
+msgstr "Reparerer overskrene filer fra backup..."
+
+msgid "*** SIGINT received ***"
+msgstr "*** SIGINT motatt ***"
+
+msgid "Cleaning up..."
+msgstr "Rensker opp..."
+
+msgid "Bye."
+msgstr "Ha det."
+
+msgid "The checkinstallrc file was not found at:"
+msgstr "checkinstallrc fila ble ikke finnet i:"
+
+msgid "Assuming default values."
+msgstr "Antar standard verdier."
+
+msgid "I can't find $INSTALLWATCH."
+msgstr "Jeg kan ikke finne $INSTALLWATCH."
+
+msgid "I can't continue. Either install installwatch or"
+msgstr "Jeg kan ikke fortsette. Enten installer installwatch eller"
+
+msgid "modify the INSTALLWATCH variable in this script,"
+msgstr "modifiser INSTALLWATCH'ens variabel i dette scriptet,"
+
+msgid "then run checkinstall again."
+msgstr "og kjør checkinstall igjen."
+
+msgid "My temp dir exists already."
+msgstr "Min midlertidige mappe eksisterer allerede."
+
+msgid "This looks like a symlink attack!"
+msgstr "Dette ser ut som et symlink angrep!"
+
+msgid "*** Aborting"
+msgstr "*** Avbryter"
+
+msgid "is an unacceptable value for the temp dir. Please"
+msgstr "er en uakseptabel verdi for den midlertidige mappa. Vennligst"
+
+msgid "edit the variable definition for"
+msgstr "forandre definisjonen av variabelen for"
+
+msgid "and try again."
+msgstr "og prøv igjen."
+
+msgid "**** Failed to create temp dir!"
+msgstr "*** Kunne ikke opprette midlertidig mappe!"
+
+msgid "**** Do you have write permission for ${BASE_TMP_DIR}?"
+msgstr "*** Har du skriverettigheter for ${BASE_TMP_DIR}?"
+
+msgid "The package documentation directory ./doc-pak does not exist."
+msgstr "Pakke-dokumentasjons-mappa ./doc-pak eksisterer ikke."
+
+msgid "Should I create a default set of package docs? "
+msgstr "Skal jeg bygge et standard sett av pakke-dokumentasjon? "
+
+msgid "Preparing package documentation..."
+msgstr "Forbereder pakke dokumentasjon..."
+
+msgid "*** No known documentation files were found. The new package"
+msgstr "*** Ingen kjente dokumentasjons-filer ble funnet. Pakken"
+
+msgid "*** won't include a documentation directory."
+msgstr "*** vil ikke inkludere en dokumentasjons mappe."
+
+msgid "Copying documentation directory..."
+msgstr "Kopierer dokumetasjons mappe..."
+
+msgid "Installing with"
+msgstr "Installerer med"
+
+msgid ""
+"========================= Installation results ==========================="
+msgstr ""
+"========================= Installasjons resultater ==========================="
+
+msgid ""
+"======================== Installation successful =========================="
+msgstr ""
+"========================  Installasjon velykket =========================="
+
+msgid "****  Installation failed. Aborting package creation."
+msgstr "*** Installasjonen feilet. Abryter pakkebygging."
+
+msgid "Do you want to view the installation log file? "
+msgstr "Vil du se loggfila til installasjonen? "
+
+msgid "Some of the files created by the installation are inside the build"
+msgstr "Noen av filene som ble lagd av installajsonen er inni"
+
+msgid "directory: `pwd`"
+msgstr "byggemappa: `pwd`"
+
+msgid "You probably don't want them to be included in the package,"
+msgstr "Du vil sannsynligvis ikke ha den inkludert i pakken,"
+
+msgid "especially if they are inside your home directory."
+msgstr "spessielt ikke om de er inni hjemme-mappa di."
+
+msgid "Do you want me to list them? "
+msgstr "Vil du at jeg skal liste dem? "
+
+msgid "Should I exclude them from the package? (Saying yes is a good idea) "
+msgstr "Skal jeg eksludere dem fra pakken? (ja er en god ide) "
+
+msgid "You requested to review the list of files that will be"
+msgstr "Du ville forhåndsvise listen av filer som vil bli"
+
+msgid "included in this package."
+msgstr "inkludert i denne pakken."
+
+msgid "Now you'll have the chance to review and optionally modify it."
+msgstr "Du vil nå ha sjansen til å forhåndsvise og evt. modifisere den."
+
+msgid "Now you'll have the chance to review and optionally modify this file."
+msgstr "Du vil nå ha sjansen til å forhåndsvise og evt. modifisere denne fila."
+
+msgid "Press ENTER to continue."
+msgstr "Trykk ENTER for å fortsette."
+
+msgid "Copying files to the temporary directory..."
+msgstr "Kopierer filer til midlertidig mappe..."
+
+msgid "Striping ELF binaries and libraries..."
+msgstr "Avkler ELF binærer og biblioteker..."
+
+msgid "Striping ELF binaries..."
+msgstr "Avkler ELF binærer..."
+
+msgid "Compressing man pages..."
+msgstr "Kompresser manualsider..."
+
+msgid "Building file list..."
+msgstr "Bygger fil-liste..."
+
+msgid "Please choose the packaging method you want to use."
+msgstr "Vennligst velg den pakkemetoden du vil bruke."
+
+msgid "Slackware [S], RPM [R] or Debian [D]? "
+msgstr "Slackware [S], RPM [R] eller Debian [D]? "
+
+msgid "Please write a description for the package."
+msgstr "Vennligst skriv en fortegnelse for pakken."
+
+msgid " Remember that pkgtool shows"
+msgstr " Husk at pkgtool viser"
+
+msgid "only the first one when listing packages so make that one descriptive."
+msgstr "kun den første når man lister pakker så lag den innholdsrik."
+
+msgid "End your description with an empty line or EOF."
+msgstr "Avslutt din fortegnelse med en tom linje eller EOF."
+
+msgid "Package created with checkinstall $CHECKINSTALL_VERSION"
+msgstr "Pakke bygd med checkinstall $CHECKINSTALL_VERSION"
+
+msgid "Warning: Your package description is bigger than 11 lines."
+msgstr "Advarsel: Din pakkefortegnelse er større enn 11 linjer."
+
+msgid "Warning: The Slackware 8.1+ pkgtools might not like it."
+msgstr "Advarsel: Slackware 8.1+'s pkgtools liker kanskje ikke det."
+
+msgid "*** Warning: The package name"
+msgstr "*** Advarsel: Pakkens navn"
+
+msgid "contains upper case"
+msgstr "inneholder store bokstaver"
+
+msgid "*** Warning: letters. dpkg might not like that so I changed"
+msgstr "*** Advarsel: bokstaver. dpkg liker kanskje ikke det så jeg byttet"
+
+msgid "*** Warning: them to lower case."
+msgstr "*** Advarsel: de til små bokstaver."
+
+msgid "*** Warning: The package version \"${VERSION}\" does not"
+msgstr "*** Advarsel: Pakkeversjon \"${VERSION}\" gjør ikke det"
+
+msgid "*** Warning: contain any digits. dpkg might not like that."
+msgstr "*** Advarsel: inneholder siffer. dpkg liker kanskje ikke det."
+
+msgid "This package will be built according to these values: "
+msgstr "Denne pakken vil bli bygget i henholdt til disse verdier: "
+
+msgid "0 -  Maintainer:"
+msgstr "0 - Byggherre:"
+
+msgid "1 -  Summary:"
+msgstr "1 - Oppsummering:"
+
+msgid "2 -  Name:"
+msgstr "2 - Navn:"
+
+msgid "3 -  Version:"
+msgstr "3 - Versjon:"
+
+msgid "5 -  License:"
+msgstr "5 - Lisens:"
+
+msgid "6 -  Group:"
+msgstr "6 - Gruppe:"
+
+msgid "7 -  Architecture:"
+msgstr "7 - Akritektur:"
+
+msgid "8 -  Source location:"
+msgstr "8 - Kildeplassering:"
+
+msgid "9 -  Alternate source location:"
+msgstr "9 - Alternativ kildeplassering:"
+
+msgid "10 - Provides:"
+msgstr "10 - Krever:"
+
+msgid "11 - Requires:"
+msgstr "11 - Krever:"
+
+msgid "Enter a number to change any of them or press ENTER to continue: "
+msgstr "Legg til et tall for å bytte noe eller trykk ENTER for å fortsette: "
+
+msgid "Enter new summary: "
+msgstr "Legg til ny oppsummering: "
+
+msgid "Enter new name: "
+msgstr "Legg til nytt navn: "
+
+msgid "Enter new version: "
+msgstr "Legg til ny versjon: "
+
+msgid "Enter new release number: "
+msgstr "Legg til nytt utgivelses nummer: "
+
+msgid "Enter the license type: "
+msgstr "Legg til lisenstype: "
+
+msgid "Enter the new software group: "
+msgstr "Legg til ny programvaregruppe: "
+
+msgid "Enter the architecture type: "
+msgstr "Legg til arkitektur type: "
+
+msgid "Enter the source location: "
+msgstr "Legg til kilde plassering: "
+
+msgid "Enter the alternate source location: "
+msgstr "Legg til alternativ kilde plassering: "
+
+msgid "Enter the maintaner's name and e-mail address: "
+msgstr "Legg til byggherrens navn og epostadresse: "
+
+msgid "Enter the provided features: "
+msgstr "Legg til gitte features: "
+
+msgid "Enter the additional requirements: "
+msgstr "Legg til extra valg:"
+
+msgid "********************************************"
+msgstr "*******************************************"
+
+msgid "**** Slackware package creation selected ***"
+msgstr "*** Slackware pakkebygging valgt ***"
+
+msgid "*** The \"installpkg\" program is not in your PATH!"
+msgstr "*** \"installpkg\" programmet er ikke i PATH'en din!"
+
+msgid "*** Slackware package creation aborted"
+msgstr "*** Slackware pakkebygging abrutt"
+
+msgid "Preparing Slackware install directory..."
+msgstr "Forbereder Slackware installasjonsmappe..."
+
+msgid "Writing package description..."
+msgstr "Skriver pakkefortegnelse..."
+
+msgid "Writing Slackware install script..."
+msgstr "Skriver Slckware installasjonscript..."
+
+msgid "Appending your script to the main install script..."
+msgstr "Legger til scriptet ditt til hovedinstalleringsscript"
+
+msgid "Creating package ${SLACK_PKG_BASENAME}..."
+msgstr "Bygger pakka ${SLACK_PKG_BASENAME}..."
+
+msgid "Installing package..."
+msgstr "Installerer pakken..."
+
+msgid "*** Failed to install the package"
+msgstr "*** Kunne ikke installere pakken"
+
+msgid "Do you want to see the log file? "
+msgstr "Vil du se loggfilen? "
+
+msgid "NOTE: The package will not be installed."
+msgstr "NB: Pakken vil ikke bli installert."
+
+msgid "**************************************"
+msgstr "*************************************"
+
+msgid "**** RPM package creation selected ***"
+msgstr "*** RPM pakkebygging valgt"
+
+msgid "*** The \"rpm\" program is not in your PATH!"
+msgstr "*** \"rpm\" programmet er ikke i PATH'en din"
+
+msgid "*** RPM package creation aborted"
+msgstr "*** RPM pakkebygging avbrutt"
+
+msgid "$RPMSOURCEDIR has no SOURCES directory. Please write the path to"
+msgstr "$RPMSOURCEDIR har ingen SOURCES mappe. Vennligst skriv banen til"
+
+msgid "the RPM source directory tree: "
+msgstr "kilde-treet til RPM: "
+
+msgid "You requested to review the .spec file for this package."
+msgstr "Du ville se .spec fila for denne pakken."
+
+msgid "Building RPM package..."
+msgstr "Bygger RPM pakke..."
+
+msgid "*** Failed to build the package"
+msgstr "*** Kunne ikke bygge pakken"
+
+msgid "Warning: the use of RPMFLAGS is deprecated."
+msgstr "Advarsel: bruken av RPMFLAGS er ikke foretrukket"
+
+msgid "Warning: You should now use RPM_FLAGS,"
+msgstr "Advarsel: Du burde nå bruke RPM_FLAGS,"
+
+msgid "Warning: please update your checkinstallrc file."
+msgstr "Advarsel: vennligst oppdater din checkinstallrc fil."
+
+msgid "Installing RPM package..."
+msgstr "Installerer RPM pakke..."
+
+msgid "NOTE: The package will not be installed"
+msgstr "NB: Pakken vil ikke bli installert"
+
+msgid "*****************************************"
+msgstr "****************************************"
+
+msgid "**** Debian package creation selected ***"
+msgstr "*** Debian pakkebygging valgt ***"
+
+msgid "*** The \"dpkg\" program is not in your PATH!"
+msgstr "*** \"dpkg\" programmet er ikke i PATH'en din!"
+
+msgid "*** Debian package creation aborted"
+msgstr "*** Debian pakkebygging avsluttet"
+
+msgid "You requested to review the control file for this package."
+msgstr "Du ville se kontrollfilen for denne pakken."
+
+msgid "Building Debian package..."
+msgstr "Bygger Debian pakke..."
+
+msgid "Installing Debian package..."
+msgstr "Installerer Debian pakke..."
+
+msgid "*** No method was selected, I won't build any package."
+msgstr "*** Ingen metode valgt, jeg bygger ikke pakke."
+
+msgid "*** The installation command \"$INSTALLCMD\""
+msgstr "*** Installasjons kommando \"$INSTALLCMD\""
+
+msgid "*** has already been executed."
+msgstr "*** har allerede blitt kjørt."
+
+msgid "The package storage directory"
+msgstr "Pakkelagrings mappe"
+
+msgid "doesn't exist. Do you want to create it?"
+msgstr "eksisterer ikke. Vil du lage den?"
+
+msgid "Creating package storage directory..."
+msgstr "Lager pakkelagrings mappe..."
+
+msgid "*** Unable to create $PAK_DIR"
+msgstr "*** Kan ikke opprette $PAK_DIR"
+
+msgid "Transferring package to"
+msgstr "Flytter pakke til"
+
+msgid "There's no package storage directory, the package"
+msgstr "Det er ingen pakkelagringsplass, pakken"
+
+msgid "will be stored at the default location."
+msgstr "vil bli lagret på standard plass."
+
+msgid "Erasing temporary files..."
+msgstr "Sletter midlertidige filer..."
+
+msgid "Deleting doc-pak directory..."
+msgstr "Sletter doc-pak mappe..."
+
+msgid "Writing backup package..."
+msgstr "Skriver backup pakke..."
+
+msgid "Deleting temp dir..."
+msgstr "Sletter midlertidig mappe..."
+
+msgid "Building debug information package..."
+msgstr "Bygger debug informasjons pakke..."
+
+msgid " Done. The new package has been installed and saved to"
+msgstr " Ferdig. Den nye pakken har blitt installert og lagret på"
+
+msgid " You can remove it from your system anytime using: "
+msgstr " Du kan fjerne den fra systemet ditt når som helst ved å:"
+
+msgid " Done. The new package has been saved to"
+msgstr " Ferdig. Pakken har nå blitt lagret på"
+
+msgid " You can install it in your system anytime using: "
+msgstr " Du kan installere den på systemet ditt når som helst ved å:"
