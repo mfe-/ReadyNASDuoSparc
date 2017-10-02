@@ -1,0 +1,824 @@
+========== Checkinstall 1.6.2 is released ===========
+
+commit 3af2ebd909675c7e6c75dfc8516894208c8b9797
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:18:58 2008 -0600
+
+    Fixed typo when finding files created under /home
+
+commit e4a3eda80922bcc1c6a065b39ccc1a5f6279675e
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:15:58 2008 -0600
+
+    fixed type issues on 64 bit glibc 2.7
+    
+    Patrick Ohly
+
+commit e02fd179f57d8808238a20507d8615c091ca5951
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:14:54 2008 -0600
+
+    --replaces option, similar to --conflicts (Debian only)
+    
+    Patrick Ohly
+
+commit 897fa9da37b215d441faf5cc73032705fc892043
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:14:14 2008 -0600
+
+    No epoch in Debian version
+    
+    Do not use the epoch in a package version (<num>: prefix)
+    for the package name (that's also what dpkg-buildpackage does).
+    
+    Patrick Ohly
+
+commit 932082d084c2e8aa50c958b03d190c2b5884fce3
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:13:08 2008 -0600
+
+    docdir without package name
+    
+    With the traditional --docdir option it is not possible
+    to select a path which does not include the package name
+    and version. With this patch one can use
+      --docdir=:<path>
+      to select a directory that nothing gets appended to.
+    
+    Patrick Ohly
+
+commit d49c9b09e576056374ba8491238ce43b769363eb
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:12:24 2008 -0600
+
+    Avoid hard-coded installation directory
+    
+    Instead of hard-coding /usr/local as installation directory,
+    find out where the checkinstall script is actually located
+    and find the other files relative to that:
+    
+    <prefix>/bin/checkinstall
+    <prefix>/lib/checkinstall/...
+    <prefix>/lib/installwatch.so
+    
+    Patrick Ohly
+
+commit 90f2cf5d71638bb5512e7d2f1db76b19b94a7c7c
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:07:29 2008 -0600
+
+    Allow package creation without being root via fakeroot
+    
+    Note that the default location of checkinstall is not normally
+    in PATH of normal users, so call it explicitly or set PATH:
+       fakeroot /usr/local/sbin/checkinstall ...
+    
+    Patrick Ohly
+
+commit 51a2bfc55ac0ab444ffff58440478d5bf5028b95
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Sun Nov 16 10:06:25 2008 -0600
+
+    --conflicts, similar to --provides (Debian only)
+    
+    Patrick Ohly
+
+commit f241975428f39ed25ffc44dc4d9c505ebe070314
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 11:51:10 2008 -0600
+
+    The test for AT_SYMLINK_NOFOLLOW wasn't being done in all the places we needed it.
+
+commit efb7b13a16190bd390d5cafbe357883769b9009c
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 11:27:42 2008 -0600
+
+    Added unlinkat() support
+
+commit 25e30f61125481a72594e94dae5ba2dd3d085eed
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 11:03:56 2008 -0600
+
+    Added symlinkat() support
+
+commit 422349e61249b7eb9eed1cc6cdba002e191c0cfd
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 10:33:23 2008 -0600
+
+    Added renameat() support. Fixed filenames with spaces regression.
+    
+    Sebastien's patch had trouble copying files with spaces in their name. Fixed it.
+
+commit 93f567e76a686c242412acf01bec33f28bbb18ce
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 10:02:43 2008 -0600
+
+    Added mknodat() support.
+    
+    Just like fstatat(), it requires us to define __xmknodat()
+
+commit 26cc029823ca5e4cf965ce948a25a5b4b4bf3bf9
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 09:18:58 2008 -0600
+
+    Added readlinkat() support
+
+commit 8c74edad883d74283e171c70f49613e0fd77dcc7
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 08:59:00 2008 -0600
+
+    Added mkdirat() support, fixed link() ommission.
+
+commit e993c1f9f7cca1e69576ab7dd7538e146106c298
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 01:24:50 2008 -0600
+
+    Patch from Sebastien Vasey for permissions and symlinks issues.
+    
+    Fixes a permission issue that, for example would let a package created
+    by checkinstall change the owner of a user's home directory to root. This is
+    done by ensuring permissions are preserved at each step.
+    
+    An issue with symlinks is also fixed. The patch makes checkinstall
+    dereference all symbolic links that are not created by the installation script,
+    while the others are kept.
+
+commit 66e142436759e8085a274f57f8c4d9d7a549e8f7
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Fri Nov 14 01:01:37 2008 -0600
+
+    Added linkat() support
+    
+    In instw_setpathrel():
+     If dirfd is AT_FDCWD then we got nothing to do, return the path as-is
+    
+    In linkat():
+    FIXME: If we have AT_SYMLINK_NOFOLLOW we need to dereference the links
+
+commit 653cc2da7a885c5688e12af31c12dc58db16d7f2
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 18:30:24 2008 -0600
+
+    Updated checkinstall version Id, minor debug message format fix for fopen()
+
+commit 380e3a4520097464681442cf64022bd86aab18ab
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 18:24:19 2008 -0600
+
+    Added support for chownat() and fstatat()
+    
+    Included fstatat() support which in fact requires
+    __fxstatat() and __fxstatat64(). Just like __xstat() and its relatives,
+    they are the back-end for fstatat(), which in glibc is implemented as
+    an inline function. See the details in sys/stat.h.
+    
+    While doing a strace of the chown utility I found out it calls chmod32()
+    so I added a small hook to support it.
+
+commit e9ccdd2f8c0f846e62203d4f1d3c77cfa7d8c9d8
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 16:15:31 2008 -0600
+
+    checkinstall: Keep tmp dir and debug file if in debug mode
+    installwatch: Use the right variable name for fchmodat() debug call
+
+commit e954f02a9697bd342baff65353b59162e5621f0b
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 15:22:00 2008 -0600
+
+    Cleaned up the source directory
+
+commit 8efcfadff61443642cda7b888d1b7da0f0759f0a
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 15:12:00 2008 -0600
+
+    Removed execve() support
+    
+    I don't need it right now and it's causing segfaults when running checkinstall.
+    I'll look into it later.
+
+commit c0c4ff9855de594e9b7ac3240bb728277cda557a
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 15:09:56 2008 -0600
+
+    Added fchownat() support
+
+commit d084a5e13a3dc3530ec11f2fd7e7bb55a02c0cbf
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Wed Nov 12 08:06:42 2008 -0600
+
+    Added a comment explaining the way openat()-ish functions are implemented.
+
+commit 18e25050c33020e8f52e41016d43c141ed9890bd
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:43:43 2008 -0600
+
+    Added locale files
+
+commit 22f158b0a2f8b297e5ea4e4cdb2462458b3ac6a3
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:22:43 2008 -0600
+
+    Eiminated the installwatch version from checkinstall's Makefile
+
+commit 7a66fe38c23eda68ec19e14e5c88365ec1095e56
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:14:34 2008 -0600
+
+    Support for 64-bit architectures in the installwatch script
+
+commit 24709aa3e4635b9b5adcc3b4a6b3f3f2ad975400
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:08:20 2008 -0600
+
+    Update localdecls for newer glibc minor versions
+
+commit 3a8f06f1b33bb02fb899b7e65200d9285d047ca6
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:04:34 2008 -0600
+
+    Support for readlink() variations from different glibc versions.
+
+commit 8985cab38df1abfb9b36b1275577601021878038
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 20:01:30 2008 -0600
+
+    Added reduce() invocation in instw_setpath() to clean up the path
+
+commit a3cea18f491fa5db6b4d1c0558d96dcd4247c7d8
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:58:30 2008 -0600
+
+    Fix minor debug messages formatting errors
+
+commit 40c03122c5b615ce151f7a4cf2bb088d547d7af2
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:57:23 2008 -0600
+
+    fchmodat() support
+
+commit 8414cfda5031039a91a2ee3ef7fd5455d151c2b0
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:56:11 2008 -0600
+
+    Added reduce()
+    
+    It simplyfies paths, by reducing all occurences of "..", ".", and extra "/"
+    in path.
+
+commit dcf3294b15f1bb89aa1b809513a68be29a9caf25
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:54:12 2008 -0600
+
+    openat() support
+
+commit 41fcd29f564980e0604200e3ad8d79b6133cbf74
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:50:01 2008 -0600
+
+    Switch log() for logg()
+
+commit 8afe5835ed8930aa7140a1c4182e4be320bfefe0
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:40:53 2008 -0600
+
+    removexattr() from Alex Kern
+
+commit ef703d588638e76f6dc6e69d87eba26ead7fd066
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:39:16 2008 -0600
+
+    setxattr() support from  Alex Kern
+
+commit ec51e682ea122291e14aa4ed8deb835474838174
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:33:29 2008 -0600
+
+    Initialize trlen, from the code-cleanups.patch from SuSE installwatch-1.6.1-40
+
+commit b26ba653f386051e94691721921c650d833c2b79
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:32:27 2008 -0600
+
+    Save errno, sent by Benoît PAPILLAULT at Source Mage linux
+
+commit 7c2b1b3528f53d6e5d44261d2b1c77951e466e2f
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 19:30:21 2008 -0600
+
+    Modified some grammar / spelling mistakes
+
+commit c48d9af661e762fbff5bb31aaefa72bf088bb120
+Author: Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+Date:   Tue Nov 11 13:35:00 2008 -0600
+
+    Switch to git. Checkinstall pre 1.6.2
+
+nov/01/2006
+
+    * Provides/Requires bug fixed
+
+    * Applied the patches from Felipe Sateler:
+
+      - We now explicitly run bash (It has always benn a requiremente anyway)
+      - In Debian we set the architecture with dpkg-architecture.
+      - If we're creating a .dpkg then we eliminate uderscores and put
+        dashes instead in the package name.
+      - Tag all files in /etc inside the package as config files
+
+
+june/23/2005 ====== Checkinstall 1.6.0 is released ======
+
+    * Applied the PAGER patch from Tomas Pospisek
+
+    * Changed the Provides/Requires option in the menu
+
+    * Applied the "Copyright patch" from Andy Hanton to fix some issues
+      with newer rpm versions. Also his buildroot patch
+
+december/01/2004 ====== Checkinstall 1.6.0beta4 is released ======
+
+    * CK_SLACKWARE, CK_REDHAT and CK_DEBIAN were being ignored if
+      set in checkinstallrc. Fixed.
+
+    * Fixed "libdirs: file not found"
+
+    * Improved postinstall-pak handling
+    
+    * Fixed variable name typo: It said PROVODES instead of PROVIDES.
+      Reported by Bernd Weigelt.
+    
+    * Cosmetic fix in "--help" output
+    
+    * Added command line flag "--addso".
+    
+    * The default for ADD_SO is now NO. So no more auto-editing of
+      /etc/ld.so.conf unless explicitly requested.
+    
+    * Fixed detection of postinstall scripts (PINST_EXISTS bug)
+    
+    * Added MAKEPKG_FLAGS to checkinstallrc. By default sets flags useful
+      to users of newer Slackware versions.
+
+    * Added SHOW_MAKEPKG to checkinstallrc.
+    
+    * Fixed the famous "segfault on newer glibc's" bug in installwatch
+
+december/25/2003
+    * Fixed another "argument list too long" bug.
+
+    * Merged in some suggestions from Tobias G: more docs filenames for 
+      automatic inclusion in doc-pak and better handling of symlinks when
+      copying the documentation files.
+
+    * Added a "--reset-uids" option that resets the permissions of all
+      files and directories to "755" and the owner and group of all 
+      directories to root.root, in a way similar to what Slackware's
+      makepkg prompts you to do.
+      
+    * Added a patch from Thomas Rausck to also add symlinked directories.
+      
+    * Fixed the support for recycling a pre-existing .spec file. Part of
+      the fix was based on a patch sent by Karlheinz Pischke.
+      
+    * The PKG_GROUP variable is correctly set when using the -R, -S or -D
+      command line options.
+      
+    * Added a "--fstrans" command line option for enabling or disabling
+      the filesystem translation code.
+      
+    * Fixed the problem many people found when copying the documentation 
+      files. Now the documentation and the included (With "--include") files
+      are handled outside the installscript.sh script. This keeps the 
+      filesystem translation code from messing with those.
+      
+    * The package information menu was moved to the first stages of the
+      script. Now you can modify the package's name or version and the
+      documentation directory will be correctly named.
+      
+    * Improved the domain name detection algorithm used when setting the
+      "Maintainer" field. We start with the env variable HOSTNAME, then
+       try running "hostname -f" and finally we default to "localhost".
+      
+    * A pre-existing .spec file will not be erased when checkinstall exits.
+      
+    * If a pre-existing slack-desc file is found then we use it to generate
+      the description-pak file UNLESS we already have a description-pak file.
+      
+    * CheckInstall attempts to identify any ELF shared libraries in the
+      package and append their locations to the /etc/ld.so.conf file, if 
+      they are not already there.
+
+december/14/2003
+    * Fixed a small typo, reported by Andrej Lajovic.
+    * Added default values that were missing for BASE_TMP_DIR, PAK_DIR,
+      RPM_FLAGS and DPKG_FLAGS. Also fixed a bug that made checkinstall
+      ignore the setting of INSTALLWATCH_PREFIX and INSTALLWATCH. Reported
+      by Karlheinz Pischke.
+
+november/28/2003
+    * Fixed a problem in printf when the $format variable contained a "--"
+
+march/28/2003
+    * More echog() and echogn() modifications. They now properly escape
+      asterisks and probably the rest of the special characters.
+march/23/2003
+    * Created two new echog() and echogn() functions for using gettext with 
+      printf()-like formatting. All references in the script were modified
+      for using these new functions.
+
+march/16/2003
+    * Applied another patch from Dmitry, this time to include directories
+      in the .spec file when building rpm packages. The root directory is
+      excluded, wich fixes the problem we had before that made us not including
+      directories at all.
+
+march/15/2003
+    * Added a check to see if rpmbuild is in the PATH when we are 
+      expecting it to be there.
+
+march/13/2003 --- 1.6.0beta3 begins ---
+    * Applied patches from Dmitry Vukolov for CK_DEBIAN and CK_REDHAT
+      handling. Several patches for handling spaces in directories and
+      a "$" that was not properly escaped in a warning message.
+
+march/12/2003
+    * Added version setting patch sent by Lawrie Abbott
+
+    * Added new command line options "--rpmi" and "--rpmu" for telling 
+      rpm to (i)nstall or (U)pdate new rpm packages.
+
+    * In slackware, tar-1.13 is used if present (Fixes some issues when 
+      building packages in newer Slackware versions).
+
+    * Added command line option: "--with-tar" which can be used to manually
+      specify the path to the tar binary to be used when building packages.
+
+    * Fixed document directory handling
+
+    * The MAKEPKG variable can now be set in the checkinstallrc file
+
+
+march/11/2003
+    * Merged in the patches from Dima Vukolov for erasing the temp .tgz file
+      used when building a rpm package and finding the RPM source directory
+      path using the %_topdir macro from rpm
+
+    * Added Thomas Rausch's patches for symlink handling
+
+november/27/2002
+    * Added internationalization support via GNU gettext
+
+november/24/2002
+
+    * Added support for preinstall-pak, postinstall-pak, preremove-pak
+      and postremove-pak scripts on both RPM and Debian packages. In Slackware
+      the postinstall script was already supported as "install-pak".
+
+    * Added support for inclusion of a custom list of files in the package,
+      via the "--include" command line option. It takes a file as argument.
+      That file should contain the list of files to be included, one per
+      line.
+
+    * Added the "--inspect" command line option. It allows you to view and
+      optionally edit the list of files to be included in the package, before
+      the package is created. Suggested by Max Norton.
+
+    * Added the "--review-spec" and "--review-control" command line options that
+      allow you to review the .spec or DEBIAN/control files when creating 
+      .rpm or .deb packages, before the packages are created.
+
+    * Merged in the patches sent by Max Norton for fixing some man page 
+      handling bugs and to copy directories with special permissions.
+
+    * The RPM packages now include directories so these should be also deleted
+      when a .rpm package is removed.
+
+      
+november/23/2002
+
+    * Added Olivier Fleurigeon's patches for support of the new installwatch
+      0.7.0beta1, that allows us to do the whole installation procedure
+      in an alternative root, therefore allowing to create a package 
+      without actually installing it in the system. This functionality
+      is invoked with the "--install=<yes|no>" command line option.
+
+    * Added support for "--requires" for specifying package requirements
+      for RPM packages. This patch was sent by Ulrich Baur.
+
+october/26/2002
+
+    * The rpmbuild program is used only if using rpm 4.x. Otherwise we still
+      use "rpm -bb"
+
+    * If there's an install-pak file, --ss is implied (Run the Slackware
+      install script interactively)
+
+september/10/2002
+
+    * The user's umask is ignored and automatically set to "0022", unless the
+      user explicitly request a custom umask value with the new "--umask" 
+      command line option.
+    * Added support for the new Slackware package description format. It
+      can be activated with the "--newslack" command line switch.
+
+august/25/2002
+
+    * We use "rpmbuild -bb" instead of "rpm -bb", because newer rpm versions
+      no longer support the use of "b" switches with the "rpm" program.
+    * Fixed a bug introduced in version 1.5.2. The description file for
+      Slackware packages was not handled properly by the doinst.sh script.
+    * The architecture string is set to "powerpc" when building a Debian 
+      package. 
+
+july/09/2002
+    
+    * Applied patch from Simon Munton for filtering out only the file names
+      that begin with "/dev" and not every file name with "/dev" in it.
+
+june/28/2002
+    
+    * Man pages under /usr/local are compressed too.
+
+april/24/2002
+
+    * Automatic man page compressing is now available when the "--gzman=yes" 
+      command line option is selected. This includes code from the brb-compress
+      script included in the rpm-4.0.2 distribution.
+    * Various fixes and workarounds for the case when the source directory's 
+      path contains white spaces. Read the BUGS file.
+
+april/22/2002
+
+    * Added "OpenLinux" to the list of possible locations for the rpm sources
+      directory. Suggested by Michael v.Ostheim.
+    * Added the "debianize" patch from Matt Hope. Now the .deb packages built
+      with checkinstall should be a bit more Debian-standard-compliant.
+    * The pager used by checkinstall can now be selected via the
+      PAGER environment variable.
+    * The pkgtool info display warning is now issued only if the Slackware
+      packaging system is selected. Suggested by Acid Hippy.
+    * If the Debian packaging system is selected, the package version is 
+      verified to ensure that it contains at least one digit, otherwise dpkg
+      would complain about it. Suggested by Uri David Akavia.
+    * Another dpkg-friendly correction: the package name is forced to lower
+      case, another thing demanded by dpkg  :-). Suggested by Simon Rutishauser.
+    * Included a patch from Vladimir Bilyov to enable symbol stripping from 
+      shared libraries. Use it carefully. Active only when "--strip=yes" and 
+      "--stripso=yes" is selected.
+
+december/22/2001 ====== checkinstall 1.5.1 is released ======
+    * Modified the slackware package creation module to use the new
+      (Post-Slackware 8.0) Slackware package naming scheme:
+      name-version-architecture-release.tgz.
+    * Added command line options: "--provides" and "--maintainer"
+
+december/19/2001
+    * Corrected the checkinstall.log creation to prevent it from being 
+      overwritten with each file created.
+    * Use "." instead of "*" to get all the files in a directory with tar,
+      including any dot files found. Thanks to Tom for both of these.
+    * Merged in the patch from Guglielmo Bondioni to add support for the
+      "Mantainer:" field in the Debian control file.
+    * Added support for the "Provides:" field in the RPM spec file. Sent by
+      Uwe Koloska.
+    * If "description-pak" and/or "doc-pak" are already in the source
+      directory then checkinstall won't delete them when finished unless it is
+      asked to. Suggested by Uwe Koloska.
+      
+november/27/2001
+    * Added the "--nodoc" option to answer "no" to the question about including
+      default documentation in the package.
+    * Applied patches from Olivier Fleurigeon: getopt argument parsing and
+      fix a bad behaviour when using "--backup=no" (checkinstall tought that
+      the installation had failed).
+
+november/23/2001
+    * Applied the Paul Wagland patch for a DOC_DIR variable. Now you can
+      specify the path where the package docs will be installed (instead of
+      /usr/doc). I completed it with the "--docdir" command line option.
+    * Corrected a tar invocation explicitly telling it to use stdout. Thanks 
+      to George Sipe for noting it.
+
+november/18/2001 ====== checkinstall 1.5.0 is released ======
+    * Finally found the two other file descriptor leaks in installwatch
+      that were still causing the "Too many open files" error when installing 
+      huge packages.
+
+november/13/2001
+    * Added new checkinstallrc options: DPKG_FLAGS and RPM_FLAGS.
+      RPMFLAGS is now deprecated. Use RPM_FLAGS instead.
+    * Changed the format of the information displayed by "--help".
+
+november/11/2001
+    * Applied a patch to correctly name the Debian packages.
+      This patch was sent by Guglielmo Bondioni <bond@linux.it>.
+    * Now all the "Package information section" values can be set with 
+      command line options. Suggested by Olivier Fleurigeon.
+
+october/20/2001 ====== checkinstall 1.5.0beta2 is released ======
+    * Fixed the "invalid option" problem with rpm.
+    * Added support for a central package repository. If the "PAK_DIR" variable
+      is set (It can be set in the checkinstallrc file) then checkinstall will
+      attempt to create the directory named by PAK_DIR and save the newly
+      created package instead of leaving it at the default location. Now you
+      can automatically keep all your created packages in one single place  :)
+    * There's a verification to check if the required binaries to build the
+      selected package type are present. 
+    * Miscellaneous changes: "debug: " is prepended to every debugging echo in
+      the script, the yorn() function now uses lower case letters (cosmetic),
+      etc. Make a diff to view details.
+
+august/09/2001
+    * Added a more robust way to create the .spec file's file list, it is now
+      generated from the files found in the buildroot. No more duplicate files
+      (or cuasi-duplicate like "/usr/local/file" and "/usr/local/./file").
+    * The Slackware package name can now be changed in the Package Information
+      menu. Now you can use a name different to the name of the source
+      directory.
+    * The "-y" command line option now also causes checkinstall to skip the
+      package information menu. Now checkinstall is truly "scriptable".
+    * When the "-y" option is specified the default answer is printed like if
+      the user had typed it in. This is a cosmetic fix.
+
+july/20/2001 ====== checkinstall 1.5.0beta1 is released ======
+    * Started checkinstall-1.5.0 development. CheckInstall can now build
+      Debian packages.
+    * "-D" is now used to tell checkinstall to build a Debian package.
+      "--type=debian" has the same effect.
+    * The package info section is now common to all three packaging sections.
+      If you use Slackware it won't be of much use (yet). One useful thing
+      about it is that you can now change the name of the generated package
+      so it can be different to the current directory's name.
+    * Included the Slackware 8.0 makepkg patch in the "makepak" script. The
+      patch will be effective only if a Slackware 8.0 installation is detected.
+
+
+june/25/2001 ====== checkinstall 1.4.1 is released ======
+    * Default values are assumed if checkinstallrc is missing
+    * Merged in the tar patches from Sven Mueller
+      Now tar is told to use stdin/stdout instead of just assuming it will.
+    * Fixed the detection of an empty/nonexistent backup directory
+    * "-bk" option is now actually used
+    * Added the "--default" option to assume the default answers to all
+      questions (useful for scripting). "-y" is a sinonym for "--default"
+    * "--exclude" now can specify file names in addition to directory names.
+    * The return status from the install command is now correctly reported.
+      We were reporting "Installation succesful" even if the command returned
+      an error condition.
+    * INSTALLWATCH: Patched to fix the "Too many files open" problem that 
+      some people reported. Thanks to Christian Tusche for this one.
+
+june/08/2001 ====== checkinstall 1.4.0 is released ======
+    * Added "--exclude" and "--autodoinst" options
+    * Fixed a bug in the install command parsing
+    * Fixed the backup code
+
+april/19/2001 - Felipe Sanchez
+    * Fixed an incorrect path to the checkinstallrc file.
+    * cleanup() no longer deletes doc-pak, the spec file and the description
+      file.
+    * Fixed the "missing ']'" problem when testing the less pager.
+
+april/17/2001 - Felipe Sanchez
+    * Started development of checkinstall-1.4.0
+    * Modified the installwatch library to backup files modified by the
+      installation command _before_ they are modified. This is done at the
+      system call level. CheckInstall now can backup those files and write for
+      you a file containing them.
+
+      See the RELNOTES file for details.
+
+    * CheckInstall behavior is now fully configurable via command line flags.
+      Try "checkinstall --help" to see them  =)
+
+april/16/2001 ====== checkinstall 1.3.2 is released ======
+
+    * Made a fix to avoid a possible symlink attack when creating the temp dir.
+    * Fixed handling of filenames with spaces on them.
+
+april/07/2001 ====== checkinstall 1.3.1 is released ======
+
+    * When the Slackware package creation option is chosen a Slackware
+      installation script is automatically created which will display the
+      package description and put it in the package's log file in
+      /var/log/packages, every time the package is installed with "installpkg".
+    * Fixed the problem with rpm-4.0 about the "target" argument parsing.
+    * Removed some macros from the RPM spec file, including the one that
+      caused RPM to automatically gzip all man pages
+    * ELF binaries are automatically stripped by default. This was copied from
+      one of the rpm-4.0's scripts. I guess  that code is Copyrighted by it's
+      author but has no Copyright notice in it. I'm assuming it's GPL'ed as
+      a part of the rpm distribution.
+    * Improved some features and added a few ones.
+    * Included the patches suggested by Bernhard Kaindl
+      - New temp dir  (/var/tmp)
+      - No more dummy .tgz source file
+      - Now all arguments are used as a single install command,
+        no quotes needed.
+    * Made some spelling corrections (Thanks to Sergei Kryaczevski)
+    * RPM install flags are now customizable.
+
+march/01/2001 ====== checkinstall 1.3.0 stable has been released ======
+
+    * description-pak file format has changed. No more 
+      "<name_of_your_package>-pak:" prefix on every line
+      This gives us a more easier to write description-pak and fixes the
+      colon-in-the-middle problem reported by Tobias Fritz.
+    * Added options to control various defaults: 
+         Package type
+         Display of the output from the install command
+         Package description
+         Deletion of doc-pak, description-pak and .spec file
+
+      Many of these were suggested by Chris Spiegel.
+
+    * The yorn function has been largely extended to allow a default value
+      to be specified and displayed, suggested by Sergey Kryaczevskih
+    * The .spec file customization now correctly handles the case where you
+      change the package's name, version or target architecture.
+      This also fixes the LANG problems while detecting the actual created 
+      package's name.
+    * Fixed auto-detection of the rpm source directory
+    * Fixed the duplicated files problem with rpm.
+      Thanks to Ferdi Franceschini for this one.
+    * Added debugging mode (see the description inside the script)
+    * Re-organized the variables section in the script. I guess a rc file
+      will come handy very soon..  ;-)
+    * Patched installwatch so it can be compiled with glibc-2.2.1
+      (Reported by Nicholas Young-Soares)
+
+       BTW, I took over the development of installwatch; it's author is no
+       longer reachable. 
+    
+jan/20/2001 by Felipe Sanchez
+
+    * Fixed the nasty bug that prevented operation in nearly every rpm-based
+      distribution
+    * The BuildRoot for RPM package building  now points to a much saner place
+      (The build dir inside the temp dir). Thanks to Chris Kuklewicz for the
+      report.
+    * Fixed the install script to make it actually report the exit status of
+      the INSTALLCMD
+
+    Thanks to all the people who reported bugs in the 1.3.0beta release!
+
+jan/18/2001 by Felipe Sanchez
+
+    * RPM package creation support is in place !
+    * Now is possible to write multi-line descriptions
+
+jan/12/2001 by Felipe Sanchez
+
+    * Fixed bug which set incorrect (755) permissions to /tmp after the
+      package was installed if the installation procedure created any files
+      inside /tmp.
+    * Fixed typo (chown instead of chmod, duh!) which made useless the security
+      enhancements of the 1.2 release. Now the permission of the new temp dir
+      ( /var/checkinstalltmp by default) should correctly be set to 700. If
+      you used checkinstall 1.2 (now should be known as 1.2.0) then read the
+      RELNOTES file to fix this.
+
+      Thanks to Chris Spiegel for noting these two!
+      
+    * Changed checkinstall's versioning scheme: major.minor.patchlevel
+    
+jan/07/2001 by Felipe Sanchez
+
+    * Fixed a couple of bugs which prevented symlinks from being added to the
+      package and detection of files created inside scripts run by child shells.
+    * Detection of the INT (ctrl-c) signal to allow for proper clean up and
+      termination.
+    * The package description file is now called "description-pak"
+
+dec/10/2000 by Felipe Sanchez
+
+    * Added the "okfail" function
+    * Modified the program's look to be a bit more terse. I hope you like it.
+
+dec/09/2000 by Felipe Sanchez <fsanchez@uagunix.gdl.uag.mx>
+
+    * Added even more variables  :)
+    * Reorganized temporary files structure under a common TMP_DIR, named
+      after the process' ID to avoid problems with concurrent execution
+    * Changed the yorn funcion (Yes or No) to return true for "Y" and
+      false for "N"
+    * Added an option to ignore files created under the source directory, 
+      when these files where installed the owner of that directory (and
+      it's parents) became root:root, a pretty annoying thing when this
+      was your home directory  ;)
+    * Modified Slackware's makepkg to avoid the questions about symlinks
+      and permissions. The modified file is called "makepak".
+
+nov/18/2000 by Kevin D. Knerr, Sr. <ld_barthel@yahoo.com>
+
+    * Incorporated more variables to simplify the script & ease maintenance
+    * Added ${} syntax to existing variables when concatenated w/ strings
+    * Created a simple function to handle Y/N inputs
+    * Added an option to let checkinstall create a basic set of package docs
+      based on commonly used doc names
+    * Reorganized some sections to improve program flow while reducing
+      some instances of duplication
+
+
+===========

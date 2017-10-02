@@ -1,0 +1,29 @@
+=========
+TODO list
+=========
+
+o man page
+
+o Add a dialog interface
+
+o Extend functionality to allow for automatic software extraction, 
+  configuration and compilation
+
+o Rewrite in C/Gtk
+
+o Give the user a choice to select which /dev/???? files should be allowed in
+  the package. The script currently just throws them all away.
+
+o Cryptographic signing of created packages
+
+o SRPM creation
+
+o Version 2.0.0 
+
+o Suggestions?
+
+<checkinstall-list at asic-linux.com.mx>
+<izto at asic-linux.com.mx>
+
+==========
+$Id: TODO,v 1.6.0.2 2004/12/01 21:36:17 izto Exp $

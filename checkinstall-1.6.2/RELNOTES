@@ -1,0 +1,351 @@
+Checkinstall 1.6.2
+
+* Added support for at-style functions
+
+Checkinstall 1.6.1
+======================================
+
+* Fixed the famous getcwd() bug (Thanks to David Brown for hunting it down!)
+
+* Added translations:
+
+  Indonesian -  Tedi Heriyanto
+  Italian    -  Michele Petrecca
+  Norwegian  -  cizu jones
+  German     -  Andreas Muck
+  Chinese    -  Xinkui Hao
+  Japanese   -  UTUMI Hirosi
+
+CheckInstall 1.6.0beta4
+======================================
+* This should be the last beta before releasing version 1.6.0. Please report
+  any outstanding bugs!
+
+* Fixed the bug in installwatch that caused segfaults when running on newer
+  glibc versions (And therefore newer distros like FC and SuSe 9.1).
+
+* The default for ADD_SO is now NO so we are no longer auto-updating
+  /etc/ld.so.conf by default. If you need this behavior you can enable it
+  with "--addso=yes" or by setting ADD_SO=1 in checkinstallrc.
+
+* We use the new Slackware package format by default ( NEW_SLACK=1 ) when
+  creating Slackware packages. Note that in previous versions of checkinstall
+  up to 1.6.0beta3 the default was the old package format. 
+
+* There are other smaller bugfixes. Read the Changelog file for details.
+
+* New checkinstallrc options:
+
+o MAKEPKG_FLAGS: makepkg optional flags. 
+
+   These are recommended if running a newer Slackware version: "-l y -c n"
+
+o SHOW_MAKEPKG: Boolean (Default: 0)
+
+   Show -or not- the results of the MAKEPKG command as it runs. Useful when
+   running it with interactive options. If checkinstall seems to halt and
+   sleep after saying "Building Slackware package..." then you might want to
+   set this to 1.
+
+o ADD_SO: Boolean (Default: 0)
+   Automatically search for shared libraries and add them to /etc/ld.so.conf?
+
+
+CheckInstall 1.6.0beta3
+======================================
+* Internationalization support has been enhanced (And severely modified). 
+  Many new languages have been added, too.
+
+* Added a command line option: "--fstrans". It will allow you to enable
+  or disable the filesystem translation code. It is enabled by default.
+
+* Added a command line option: "--reset-uids". It will allow you to sanitize
+  the file and directories permissions in the package. It will cause 
+  checkinstall to set the permissions of all files and directories to "755"
+  and the owner and group of all directories to root.root. DO NOT USE IT IF
+  YOUR PACKAGE USES CUSTOM PERMISSIONS OR OWNERS.
+
+* The problem many people had when copying the documentation files should
+  now be fixed.
+
+* The package information menu was moved to the first stages of the
+  script. Now you can modify the package's name or version and the
+  documentation directory will be correctly named.
+
+* You can recycle a previously written .spec file, with the "--spec" command
+  line option. It will work to set some package parameters even if you are
+  building a Slackware or Debian package.
+
+* CheckInstall will try to add to /etc/ld.so.conf the path to any ELF shared
+  libraries it finds, and run ldconfig afterwards. This is added to the
+  postinstall script of your package.
+
+CheckInstall 1.6.0beta2
+======================================
+
+* Checkinstall 1.6.0 now sports brand-new internationalization support  :-).
+
+  The supported languages so far are English and Spanish. Translators needed!
+
+  If you want to contribute by translating Checkinstall to your language,
+  please read the NLS_SUPPORT file for instructions on how to do it. It's very
+  easy actually.
+
+* Support for Slackware's tar-1.13 binary is included, the Slackware packages
+  created by checkinstall should now be more Slackware-compatible than before.
+
+* You can tell Checkinstall to use Slackware's native "makepkg" by setting
+  the MAKEPKG variable to "makepkg" in checkinstallrc.
+
+* Symlinks are now correctly detected again.
+
+See more details in the ChangeLog.
+
+
+CheckInstall 1.6.0beta1
+======================================
+
+* The "--install=<yes|no>" command line option indicates wether you want
+  to actually install the package on your system or just create it 
+  without installing it. This is a new feature and still in beta stage.
+  Please test it and report any bugs you find (Or success, too!  :-) )
+
+* In this release support for preinstall, postinstall, preremove and postremove
+  scripts is introduced for RPM and Debian packages.
+
+  For Debian, these scripts must meet some requirements to be accepted by dpkg
+  while building the .deb package. See:
+
+  http://www.debian.org/doc/debian-policy/ch-maintainerscripts.html
+
+  In short, any shell script will do as long as it specifies an interpreter
+  (i.e. put #!/bin/sh as the first line) and has an exit status of zero for 
+  success or non-zero for failure.
+
+  To include the scripts in your package, put them in the current directory
+  and name them:
+
+  preinstall-pak
+  postinstall-pak
+  preremove-pak
+  postremove-pak
+
+  All scripts are optional. You can write all of them if you need them, or 
+  only the ones you need, or even none.
+
+  For Slackware packages, the "postinstall-pak" script is already supported as
+  "install-pak". Either name will work.
+
+  * This release also adds other three command line options: "--inspect", 
+    "--review-spec" and "--review-control". See the ChangeLog file for 
+    details.
+
+CheckInstall 1.5.3
+======================================
+
+* The user's umask is ignored while creating/installing the package. If you
+  really want to have the umask set to something unusual while checkinstall
+  creates the package, you can use the "--umask" command line option.
+
+  The default umask used by checkinstall is "0022" which is a standard,
+  non-paranoid reasonable value.
+
+* This version introduces support for the new Slackware description file format,
+  whit handy-rule and all. Use the "--newslack" command line switch to activate
+  it. The use of "--newslack" implies "-S", that is, it automatically selects
+  the creation of a Slackware package.
+
+CheckInstall 1.5.2
+======================================
+
+* This version introduces automatic man pages compression, enabled by default.
+  You can control this option with the "--gzman" flag.
+
+* The .deb packages created by checkinstall 1.5.2 should be a bit more
+  Debian-friendly.
+
+* There's a new shared library stripping feature in CheckInstall. Please test 
+  it and report any trouble you might run into.
+
+CheckInstall 1.5.1
+======================================
+
+* There's a new checkinstall mailing list! The list address is:
+   <checkinstall-list@asic-linux.com.mx>
+
+ To subscribe, send an empty message to: 
+   <checkinstall-list-subscribe@asic-linux.com.mx>
+
+* A new installwatch version is included, with some patches from Olivier
+  Fleurigeon. The test program included with installwatch now works again.
+
+* New command line options: "--docdir" and "--nodoc" to control the creation
+  of the package documentation.
+
+* New command line options: "--provides" and "--maintainer" to specify each
+  value in the RPM spec file and in the Debian control file, respectively.
+
+CheckInstall 1.5.0
+======================================
+
+* CheckInstall is now even more "scriptable", look for the "--pkgxxx" options
+  in the README.
+* The installwatch version (0.6.2) included with this release of checkinstall
+  fixes a couple of file descriptor leaks that were present in 0.6.1. The
+  "Too many open files" problem shouldn't appear again. I can no longer
+  reproduce it with the Emacs21 installation, at least  ;-).
+* Checkinstall is one year old! Version 1.0 was released on nov/11/200  =)
+
+
+CheckInstall 1.5.0beta2:
+======================================
+
+* About the "invalid option" problem with rpm: the RPM folks have once again
+  changed their minds about the rpm's argument parsing. In rpm versions < 4.0.0
+  the right way was "--target <arch>", in 4.0.x with x < 3, it was
+  "--target=<arch>" and finally in rpm 4.0.x with x >= 3 it is back to 
+  "--target <arch>". CheckInstall now attempts to identify the installed rpm
+  version and set this flag accordingly. If you have any problems about it, 
+  please send me a mail message telling me the error message and the rpm version
+  you have installed.
+
+* Check the new PAK_DIR variable in the checkinstallrc file. If set to a 
+  directory name, checkinstall will save there your newly created packages
+  If the directory doesn't exist, checkinstall will ask you if it should be
+  created. This should help you to keep all your new packages in one place.
+
+* CheckInstall is now completely "scriptable"! If you give it the "-y" 
+  command line option it will run completely unattended, accepting the 
+  default answer to all questions.
+
+CheckInstall 1.5.0beta1:
+======================================
+
+* Debian support is in place! Read the Debian packaging section of the
+  README file. This is an experimental feature. Please report any bugs or 
+  problems so they can be fixed  :).
+
+CheckInstall 1.4.0:
+======================================
+
+A long time has passed since the last checkinstall release, thanks to my
+final exams and an unusually big load of work. Now I have more free time and
+will be working hard to add two important features: tracking of statically
+linked binaries and .deb packaging format support. Stay tuned  :).
+
+* I modified the installwatch library to make it backup any files modified
+  by the install command, _before_ they are modified. This is done at the
+  system call level.
+ 
+  This allows checkinstall to write a tarball including all files that
+  were overwritten/deleted/etc by the install command -i.e "make install"-,
+  giving you the chance to return your system to the exact same state it was    
+  before installing your program.                                      
+
+  An example: suppose you have installed AfterStep, which by default keeps its
+  global configuration files under /usr/local/share/afterstep,and you have
+  customized them to meet your own tastes. Then you download and compile a new
+  version, and then you install it with "make install" or with "checkinstall".
+
+  You restart your afterstep session only to discover that all of your
+  carefully configured files under /usr/local/share/afterstep have been
+  overwritten by the installation process and substituted by the standard
+  dist versions! Well.. that was until the arrival of CheckInstall 1.4  ;-)
+
+  CheckInstall 1.4.0 would have saved all of those about-to-be-overwritten
+  files just before they were modified, and wrote a tarball containing all
+  of them. So in the example before, you'd just do a:
+
+  tar xzvf backup-xxxxx-pre-afterstep-v.v.v.tgz -C / 
+
+  And you'd get your files back. Nice, isn't it?
+
+  Another nice thing is that if you cancel checkinstall at any time, it will
+  automatically restore any already modified/overwritten files. 
+
+  The xxxxx in the filename are a timestamp made with the date and time when
+  the file was created, so you can run checkinstall multiple times and you'll
+  get incremental-style backups of the modified files.
+
+  The new installwatch library (0.6.0) has a lot of applications, I'll talk
+  about them in installwatch's own documentation.
+
+* CheckInstall now has full command line switches parsing.
+  Try "checkinstall --help".
+
+* The variable definition section inside the checkinstall script is gone.
+  Now you should edit the checkinstallrc file, normally installed under
+  /usr/local/lib/checkinstall
+
+* Added an option ("--exclude") to tell checkinstall wich directories to ignore
+  while searchig for modified files.
+
+CheckInstall 1.3.2:
+======================================
+
+* Security fix for the temp dir, preventing symlink attacks.
+* File names with spaces in them are now correctly handled.
+
+CheckInstall 1.3.1:
+======================================
+
+* Fix for a bug found when using rpm 4.0, and new features.
+* Slackware: If you create a script called "install-pak" inside the source
+  directory, checkinstall will add it to the new package. The script will
+  be run every time you install the package with Slackware's installpkg.
+  This is useful for setting permissions, adding users and setting the system
+  up after installing that package.
+
+
+
+
+CheckInstall 1.3.0:
+======================================
+
+Lots of bug fixes and a couple of changes. Read the Changelog and the README.
+
+
+CheckInstall 1.3.0beta3:
+======================================
+The bug that prevented checkinstall from working on your rpm-based distribution
+has been fixed  -seems fixed, at least!-
+
+So far I've tested v1.3.0beta3 in:
+
+ o RedHat 6.2
+ o Slackware 7.1
+
+RedHat 7.x, SuSe and Mandrake should be OK but I haven't confirmed it. Maybe you
+could do that and write me a note to include them on the list  ;-).
+
+I've added a DEBUG flag to allow checkinstall to gather some useful info and
+pack it in a tarball. Check the variable definition section inside the script.
+
+CheckInstall 1.3.0beta :
+======================================
+
+RPM support is now included. See the bottom of the README for details.
+This is a beta release, please report bugs and post comments to:
+
+<fsanchez@uagunix.gdl.uag.mx>
+
+CheckInstall 1.2.1 :
+======================================
+
+Because of a couple of bugs introduced by checkinstall 1.2, you may have to 
+check the owner and permissions of /tmp and /var/checkinstalltmp :
+
+
+/tmp ==> 1777/root:root
+/var/checkinstalltmp ==> 0700/root:root
+
+Just to make sure, run:
+
+chmod 1777 /tmp
+rm -rf /var/checkinstalltmp
+mkdir /var/checkinstalltmp
+chmod 0700 /var/checkinstalltmp
+
+===========
+$Id: RELNOTES,v 1.6.1.2 2006/11/01 07:41:41 izto Exp $
+                                                                 

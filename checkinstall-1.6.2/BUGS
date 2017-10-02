@@ -1,0 +1,21 @@
+==========
+KNOWN BUGS
+==========
+
+* You can have some trouble if the source directory's path has white spaces in
+  it, when building rpm packages or Slackware tarballs. These problems are
+  caused by bugs in the packaging applications used in those systmes (Namely
+  "rpm" and "installpkg"). Checkinstall makes it's best effort to work around
+  these bugs, but you should try to avoid source directories' names with spaces.
+  There's no problem when building Debian packages, though.
+
+* Some directories are not removed when removing a checkinstall-generated
+  rpm package.
+
+* The installwatch library seems to have some problems with glibc-2.2.1. You
+  should use glibc-2.2.2+
+
+* There are problems when using installwatch and libsafe together
+
+  ==================
+  $Id: BUGS,v 1.6.0.1 2003/03/13 19:08:37 izto Exp $

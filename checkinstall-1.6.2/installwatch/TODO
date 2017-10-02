@@ -1,0 +1,13 @@
+Here's a list of things I would like to add, in no particular order.
+
+If you can/want to contribute, send me a message: izto@asic-linux.com.mx
+
+* Make it work with statically linked programs (see BUGS)
+* Make it as portable as possible. I only tested installwatch with
+  Linux, but it should work with other systems with <dlfcn.h>
+  Solaris comes in mind
+* Use autoconf
+
+
+=================
+$Id: TODO,v 0.6 2001/04/17 19:38:09 izto Exp $

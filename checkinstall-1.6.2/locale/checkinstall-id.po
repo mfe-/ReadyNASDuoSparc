@@ -1,0 +1,624 @@
+# translation of checkinstall-id.po to 
+# MESSAGES FOR CHECKINSTALL-1.6.0beta4 in <Indonesian>
+# Copyright (C) 2005 Tedi Heriyanto
+#
+# Tedi Heriyanto <tedi_h@gmx.net>,2005.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: checkinstall-id\n"
+"POT-Creation-Date: 2002-11-27 00:58-0600\n"
+"PO-Revision-Date: 2005-01-10 21:03+0700\n"
+"Last-Translator: Tedi Heriyanto <tedi_h@gmx.net>\n"
+"Language-Team:  <translation-id@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.9\n"
+
+msgid "           This software is released under the GNU GPL."
+msgstr "         This software is released under the GNU GPL."
+
+msgid "Usage: checkinstall [options] [command [command arguments]]"
+msgstr "Penggunaan: checkinstall [opsi] [perintah [argumen]]"
+
+msgid "Options:"
+msgstr "Opsi:"
+
+msgid "*Package type selection*"
+msgstr "*Pemilihan tipe paket*"
+
+msgid "-t,--type=<slackware|rpm|debian> Choose packaging system"
+msgstr "-t,--type=<slackware|rpm|debian> Pilih sistem pemaketan"
+
+msgid "-S                               Build a Slackware package"
+msgstr "-S                               Buat paket Slackware"
+
+msgid "-R                               Build a RPM package"
+msgstr "-R                               Buat paket RPM"
+
+msgid "-D                               Build a Debian package"
+msgstr "-D                               Buat paket Debian"
+
+msgid "*Install options*"
+msgstr "*Opsi instalasi*"
+
+msgid "--install=<yes|no>             Toggle created package installation"
+msgstr "--install=<yes|no>             Pilih instalasi paket yang dibuat"
+
+msgid "*Scripting options*"
+msgstr "*Opsi Scripting*"
+
+msgid "-y, --default                  Accept default answers to all questions"
+msgstr "-y, --default                  Terima semua jawaban baku untuk seluruh pertanyaan"
+
+msgid "--pkgname=<name>               Set name"
+msgstr "--pkgname=<name>               Set nama"
+
+msgid "--pkgversion=<version>         Set version"
+msgstr "--pkgversion=<version>         Set versi"
+
+msgid "-A, --arch, --pkgarch=<arch>   Set architecture"
+msgstr "-A, --arch, --pkgarch=<arch>   Set arsitektur"
+
+msgid "--pkgrelease=<release>         Set release"
+msgstr "--pkgrelease=<release>         Set rilis"
+
+msgid "--pkglicense=<license>         Set license"
+msgstr "--pkglicense=<license>         Set lisensi"
+
+msgid "--pkggroup=<group>             Set software group"
+msgstr "--pkggroup=<group>             Set kelompok software"
+
+msgid "--pkgsource=<source>           Set source location"
+msgstr "--pkgsource=<source>           Set lokasi sumber"
+
+msgid "--pkgaltsource=<altsource>     Set alternate source location"
+msgstr "--pkgaltsource=<altsource>     Set lokasi sumber alternatif"
+
+msgid "--pakdir=<directory>           The new package will be saved here"
+msgstr "--pakdir=<directory>           Paket baru akan disimpan di sini"
+
+msgid "--maintainer=<email addr>      The package maintainer (.deb)"
+msgstr "--maintainer=<email addr>      Pemelihara paket (.deb)"
+
+msgid "--provides=<list>              Features provided by this package (.rpm)"
+msgstr "--provides=<list>             Fitur yang disediakan oleh paket ini (.rpm)"
+
+msgid "--requires=<list>              Features required by this package (.rpm)"
+msgstr "--requires=<list>              Fitur yang dibutuhkan oleh paket ini (.rpm)"
+
+msgid "--rpmflags=<flags>             Pass this flags to the rpm installer"
+msgstr "--rpmflags=<flags>             Berikan flag ini ke installer rpm"
+
+msgid "--dpkgflags=<flags>            Pass this flags to the dpkg installer"
+msgstr "--dpkgflags=<flags>            Berikan flag ini ke installer dpkg"
+
+msgid "--spec=<path>                  .spec file location"
+msgstr "--spec=<path>                  .lokasi file spec"
+
+msgid "--nodoc                        Do not include documentation files"
+msgstr "--nodoc                        Jangan sertakan file dokumentasi"
+
+msgid "*Info display options*"
+msgstr "*Opsi tampilan info*"
+
+msgid "-d<0|1|2>                      Set debug level"
+msgstr "-d<0|1|2>                      Set tingkat debug"
+
+msgid "-si                            Run an interactive install command"
+msgstr "-si                            Jalankan perintah instalasi interaktif"
+
+msgid "--showinstall=<yes|no>         Toggle interactive install command"
+msgstr "--showinstall=<yes|no>         Aktifkan perintah instalasi interaktif"
+
+msgid ""
+"-ss                            Run an interactive Slackware installation "
+"script"
+msgstr "-ss                            Jalankan skrip instalasi Slackware interaktif"
+
+msgid ""
+"--showslack=<yes|no>           Toggle interactive Slackware installation "
+"script"
+msgstr "--showslack=<yes|no>           Aktifkan skrip instalasi Slackware interaktif"
+
+msgid "*Package tuning options*"
+msgstr "*Opsi tuning paket*"
+
+msgid "--autodoinst=<yes|no>          Toggle the creation of a doinst.sh script"
+msgstr "--autodoinst=<yes|no>          Aktifkan pembuatan skrip doinst.sh"
+
+msgid ""
+"--strip=<yes|no>               Strip any ELF binaries found inside the "
+"package"
+msgstr "--strip=<yes|no>               Strip sembarang biner ELF yang ada dalam paket"
+
+msgid "--stripso=<yes|no>             Strip any ELF binary libraries (.so files)"
+msgstr "--stripso=<yes|no>             Strip sembarang library biner ELF (file .so)"
+
+msgid ""
+"--gzman=<yes|no>               Compress any man pages found inside the "
+"package"
+msgstr "--gzman=<yes|no>               Kompresi man pages yang ada dalam paket"
+
+msgid "--docdir=<path>                Where to put documentation files"
+msgstr "--docdir=<path>                Lokasi file dokumentasi"
+
+msgid "--umask=<mask>                 Set the umask value"
+msgstr "--umask=<mask>                 Set nilai umask"
+
+msgid ""
+"--exclude=<file|dir[,...]>     Exclude these files/directories from the "
+"package"
+msgstr "--exclude=<file|dir[,...]>     Kecualikan file/direktori ini dari paket"
+
+msgid "--include=<listfile>           Force the inclusion in the package of the"
+msgstr "--include=<listfile>           Paksa penyertaannya dalam paket"
+
+msgid "--inspect                      Inspect the package's file list"
+msgstr "--inspect                      periksa daftar file paket"
+
+msgid "--review-spec                  Review the spec file before creating a .rpm"
+msgstr "--review-spec                  Review file spec sebelum membuat rpm"
+
+msgid "--review-control               Review the control file before creating a .deb"
+msgstr "--review-control               Review file kendali sebelum membuat deb"
+
+msgid ""
+"--newslack                     Use the new (8.1+) Slackware description "
+"format"
+msgstr "--newslack                     Gunakan format deskripsi Slackware baru (8.1+)"
+
+msgid "                               (\"--newslack\" implies \"-S\")"
+msgstr "                               (\"--newslack\" implies \"-S\")"
+
+msgid "*Cleanup options*"
+msgstr "*Opsi Pembersihan*"
+
+msgid "--deldoc=<yes|no>              Delete doc-pak upon termination"
+msgstr "--deldoc=<yes|no>              Hapus doc-pak setelah berhenti"
+
+msgid "--deldesc=<yes|no>             Delete description-pak upon termination"
+msgstr "--deldesc=<yes|no>             Hapus description-pak setelah berhenti"
+
+msgid "--delspec=<yes|no>             Delete spec file upon termination"
+msgstr "--delspec=<yes|no>             Hapus file spec setelah berhenti"
+
+msgid "--bk                           Backup any overwritten files"
+msgstr "--bk                           Backup file-file yang ditimpa"
+
+msgid "--backup=<yes|no>              Toggle backup"
+msgstr "--backup=<yes|no>              Aktifkan backup"
+
+msgid "*About CheckInstall*"
+msgstr "*Tentang CheckInstall*"
+
+msgid "--help, -h                     Show this message"
+msgstr "--help, -h                     Tampilkan pesan ini"
+
+msgid "--copyright                    Show Copyright information"
+msgstr "--copyright                    Tampilkan informasi hak cipta"
+
+msgid "--version                      Show version information"
+msgstr "--version                      Tampilkan informasi versi"
+
+msgid "Use --help or -h to get more information"
+msgstr "Gunakan  --help atau -h untuk memperoleh informasi lebih lanjut"
+
+msgid "is an invalid value for"
+msgstr "merupakan nilai tidak valid untuk"
+
+msgid "Restoring overwritten files from backup..."
+msgstr "Mengembalikan file-file yang ditimpa dari backup..."
+
+msgid "*** SIGINT received ***"
+msgstr "*** SIGINT diterima ***"
+
+msgid "Cleaning up..."
+msgstr "Pembersihan..."
+
+msgid "Bye."
+msgstr "Bye."
+
+msgid "The checkinstallrc file was not found at:"
+msgstr "File checkinstallrc tidak ditemukan di:"
+
+msgid "Assuming default values."
+msgstr "Asumsikan nilai baku."
+
+msgid "I can't find $INSTALLWATCH."
+msgstr "Tidak dapat menemukan $INSTALLWATCH."
+
+msgid "I can't continue. Either install installwatch or"
+msgstr "Tidak dapat meneruskan. Instalasi installwatch atau"
+
+msgid "modify the INSTALLWATCH variable in this script,"
+msgstr "modifikasi variabel INSTALLWATCH dalam skrip ini,"
+
+msgid "then run checkinstall again."
+msgstr "lalu jalankan checkinstall lagi."
+
+msgid "My temp dir exists already."
+msgstr "Dir temp sudah ada."
+
+msgid "This looks like a symlink attack!"
+msgstr "Tampaknya seperti serangan symlink!"
+
+msgid "*** Aborting"
+msgstr "*** Membatalkan"
+
+msgid "is an unacceptable value for the temp dir. Please"
+msgstr "adalah sebuah nilai yang tidak valid untuk dir temp. Silakan"
+
+msgid "edit the variable definition for"
+msgstr "edit definisi variabel untuk"
+
+msgid "and try again."
+msgstr "dan coba lagi."
+
+msgid "**** Failed to create temp dir!"
+msgstr "**** Gagal membuat dir temp!"
+
+msgid "**** Do you have write permission for ${BASE_TMP_DIR}?"
+msgstr "**** Anda punya permisi menulis ke ${BASE_TMP_DIR}?"
+
+msgid "The package documentation directory ./doc-pak does not exist."
+msgstr "Direktori dokumentasi paket ./doc-pak tidak ada."
+
+msgid "Should I create a default set of package docs? "
+msgstr "Apakah saya harus membuat sejumlah dok paket baku?"
+
+msgid "Preparing package documentation..."
+msgstr "Mempersiapkan dokumentasi paket..."
+
+msgid "*** No known documentation files were found. The new package"
+msgstr "*** File dokumentasi yang dikenal tidak ditemukan. Paket baru"
+
+msgid "*** won't include a documentation directory."
+msgstr "*** tidak akan menyertakan direktori dokumentasi."
+
+msgid "Copying documentation directory..."
+msgstr "Menyalinkan direktori dokumentasi..."
+
+msgid "Installing with"
+msgstr "Instalasi dengan"
+
+msgid "========================= Installation results ==========================="
+msgstr "========================= Hasil Instalasi ==========================="
+
+msgid "======================== Installation successful =========================="
+msgstr "======================== Instalasi Berhasil =========================="
+
+msgid "****  Installation failed. Aborting package creation."
+msgstr "****  Instalasi gagal. Membatalkan pembuatan paket."
+
+msgid "Do you want to view the installation log file? "
+msgstr "Anda ingin melihat file log instalasi?"
+
+msgid "Some of the files created by the installation are inside the build"
+msgstr "Beberapa file yang dibuat oleh instalasi berada dalam "
+
+msgid "directory: `pwd`"
+msgstr "build direktori: `pwd`"
+
+msgid "You probably don't want them to be included in the package,"
+msgstr "Anda mungkin tidak ingin menyertakan mereka dalam paket,"
+
+msgid "especially if they are inside your home directory."
+msgstr "terutama bila mereka ada dalam direktori home anda."
+
+msgid "Do you want me to list them? "
+msgstr "Anda ingin saya menampilkan daftar mereka?"
+
+msgid "Should I exclude them from the package? (Saying yes is a good idea) "
+msgstr "Haruskah saya tidak menyertakan mereka dari paket? (Jawab ya adalah ide baik)"
+
+msgid "You requested to review the list of files that will be"
+msgstr "Anda meminta untuk mereview daftar file yang akan"
+
+msgid "included in this package."
+msgstr "disertakan dalam paket ini."
+
+msgid "Now you'll have the chance to review and optionally modify it."
+msgstr "Sekarang anda punya kesempatan untuk mereview dan memodifikasinya."
+
+msgid "Now you'll have the chance to review and optionally modify this file."
+msgstr "Sekarang anda punya kesempatan untuk mereview dan memodifikasi file ini."
+
+msgid "Press ENTER to continue."
+msgstr "Tekan ENTER untuk lanjut."
+
+msgid "Copying files to the temporary directory..."
+msgstr "Menyalinkan file ke direktori sementara..."
+
+msgid "Striping ELF binaries and libraries..."
+msgstr "Men-strip biner dan librari ELF..."
+
+msgid "Striping ELF binaries..."
+msgstr "Men-strip biner ELF..."
+
+msgid "Compressing man pages..."
+msgstr "Mengkompresi man page..."
+
+msgid "Building file list..."
+msgstr "Membuat daftar file..."
+
+msgid "Please choose the packaging method you want to use."
+msgstr "Silakan pilih metode paket yang diinginkan."
+
+msgid "Slackware [S], RPM [R] or Debian [D]? "
+msgstr "Slackware [S], RPM [R] atau Debian [D]? "
+
+msgid "Please write a description for the package."
+msgstr "Silakan tulis deskripsi untuk paket."
+
+msgid " Remember that pkgtool shows"
+msgstr "Ingatlah bahwa pkgtools hanya menampilkan"
+
+msgid "only the first one when listing packages so make that one descriptive."
+msgstr "yang pertama ketika mendaftar paket jadi buatlah yang deskriptif."
+
+msgid "End your description with an empty line or EOF."
+msgstr "Akhiri deskripsi dengan baris kosong atau EOF."
+
+msgid "Package created with checkinstall $CHECKINSTALL_VERSION"
+msgstr "Paket yang dibuat dengan checkinstall:$CHECKINSTALL_VERSION"
+
+msgid "Warning: Your package description is bigger than 11 lines."
+msgstr "Peringatan: Deskripsi paket anda melebihi 11 baris."
+
+msgid "Warning: The Slackware 8.1+ pkgtools might not like it."
+msgstr "Peringatan: pkgtools Slackware 8.1+ mungkin tidak menyukainya."
+
+msgid "*** Warning: The package name"
+msgstr "*** Peringatan: Nama paket"
+
+msgid "contains upper case"
+msgstr "berisikan huruf kapital."
+
+msgid "*** Warning: letters. dpkg might not like that so I changed"
+msgstr "***Peringatan: dpkg mungkin tidak menyukainya sehingga saya ubah"
+
+msgid "*** Warning: them to lower case."
+msgstr "*** Peringatan: menjadi huruf kecil."
+
+msgid "*** Warning: The package version \"${VERSION}\" does not"
+msgstr "***Peringatan: Versi paket \"${VERSION}\" tidak"
+
+msgid "*** Warning: contain any digits. dpkg might not like that."
+msgstr "***Peringatan: berisi digit. dpkg mungkin tidak menyukainya."
+
+msgid "This package will be built according to these values: "
+msgstr "Paket ini akan dibuat berdasarkan nilai-nilai berikut:"
+
+msgid "0 -  Maintainer:"
+msgstr "0 -  Pemelihara:"
+
+msgid "1 -  Summary:"
+msgstr "1 -  Ringkasan:"
+
+msgid "2 -  Name:"
+msgstr "2 -  Nama:"
+
+msgid "3 -  Version:"
+msgstr "3 -  Versi:"
+
+msgid "5 -  License:"
+msgstr "5 -  Lisensi:"
+
+msgid "6 -  Group:"
+msgstr "6 -  Kelompok:"
+
+msgid "7 -  Architecture:"
+msgstr "7 -  Arsitektur:"
+
+msgid "8 -  Source location:"
+msgstr "8 -  Lokasi sumber:"
+
+msgid "9 -  Alternate source location:"
+msgstr "9 -  Lokasi sumber alternatif:"
+
+msgid "10 - Provides:"
+msgstr "10 - Memberikan:"
+
+msgid "11 - Requires:"
+msgstr "11 - Membutuhkan:"
+
+msgid "Enter a number to change any of them or press ENTER to continue: "
+msgstr "Masukkan angka untuk merubah salah satunya atau ENTER untuk lanjut:"
+
+msgid "Enter new summary: "
+msgstr "Masukkan ringkasan baru:"
+
+msgid "Enter new name: "
+msgstr "Masukkan nama baru:"
+
+msgid "Enter new version: "
+msgstr "Masukkan versi baru:"
+
+msgid "Enter new release number: "
+msgstr "Masukkan nomor rilis baru:"
+
+msgid "Enter the license type: "
+msgstr "Masukkan tipe lisensi:"
+
+msgid "Enter the new software group: "
+msgstr "Masukkan kelompok software baru:"
+
+msgid "Enter the architecture type: "
+msgstr "Masukkan tipe arsitektur:"
+
+msgid "Enter the source location: "
+msgstr "Masukkan lokasi sumber:"
+
+msgid "Enter the alternate source location: "
+msgstr "Masukkan lokasi sumber alternatif:"
+
+msgid "Enter the maintaner's name and e-mail address: "
+msgstr "Masukkan nama dan email pemelihara:"
+
+msgid "Enter the provided features: "
+msgstr "Masukkan fitur yang diberikan:"
+
+msgid "Enter the additional requirements: "
+msgstr "Masukkan kebutuhan lainnya:"
+
+msgid "********************************************"
+msgstr "********************************************"
+
+msgid "**** Slackware package creation selected ***"
+msgstr "**** Pembuatan paket Slackware dipilih ***"
+
+msgid "*** The \"installpkg\" program is not in your PATH!"
+msgstr "*** Program \"installpkg\" tidak ada dalam PATH anda!"
+
+msgid "*** Slackware package creation aborted"
+msgstr "*** Pembuatan paket Slackware dibatalkan"
+
+msgid "Preparing Slackware install directory..."
+msgstr "Mempersiapkan direktori instalasi Slackware..."
+
+msgid "Writing package description..."
+msgstr "Menulis deskripsi paket..."
+
+msgid "Writing Slackware install script..."
+msgstr "Menulis skrip instalasi Slackware..."
+
+msgid "Appending your script to the main install script..."
+msgstr "Menambahkan skrip anda ke skrip instalasi utama..."
+
+msgid "Creating package ${SLACK_PKG_BASENAME}..."
+msgstr "Membuat paket ${SLACK_PKG_BASENAME}..."
+
+msgid "Installing package..."
+msgstr "Instalasi paket..."
+
+msgid "*** Failed to install the package"
+msgstr "*** Gagal menginstalasi paket"
+
+msgid "Do you want to see the log file? "
+msgstr "Anda ingin melihat file log?"
+
+msgid "NOTE: The package will not be installed."
+msgstr "CATATAN: Paket tidak akan diinstalasi."
+
+msgid "**************************************"
+msgstr "**************************************"
+
+msgid "**** RPM package creation selected ***"
+msgstr "**** Pembuatan paket RPM dipilih ***"
+
+msgid "*** The \"rpm\" program is not in your PATH!"
+msgstr "*** Program \"rpm\" tidak ada dalam PATH anda!"
+
+msgid "*** RPM package creation aborted"
+msgstr "*** Pembuatan paket RPM dibatalkan"
+
+msgid "$RPMSOURCEDIR has no SOURCES directory. Please write the path to"
+msgstr "$RPMSOURCEDIR tidak memiliki direktori SOURCES. Silakan tulis path ke"
+
+msgid "the RPM source directory tree: "
+msgstr "pohon direktori sumber RPM:"
+
+msgid "You requested to review the .spec file for this package."
+msgstr "Anda meminta untuk mereview file spec untuk paket ini."
+
+msgid "Building RPM package..."
+msgstr "Membuat paket RPM..."
+
+msgid "*** Failed to build the package"
+msgstr "*** Gagal membuat paket"
+
+msgid "Warning: the use of RPMFLAGS is deprecated."
+msgstr "Peringatan: penggunaan RPMFLAGS tidak lagi didukung."
+
+msgid "Warning: You should now use RPM_FLAGS,"
+msgstr "Peringatan: Anda harus menggunakan RPM_FLAGS."
+
+msgid "Warning: please update your checkinstallrc file."
+msgstr "Peingatan: silakan update file checkinstallrc anda."
+
+msgid "Installing RPM package..."
+msgstr "Instalasi paket RPM..."
+
+msgid "NOTE: The package will not be installed"
+msgstr "CATATAN: paket tidak akan diinstalasi"
+
+msgid "*****************************************"
+msgstr "*****************************************"
+
+msgid "**** Debian package creation selected ***"
+msgstr "**** Pembuatan paket Debian dipilih***"
+
+msgid "*** The \"dpkg\" program is not in your PATH!"
+msgstr "*** Program \"dpkg\" tidak ada dalam PATH anda!"
+
+msgid "*** Debian package creation aborted"
+msgstr "*** Pembuatan paket Debian dibatalkan"
+
+msgid "You requested to review the control file for this package."
+msgstr "Anda meminta untuk mereview file kendali untuk paket ini."
+
+msgid "Building Debian package..."
+msgstr "Membuat paket Debian..."
+
+msgid "Installing Debian package..."
+msgstr "Instalasi paket Debian..."
+
+msgid "*** No method was selected, I won't build any package."
+msgstr "***Tidak ada metode yang dipilih, saya tidak akan membuat paket."
+
+msgid "*** The installation command \"$INSTALLCMD\""
+msgstr "***Perintah instalasi \"$INSTALLCMD\""
+
+msgid "*** has already been executed."
+msgstr "***telah dieksekusi."
+
+msgid "The package storage directory"
+msgstr "Direktori penyimpanan paket"
+
+msgid "doesn't exist. Do you want to create it?"
+msgstr "tidak ada. Anda ingin membuatnya?"
+
+msgid "Creating package storage directory..."
+msgstr "Membuat direktori penyimpanan paket..."
+
+msgid "*** Unable to create $PAK_DIR"
+msgstr "*** Tidak dapat membuat $PAK_DIR"
+
+msgid "Transferring package to"
+msgstr "Mentransfer paket ke"
+
+msgid "There's no package storage directory, the package"
+msgstr "Tidak ada direktori penyimpanan paket, paket"
+
+msgid "will be stored at the default location."
+msgstr "akan disimpan pada lokasi baku."
+
+msgid "Erasing temporary files..."
+msgstr "Menghapus file sementara..."
+
+msgid "Deleting doc-pak directory..."
+msgstr "Menghapus direktori doc-pak..."
+
+msgid "Writing backup package..."
+msgstr "Menulis paket backup..."
+
+msgid "Deleting temp dir..."
+msgstr "Menghapus dir temp..."
+
+msgid "Building debug information package..."
+msgstr "Membuat informasi debug paket..."
+
+msgid " Done. The new package has been installed and saved to"
+msgstr "Selesai. Paket baru telah diinstalasi dan disimpan di"
+
+msgid " You can remove it from your system anytime using: "
+msgstr "Anda dapat menghapusnya dari sistem anda kapanpun dengan:"
+
+msgid " Done. The new package has been saved to"
+msgstr "Selesai. Paket baru telah disimpan di"
+
+msgid " You can install it in your system anytime using: "
+msgstr "Anda dapat menginstalasinya kapan saja menggunakan:"
+

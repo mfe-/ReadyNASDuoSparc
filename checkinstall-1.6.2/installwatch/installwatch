@@ -1,0 +1,348 @@
+#!/bin/bash
+#$Id: installwatch,v 0.6.7.0 2007/12/04 07:35:04 gna Exp $
+
+#set -x
+
+PREFIX=${PREFIX:-#PREFIX#}
+
+HACK="PREFIX"
+HACK="#$HACK#";
+
+if test "$PREFIX" = "$HACK" ; then
+	echo 'This script has not been installed'
+	echo 'Please run "make install"'
+	exit 1
+fi
+
+LIBDIR=$DESTDIR$PREFIX/lib
+LIB64_PLATFORM=false
+case `uname -m` in
+    x86_64|ppc64|s390x)
+	LIB64_PLATFORM=true
+	;;
+esac
+if test -d $PREFIX/lib64 && test "$LIB64_PLATFORM" = "true" ; then
+	LIBDIR=$PREFIX/lib64
+else
+	LIBDIR=$PREFIX/lib
+fi
+  
+BASE_TMP_DIR=/tmp
+  
+INSTALLWATCH_VERSION=0.7.0beta7
+  
+ 
+#
+# ##############################################################################
+#
+# Function definitions
+#
+#
+
+function ckversion {
+	echo
+	echo -n "installwatch $INSTALLWATCH_VERSION, "
+	echo    "Copyright 1998 Pancrazio de Mauro"
+	echo    "Copyright 2002 Felipe Eduardo Sanchez Diaz Duran"
+	echo    "           This software is released under the GNU GPL."
+}
+
+function usage() {
+
+	(
+	ckversion
+	echo
+	echo "Usage: installwatch [options] [command [command arguments]]"
+	echo "Options:"
+	echo
+	echo "-r, --root=<rootdir>           Sets the directory under which will be stored "
+	echo "                               meta-infos and translated files. "
+	echo "-t, --transl=<yes|no>          Toggle translation capabilities "
+	echo "-b, --backup=<yes|no>          Toggle backup capabilities "
+	echo "-e, --exclude=<dir1,...,dirN>  Sets a neutral directory list, that won't be"
+	echo "                                concerned by translation or backups. "
+	echo "-o, --logfile=<logfile>        Sets the log file to be used. "
+	echo "-d, --dbgfile=<dbgfile>        Sets the debug file to be used. "
+	echo "-v, --dbglvl=<dbglvl>          Sets the debug level to be used. "
+	)
+	exit 1
+}		
+
+function help_notice() {
+	echo
+	echo "Use --help or -h to get more information"
+	echo
+	exit 1 
+}
+
+function boolean_usage() {
+	echo
+	echo "$2 is an invalid value for $1" 
+	help_notice
+	exit 1
+}
+
+function make_temp {
+	local mkt_refdir=$1
+	local mkt_wrkdir=""
+
+	mkt_wrkdir=`mktemp -q -d -p ${BASE_TMP_DIR}`
+
+	eval $mkt_refdir=\$mkt_wrkdir
+}
+
+#
+#
+# Function definitions
+#
+# ##############################################################################
+#
+
+#
+# ##############################################################################
+#
+# Options and arguments parsing and validation
+#
+#
+
+CKNAME=`basename $0`
+PARAMS=`getopt -a -n $CKNAME -o +r:e:o:d:v:tb -l root:,transl:,backup:,exclude:,logfile:,dbgfile:,dbglvl:,help,version,copyright -- "$@"`
+
+[ $? -gt 0 ] && help_notice
+
+eval set -- $PARAMS
+
+unset INSTW_ROOTPATH
+unset INSTW_TRANSL
+unset INSTW_BACKUP
+unset INSTW_LOGFILE
+unset INSTW_DBGFILE
+unset INSTW_DBGLVL
+unset INSTW_EXCLUDE
+
+while [ "$1" != "--" ]; do
+	case "$1" in
+		-h|-H|--help)
+			usage;;
+		-r|--root)
+			shift
+			INSTW_ROOTPATH=`eval echo $1` 
+			;;
+		-e|--exclude)
+			shift
+			INSTW_EXCLUDE=`eval echo $1`
+			;;
+		-o|--logfile)
+			shift
+			INSTW_LOGFILE=`eval echo $1`
+			;;
+		-d|--dbgfile)
+			shift
+			INSTW_DBGFILE=`eval echo $1`
+			;;
+		-v|--dbglvl)
+			shift
+			INSTW_DBGLVL=`eval echo $1`
+			;;
+		-t)
+			INSTW_TRANSL=1
+			;;
+		--transl)
+			shift
+			case `eval echo $1` in
+				"1"|"yes"|"")
+					INSTW_TRANSL=1
+					;;
+				"0"|"no")
+					INSTW_TRANSL=0
+					;;
+				*)
+					boolean_usage "--transl" $1
+			esac
+			;;
+		-b)
+			INSTW_BACKUP=1
+			;;
+		--backup)
+			shift
+			case `eval echo $1` in
+				"1"|"yes"|"")
+					INSTW_BACKUP=1
+					;;
+				"0"|"no")
+					INSTW_BACKUP=0
+					;;
+				*)
+					boolean_usage "--backup" $1
+			esac
+			;;
+		--copyright|--version)
+			cat << EOF
+
+Copyright (C) 1998 Pancrazio `Ezio' de Mauro 
+Copyright (C) 2002 Felipe Eduardo Sanchez Diaz Duran <izto@asic-linux.com.mx>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+EOF
+			exit 0
+			;;
+	esac
+	shift
+done
+
+  #
+  # ##############################################
+  #
+
+  # do we have an installation process command
+shift
+if [ "$1" = "" ]; then
+	echo
+	echo "Error : You must specify a command !!!"
+	echo
+	usage
+	exit 1
+fi
+
+if [ -u "$1" ]; then
+	echo "Warning: `basename $0` may not work with suid programs" 
+fi
+  # we must have a root path defined
+if [ "${INSTW_ROOTPATH}_" = "_" ]; then
+	make_temp "INSTW_ROOTPATH"
+	echo
+	echo "INFO : Using a default root directory : ${INSTW_ROOTPATH}"
+	echo
+fi
+if [ ! -d "${INSTW_ROOTPATH}" ]; then
+	echo
+	echo "The root directory is mandatory ."
+	echo
+	usage
+	exit 1
+fi
+if [ "${INSTW_ROOTPATH:((${#INSTW_ROOTPATH}-1)):1}" = "/" ]; then
+	INSTW_ROOTPATH="${INSTW_ROOTPATH%/}"
+fi
+
+export INSTW_ROOTPATH
+
+if [ "${INSTW_BACKUP}_" = "_" ]; then
+	INSTW_BACKUP=0;
+fi	
+export INSTW_BACKUP
+
+if [ "${INSTW_TRANSL}_" = "_" ]; then
+	INSTW_TRANSL=0;
+fi	
+export INSTW_TRANSL
+
+if [ "${INSTW_LOGFILE}_" = "_" ]; then
+	INSTW_LOGFILE="${INSTW_ROOTPATH}/logfile"
+fi
+export INSTW_LOGFILE
+
+if [ "${INSTW_DBGFILE}_" = "_" ]; then
+	INSTW_DBGFILE="${INSTW_ROOTPATH}/dbgfile"
+fi
+export INSTW_DBGFILE
+
+if [ "${INSTW_DBGLVL}_" = "_" ]; then
+	INSTW_DBGLVL=0
+fi
+export INSTW_DBGLVL
+
+[ $INSTW_DBGLVL -gt 0 ] && echo "debug: INSTW_EXCLUD before sort =${INSTW_EXCLUDE}"
+INSTW_EXCLUDE="/dev,/proc,/tmp,/var/tmp,${INSTW_EXCLUDE}"
+OFS="$IFS"
+IFS=','
+INSTW_EXCLUDE=$(for name in $INSTW_EXCLUDE; do
+	echo $name
+	done | sort -u |
+	while read elem; do
+		echo -n "$elem,"
+	done)
+export INSTW_EXCLUDE
+IFS="$OIFS"
+
+if [ "${INSTW_LOGFILE}_" != "_" ]; then
+	  # If INSTW_LOGFILE is a relative path, it must become absolute
+	if echo ${INSTW_LOGFILE} | grep -qv '^/' ; then
+		INSTW_LOGFILE="$(pwd)/${INSTW_LOGFILE}"
+	fi
+
+	export INSTW_LOGFILE
+	if cat /dev/null >"${INSTW_LOGFILE}"; then
+		true
+	else
+		echo
+		echo "Error : Unable to prepare ${INSTW_LOGFILE}"
+		echo
+		exit 1
+	fi
+fi
+
+if [ "${INSTW_DBGFILE}_" != "_" ]; then
+	  # If INSTW_DBGFILE is a relative path, it must become absolute
+	if echo ${INSTW_DBGFILE} | grep -qv '^/' ; then
+		INSTW_DBGFILE="$(pwd)/${INSTW_DBGFILE}"
+	fi
+
+	export INSTW_DBGFILE
+	if cat /dev/null >"${INSTW_DBGFILE}"; then
+		true
+	else
+		echo
+		echo "Error : Unable to prepare ${INSTW_DBGFILE}"
+		echo
+		exit 1
+	fi
+fi
+
+
+#
+#
+# Options and arguments parsing and validation
+#
+# ##############################################################################
+#
+
+if [ "$LD_PRELOAD" ]; then
+    LD_PRELOAD="$LIBDIR/installwatch.so:$LD_PRELOAD"
+else
+    LD_PRELOAD="$LIBDIR/installwatch.so"
+fi
+export LD_PRELOAD
+
+if [ $INSTW_DBGLVL -gt 0 ]; then 
+   echo "debug: INSTW_EXCLUDE=${INSTW_EXCLUDE}"
+   echo "debug: INSTW_ROOTPATH=${INSTW_ROOTPATH}"
+   echo "debug: INSTW_LOGFILE=${INSTW_LOGFILE}"
+   echo "debug: INSTW_DBGFILE=${INSTW_DBGFILE}"
+   echo "debug: INSTW_DBGLVL=${INSTW_DBGLVL}"
+fi
+
+"$@"
+
+if [ $? -eq 0 ]; then
+   FAIL=0
+else
+   FAIL=1
+fi
+
+unset LD_PRELOAD
+
+exit $FAIL
