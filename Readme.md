@@ -46,6 +46,7 @@ gcc version 3.3.5 (Debian 1:3.3.5-13)
 
 Install gcc 4.0.4 from source
 
+
 16. download mpc-0.9.tar.gz, gmp-4.3.2.tar, mpfr-3.1.1.tar.gz and extract them
 17. download and extract gcc-4.0.4.tar.gz
 18. rename the extracted folder to mpc, gmp, mpfr and move them to into the extracted gcc source folder
@@ -92,3 +93,5 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81449 - runtime.inc:782:28: error: 
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82043 - error: redefinition of ... 
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE' 
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82348 - math.lo.dep bytes.gox dependency dropped
