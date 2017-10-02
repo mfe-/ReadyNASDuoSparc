@@ -3,6 +3,7 @@
 This repository contains information, binaries, scripts regarding the readynas duo v1 sparc machine from netgear.</p>
 "The ReadyNAS RAIDiator 4.1.x firmware is a 32-bit SPARC Debian derivative mated to a Linux 2.6.17 kernel with numerous proprietary drivers"
 For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_ReadyNAS
+Qemu image of readynas https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841 (dev version)
 <h2>Hints</h2>
 
 
