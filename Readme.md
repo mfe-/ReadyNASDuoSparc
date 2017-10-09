@@ -3,13 +3,21 @@
 This repository contains information, binaries, scripts regarding the readynas duo v1 sparc machine from netgear.</p>
 "The ReadyNAS RAIDiator 4.1.x firmware is a 32-bit SPARC Debian derivative mated to a Linux 2.6.17 kernel with numerous proprietary drivers"
 For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_ReadyNAS
-<h2>Hints</h2>
-If there is no space left on the root partition you can workaround the issue with:
 
-1. mount --bind /path/to/dir/with/plenty/of/space /tmp</ li>
-2. symlink
+Qemu image of readynas https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841 (dev version)
+<h2>Hints</h2>
+
+
+1. If there is no space left on the root partition you can workaround the issue with: `mount --bind /path/to/dir/with/plenty/of/space /tmp`
+2. Better create a symlink for /usr/local/ -> /c/usr/local/
 3. create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /usr/local/share/ make install`
-4. use ` dpkg -i --force-overwrite whatever.deb`
+4. use ` dpkg -i --force-overwrite whatever.deb` to install debian packages from this repository.
+
+<h2>Start</h2>
+
+1. Download this github repository with `wget --no-check-certificate https://github.com/mfe-/ReadyNASDuoSparc/archive/master.zip`
+2. Unzip and install your required software
+3. You can execute steps 1 to 12 of init. 
 
 <h2>Init</h2>
 I reset my readynas and did the following steps:
@@ -33,8 +41,9 @@ Fix some broken stuff on the readynas
 10. Apt-get install screen
 11. Apt-get install less
 12. ln -s /usr/bin/less /usr/bin/sensible-pager
-13. Apt-get install checkinstall
+13. Apt-get install checkinstall 
 
+Do not execute the underneath steps. Those are only for documentation purposes.
 Install gcc 3.3.5 with apt
 
 14. apt-get install gcc
