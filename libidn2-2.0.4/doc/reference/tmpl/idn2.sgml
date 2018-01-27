@@ -1,0 +1,458 @@
+<!-- ##### SECTION Title ##### -->
+idn2
+
+<!-- ##### SECTION Short_Description ##### -->
+
+
+<!-- ##### SECTION Long_Description ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION See_Also ##### -->
+<para>
+
+</para>
+
+
+<!-- ##### SECTION Stability_Level ##### -->
+
+
+<!-- ##### SECTION Image ##### -->
+
+
+<!-- ##### MACRO G_GNUC_IDN2_ATTRIBUTE_PURE ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO G_GNUC_IDN2_ATTRIBUTE_CONST ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO G_GNUC_UNUSED ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_VERSION ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_VERSION_NUMBER ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_VERSION_MAJOR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_VERSION_MINOR ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_VERSION_PATCH ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_LABEL_MAX_LENGTH ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO IDN2_DOMAIN_MAX_LENGTH ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### ENUM idn2_flags ##### -->
+<para>
+
+</para>
+
+@IDN2_NFC_INPUT: 
+@IDN2_ALABEL_ROUNDTRIP: 
+@IDN2_TRANSITIONAL: 
+@IDN2_NONTRANSITIONAL: 
+@IDN2_ALLOW_UNASSIGNED: 
+@IDN2_USE_STD3_ASCII_RULES: 
+
+<!-- ##### FUNCTION idn2_lookup_u8 ##### -->
+<para>
+
+</para>
+
+@src: 
+@lookupname: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_register_u8 ##### -->
+<para>
+
+</para>
+
+@ulabel: 
+@alabel: 
+@insertname: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_lookup_ul ##### -->
+<para>
+
+</para>
+
+@src: 
+@lookupname: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_register_ul ##### -->
+<para>
+
+</para>
+
+@ulabel: 
+@alabel: 
+@insertname: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### ENUM idn2_rc ##### -->
+<para>
+
+</para>
+
+@IDN2_OK: 
+@IDN2_MALLOC: 
+@IDN2_NO_CODESET: 
+@IDN2_ICONV_FAIL: 
+@IDN2_ENCODING_ERROR: 
+@IDN2_NFC: 
+@IDN2_PUNYCODE_BAD_INPUT: 
+@IDN2_PUNYCODE_BIG_OUTPUT: 
+@IDN2_PUNYCODE_OVERFLOW: 
+@IDN2_TOO_BIG_DOMAIN: 
+@IDN2_TOO_BIG_LABEL: 
+@IDN2_INVALID_ALABEL: 
+@IDN2_UALABEL_MISMATCH: 
+@IDN2_INVALID_FLAGS: 
+@IDN2_NOT_NFC: 
+@IDN2_2HYPHEN: 
+@IDN2_HYPHEN_STARTEND: 
+@IDN2_LEADING_COMBINING: 
+@IDN2_DISALLOWED: 
+@IDN2_CONTEXTJ: 
+@IDN2_CONTEXTJ_NO_RULE: 
+@IDN2_CONTEXTO: 
+@IDN2_CONTEXTO_NO_RULE: 
+@IDN2_UNASSIGNED: 
+@IDN2_BIDI: 
+@IDN2_DOT_IN_LABEL: 
+@IDN2_INVALID_TRANSITIONAL: 
+@IDN2_INVALID_NONTRANSITIONAL: 
+
+<!-- ##### FUNCTION idn2_to_ascii_4i ##### -->
+<para>
+
+</para>
+
+@input: 
+@inlen: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_ascii_4z ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_ascii_8z ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_ascii_lz ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_8z4z ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_4z4z ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_44i ##### -->
+<para>
+
+</para>
+
+@in: 
+@inlen: 
+@out: 
+@outlen: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_8z8z ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_8zlz ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_to_unicode_lzlz ##### -->
+<para>
+
+</para>
+
+@input: 
+@output: 
+@flags: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_strerror ##### -->
+<para>
+
+</para>
+
+@rc: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_strerror_name ##### -->
+<para>
+
+</para>
+
+@rc: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_check_version ##### -->
+<para>
+
+</para>
+
+@req_version: 
+@Returns: 
+
+
+<!-- ##### FUNCTION idn2_free ##### -->
+<para>
+
+</para>
+
+@ptr: 
+
+
+<!-- ##### ENUM Idna_rc ##### -->
+<para>
+
+</para>
+
+@IDNA_SUCCESS: 
+@IDNA_STRINGPREP_ERROR: 
+@IDNA_PUNYCODE_ERROR: 
+@IDNA_CONTAINS_NON_LDH: 
+@IDNA_CONTAINS_LDH: 
+@IDNA_CONTAINS_MINUS: 
+@IDNA_INVALID_LENGTH: 
+@IDNA_NO_ACE_PREFIX: 
+@IDNA_ROUNDTRIP_VERIFY_ERROR: 
+@IDNA_CONTAINS_ACE_PREFIX: 
+@IDNA_ICONV_ERROR: 
+@IDNA_MALLOC_ERROR: 
+@IDNA_DLOPEN_ERROR: 
+
+<!-- ##### ENUM Idna_flags ##### -->
+<para>
+
+</para>
+
+@IDNA_ALLOW_UNASSIGNED: 
+@IDNA_USE_STD3_ASCII_RULES: 
+
+<!-- ##### MACRO idna_to_ascii_4i ##### -->
+<para>
+
+</para>
+
+@i: 
+@l: 
+@o: 
+@f: 
+
+
+<!-- ##### MACRO idna_to_ascii_4z ##### -->
+<para>
+
+</para>
+
+@i: 
+@o: 
+@f: 
+
+
+<!-- ##### MACRO idna_to_ascii_8z ##### -->
+<para>
+
+</para>
+
+@i: 
+@o: 
+@f: 
+
+
+<!-- ##### MACRO idna_to_ascii_lz ##### -->
+<para>
+
+</para>
+
+@i: 
+@o: 
+@f: 
+
+
+<!-- ##### MACRO idna_to_unicode_8z4z ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_to_unicode_4z4z ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_to_unicode_44i ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_to_unicode_8z8z ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_to_unicode_8zlz ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_to_unicode_lzlz ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idna_strerror ##### -->
+<para>
+
+</para>
+
+
+
+<!-- ##### MACRO idn_free ##### -->
+<para>
+
+</para>
+
+
+

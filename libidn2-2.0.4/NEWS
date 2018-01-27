@@ -1,0 +1,278 @@
+Libidn2 NEWS -- History of user-visible changes.                -*- outline -*-
+Copyright (C) 2011-2017 Simon Josefsson
+See the end for copying conditions.
+
+* Version 2.0.4 (released 2017-08-30)
+
+** Fix integer overflow in bidi.c/_isBidi()
+
+** Fix integer overflow in puny_decode.c/decode_digit()
+
+** Improve docs
+
+** Fix idna_free() to idn_free()
+
+** Update fuzzer corpora
+
+
+* Version 2.0.3 (released 2017-07-24) [beta]
+
+** %IDN2_USE_STD3_ASCII_RULES disabled by default.
+ Previously we were eliminating non-STD3 characters from domain strings
+ such as _443._tcp.example.com, or IPs 1.2.3.4/24 provided to libidn2
+ functions. That was an unexpected regression for applications switching
+ from libidn and thus it is no longer applied by default.
+ Use %IDN2_USE_STD3_ASCII_RULES to enable that behavior again.
+
+** Fix several documentation issues
+
+** Fix build issues
+
+** Modernize gtk-doc build infrastructure.
+
+
+* Version 2.0.2 (released 2017-04-27) [beta]
+
+** Fix TR46 transitional mode
+
+** Fix build issue on OSX
+
+** Fix several documentation issues
+
+* Version 2.0.1 (released 2017-04-22) [beta]
+
+** idn2 utility now using IDNA2008 + TR46 by default
+
+** Several doc fixes
+
+* Version 2.0.0 (released 2017-03-29) [beta]
+
+** Version numbering scheme changed
+
+** Added to ASCII conversion functions corresponding to libidn1 functions:
+- idn2_to_ascii_4i
+- idn2_to_ascii_4z
+- idn2_to_ascii_8z
+- idn2_to_ascii_lz
+
+** Added to unicode conversion functions corresponding to libidn1 functions:
+- idn2_to_unicode_8z4z
+- idn2_to_unicode_4z4z
+- idn2_to_unicode_44i
+- idn2_to_unicode_8z8z
+- idn2_to_unicode_8zlz
+- idn2_to_unicode_lzlz
+
+** The idn2 manual page is generated from markdown text instead of utilizing
+** help2man on the generated tool.
+
+** Including idn2.h will provide libidn1 compatibility functions
+** unless IDN2_SKIP_LIBIDN_COMPAT is defined. That allows converting
+** applications from libidn1 (which offers IDNA2003) to libidn2 (which
+** offers IDNA2008) by replacing idna.h to idn2.h in the applications'
+** source.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.16 (released 2017-01-16) [alpha]
+
+** build: Fix idn2_cmd.h build rule.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.15 (released 2017-01-14) [alpha]
+
+** Fix out-of-bounds read.
+
+** Fix NFC input conversion (regression).
+
+** Shrink TR46 static mapping data.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.14 (released 2016-12-30) [alpha]
+
+** build: Fix gentr46map build.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.13 (released 2016-12-29) [alpha]
+
+** build: Doesn't download external files during build.
+
+** doc: Clarify license.
+
+** build: Generate ChangeLog file properly.
+
+** doc: API documentation related to TR46 flags.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.12 (released 2016-12-26) [alpha]
+
+** All changes by Tim Rühsen <tim.ruehsen@gmx.de> except stated otherwise.
+
+** Builds/links with libunistring.
+
+** Fix two possible crashes with unchecked NULL pointers.
+
+** Memleak fix.
+Reported by Hanno Böck <hanno@hboeck.de>.
+
+** Binary search for codepoints in tables.
+
+** Do not taint output variable on error in idn2_register_u8().
+
+** Do not taint output variable on error in idn2_lookup_u8().
+
+** Update to Unicode 6.3.0 IDNA tables.
+
+** Add TR46 / UTS#46 support to API and idn2 utility.
+
+** Add NFC quick check.
+
+** Add make target 'check-coverage' for test coverage report.
+
+** Add tests to increase test code coverage.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.11 (released 2016-11-03) [alpha]
+
+** Fix stack underflow in 'idn2' command line tool.
+Reported by Hanno Böck <hanno@hboeck.de>.
+
+** Fix gdoc script to fix texinfo syntax error.
+
+** Fix build failure of self-tests on platforms without version scripts.
+Reported by Dagobert Michelsen <dam@opencsw.org>.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.10 (released 2014-06-25) [alpha]
+
+** Update gnulib files.
+
+** Dual-license the library.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.9 (released 2013-07-23) [alpha]
+
+** Fix broken IANA link.
+Apparently IANA does not provide persistant URLs to their registries.
+
+** Fix automake bootstrap issue.
+
+** Update gnulib files.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.8 (released 2011-09-28) [alpha]
+
+** idn2: Fix build warnings.
+Reported by Didier Raboud <odyx@debian.org> in
+<https://bugs.debian.org/643427>.
+
+** Update gnulib files.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.7 (released 2011-08-11) [alpha]
+
+** libidn2: Fix missing strchrnul and strverscmp uses.
+Reported by Ray Satiro <raysatiro@yahoo.com>.
+
+** Update gnulib files.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.6 (released 2011-05-25) [alpha]
+
+** tests: Use -no-install instead of -static to fix --disable-static.
+Reported by Robert Scheck <robert@fedoraproject.org>.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.5 (released 2011-05-18) [alpha]
+
+** Fix NFC check to compare entire strings.
+Some non-NFC strings were permitted when they should have been
+rejected.  Reported by Robert Scheck <robert@fedoraproject.org>.
+
+** Self tests are not run under valgrind by default anymore.
+Use --enable-valgrind-tests if you want to run self tests under
+valgrind.  The reason was that there were too many false positives on
+some platforms with valgrind issues in system libraries.  Self tests
+are still run under valgrind by default when building from version
+controlled sources.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.4 (released 2011-05-06) [alpha]
+
+** libidn2: Fix domain name maximum size issue.
+Domain names in string representation can be 254 characters long if
+they end with a period, or 253 characters long if they don't end with
+a period.  The code got this wrong and used 255 characters all the
+time.  The documentation for the IDN2_DOMAIN_MAX_LENGTH constant is
+improved.  We now pass two more of the IdnaTest.txt test vectors.
+Reported by "Abdulrahman I. ALGhadir" <aghadir@citc.gov.sa> and
+explanation from Markus Scherer <mscherer@google.com>.
+
+** tests: Added several new Arabic test vectors.
+From "Abdulrahman I. ALGhadir" <aghadir@citc.gov.sa>.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.3 (released 2011-04-20) [alpha]
+
+** doc: Added Texinfo manual.
+
+** doc: Added man pages for all API functions.
+
+** examples: Added examples/lookup and examples/register as demo.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.2 (released 2011-03-30) [alpha]
+
+** Added command line tool "idn2".
+
+** Added more test vectors from Unicode.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.1 (released 2011-03-29) [alpha]
+
+** IDNA2008 Lookup+Register functions are now operational.
+The implementation is still subject to changes, and thus no API/ABI
+stability guarantees are made.  We are now inviting comments both on
+the API (as before) but also on the actual behaviour.  Any unexpected
+outputs are from here on considered as real bugs.
+
+** API and ABI is backwards compatible with the previous version.
+
+* Version 0.0 (released 2011-03-09) [alpha]
+
+** Initial draft release for public review of the API.
+IDNA2008-Lookup is fully implemented except for 1) the optional
+round-trip conversion part, and 2) the context rules are not
+implemented.  IDNA2008-Register is not yet implemented.  The
+implementation is known to be sub-optimal and ugly, please review the
+interface and ignore the code!  Several changes are planned in the
+internal implementation.
+
+----------------------------------------------------------------------
+This file is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
+
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this file.  If not, see <http://www.gnu.org/licenses/>.

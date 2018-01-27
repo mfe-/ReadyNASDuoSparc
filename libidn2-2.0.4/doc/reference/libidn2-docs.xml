@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+          "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
+	  [
+	  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+	  <!ENTITY version SYSTEM "version.xml">
+	  ]>
+<book id="index">
+  <bookinfo>
+    <title>Libidn2 Reference Manual</title>
+    <releaseinfo>
+      for Libidn2 &version;
+      The latest version of this documentation can be found on-line at
+      <ulink role="online-location"
+	     url="http://www.gnu.org/software/libidn/#libidn2">
+	http://www.gnu.org/software/libidn/#libidn2</ulink>.
+    </releaseinfo>
+  </bookinfo>
+
+  <chapter id="libidn2">
+    <title>Libidn2 Overview</title>
+    <para>
+      Libidn2 is a free software implementation of IDNA2008 and TR46.
+    </para>
+
+    <xi:include href="xml/idn2.xml"/>
+  </chapter>
+
+  <index id="api-index-full">
+    <title>API Index</title>
+    <xi:include href="xml/api-index-full.xml"><xi:fallback /></xi:include>
+  </index>
+</book>

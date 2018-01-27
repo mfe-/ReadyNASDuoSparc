@@ -1,0 +1,1454 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<!-- This manual is for Libidn2 (version 2.0.4, 21 July 2017),
+an implementation of IDNA2008/TR46 internationalized domain names.
+
+Copyright (C) 2011-2017 Simon Josefsson -->
+<!-- Created by GNU Texinfo 6.4.90, http://www.gnu.org/software/texinfo/ -->
+<head>
+<title>Libidn2 2.0.4</title>
+
+<meta name="description" content="Libidn2 2.0.4">
+<meta name="keywords" content="Libidn2 2.0.4">
+<meta name="resource-type" content="document">
+<meta name="distribution" content="global">
+<meta name="Generator" content="makeinfo">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="#Top" rel="start" title="Top">
+<link href="#Interface-Index" rel="index" title="Interface Index">
+<link href="#SEC_Contents" rel="contents" title="Table of Contents">
+<link href="dir.html#Top" rel="up" title="(dir)">
+<style type="text/css">
+<!--
+a.summary-letter {text-decoration: none}
+blockquote.indentedblock {margin-right: 0em}
+blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
+blockquote.smallquotation {font-size: smaller}
+div.display {margin-left: 3.2em}
+div.example {margin-left: 3.2em}
+div.lisp {margin-left: 3.2em}
+div.smalldisplay {margin-left: 3.2em}
+div.smallexample {margin-left: 3.2em}
+div.smalllisp {margin-left: 3.2em}
+kbd {font-style: oblique}
+pre.display {font-family: inherit}
+pre.format {font-family: inherit}
+pre.menu-comment {font-family: serif}
+pre.menu-preformatted {font-family: serif}
+pre.smalldisplay {font-family: inherit; font-size: smaller}
+pre.smallexample {font-size: smaller}
+pre.smallformat {font-family: inherit; font-size: smaller}
+pre.smalllisp {font-size: smaller}
+span.nolinebreak {white-space: nowrap}
+span.roman {font-family: initial; font-weight: normal}
+span.sansserif {font-family: sans-serif; font-weight: normal}
+ul.no-bullet {list-style: none}
+body {
+	margin: 2%;
+	padding: 0 5%;
+	background: #ffffff;
+}
+h1,h2,h3,h4,h5 {
+    font-weight: bold;
+    padding: 5px 5px 5px 5px;
+    background-color: #c2e0ff;
+    color: #336699;
+}
+h1 {
+    padding: 2em 2em 2em 5%;
+    color: white;
+    background: #336699;
+    text-align: center;
+    letter-spacing: 3px;
+}
+h2 { text-decoration: underline; }
+pre {
+  margin: 0 5%;
+  padding: 0.5em;
+}
+pre.example {
+  border: solid 1px;
+  background: #eeeeff;
+  padding-bottom: 1em;
+}
+pre.verbatim {
+  border: solid 1px gray;
+  background: white;
+  padding-bottom: 1em;
+}
+div.node {
+  margin: 0 -5% 0 -2%;
+  padding: 0.5em 0.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+dd, li {
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+}
+
+div.float {
+
+  margin-bottom: 0.5em;
+  text-align: center;
+}
+
+table {
+  border: solid 1px;
+  background: #eeeeff;
+  padding-bottom: 1em;
+  text-align: left;
+  margin-left:auto;
+  margin-right:auto;
+  border-spacing: 4px;
+  width: 70%;
+}
+
+th {
+  padding: 0;
+  color: #000000;
+  background-color: #dedeef;
+  border: solid #000000;
+  border-width: 0px;
+  margin: 1em auto;
+  text-align: center;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+td {
+  padding: 0;
+  border: solid #000000;
+  background: #eeeeff;
+  border-width: 0px;
+  margin: 1em auto;
+  text-align: left;
+  margin-left:auto;
+  margin-right:auto;
+  padding-left: 1em;
+}
+
+dl {
+  text-align: left;
+  margin-left:auto;
+  margin-right:auto;
+  width: 50%;
+
+  padding-left: 1em;
+  border: solid #000000;
+  background: #eeeeff;
+  border-width: 3px 1px 1px 1px;
+  margin: 1em auto;
+}
+
+-->
+</style>
+
+
+</head>
+
+<body lang="en">
+<h1 class="settitle" align="center">Libidn2 2.0.4</h1>
+
+
+
+
+
+
+<a name="SEC_Contents"></a>
+<h2 class="contents-heading">Table of Contents</h2>
+
+<div class="contents">
+
+<ul class="no-bullet">
+  <li><a name="toc-Introduction-1" href="#Introduction">1 Introduction</a></li>
+  <li><a name="toc-Library-Functions-1" href="#Library-Functions">2 Library Functions</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Header-file-idn2_002eh" href="#Header-file-idn2_002eh">2.1 Header file <code>idn2.h</code></a></li>
+    <li><a name="toc-Core-Functions" href="#Core-Functions">2.2 Core Functions</a></li>
+    <li><a name="toc-Locale-Functions" href="#Locale-Functions">2.3 Locale Functions</a></li>
+    <li><a name="toc-Control-Flags" href="#Control-Flags">2.4 Control Flags</a></li>
+    <li><a name="toc-Error-Handling" href="#Error-Handling">2.5 Error Handling</a></li>
+    <li><a name="toc-Return-Codes" href="#Return-Codes">2.6 Return Codes</a></li>
+    <li><a name="toc-Memory-Handling" href="#Memory-Handling">2.7 Memory Handling</a></li>
+    <li><a name="toc-Version-Check" href="#Version-Check">2.8 Version Check</a></li>
+  </ul></li>
+  <li><a name="toc-Converting-from-libidn-1" href="#Converting-from-libidn">3 Converting from libidn</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Converting-with-minimal-modifications" href="#Converting-with-minimal-modifications">3.1 Converting with minimal modifications</a></li>
+    <li><a name="toc-Converting-to-native-APIs" href="#Converting-to-native-APIs">3.2 Converting to native APIs</a></li>
+    <li><a name="toc-Converting-with-backwards-compatibility" href="#Converting-with-backwards-compatibility">3.3 Converting with backwards compatibility</a></li>
+    <li><a name="toc-Using-libidn-and-libidn2-code" href="#Using-libidn-and-libidn2-code">3.4 Using libidn and libidn2 code</a></li>
+  </ul></li>
+  <li><a name="toc-Examples-1" href="#Examples">4 Examples</a>
+  <ul class="no-bullet">
+    <li><a name="toc-ToASCII-example" href="#ToASCII">4.1 ToASCII example</a></li>
+    <li><a name="toc-ToUnicode-example" href="#ToUnicode">4.2 ToUnicode example</a></li>
+    <li><a name="toc-Lookup-1" href="#Lookup">4.3 Lookup</a></li>
+    <li><a name="toc-Register-1" href="#Register">4.4 Register</a></li>
+  </ul></li>
+  <li><a name="toc-Invoking-idn2-1" href="#Invoking-idn2">5 Invoking idn2</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Options" href="#Options">5.1 Options</a></li>
+    <li><a name="toc-Environment-Variables" href="#Environment-Variables">5.2 Environment Variables</a></li>
+    <li><a name="toc-Examples-2" href="#Examples-2">5.3 Examples</a></li>
+    <li><a name="toc-Troubleshooting" href="#Troubleshooting">5.4 Troubleshooting</a></li>
+  </ul></li>
+  <li><a name="toc-Interface-Index-1" href="#Interface-Index">Interface Index</a></li>
+  <li><a name="toc-Concept-Index-1" href="#Concept-Index">Concept Index</a></li>
+</ul>
+</div>
+
+
+<a name="Top"></a>
+<div class="header">
+<p>
+Next: <a href="#Introduction" accesskey="n" rel="next">Introduction</a>, Up: <a href="dir.html#Top" accesskey="u" rel="up">(dir)</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Libidn2"></a>
+<h1 class="top">Libidn2</h1>
+
+<p>This manual is for Libidn2 (version 2.0.4, 21 July 2017),
+an implementation of IDNA2008/TR46 internationalized domain names.
+</p>
+<p>Copyright &copy; 2011-2017 Simon Josefsson
+</p>
+
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Introduction" accesskey="1">Introduction</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">What is Libidn2?
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Library-Functions" accesskey="2">Library Functions</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Library functions.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Converting-from-libidn" accesskey="3">Converting from libidn</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Demonstrate how to convert from libidn.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Examples" accesskey="4">Examples</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Demonstrate how to use the library.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Invoking-idn2" accesskey="5">Invoking idn2</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Command line interface to the library.
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Interface-Index" accesskey="6">Interface Index</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Concept-Index" accesskey="7">Concept Index</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Introduction"></a>
+<div class="header">
+<p>
+Next: <a href="#Library-Functions" accesskey="n" rel="next">Library Functions</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Top</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Introduction-1"></a>
+<h2 class="chapter">1 Introduction</h2>
+
+<p>Libidn2 is a free software implementation of IDNA2008, Punycode and TR46
+in the form a library. It contains functionality to convert internationalized domain names
+to and from ASCII Compatible Encoding (ACE), following the IDNA2008 and TR46
+standards. It is available at <a href="https://gitlab.com/libidn/libidn2">https://gitlab.com/libidn/libidn2</a>.
+</p>
+<p>The library is a rewrite of the popular but legacy libidn library, and
+is backwards (API) compatible with it. See <a href="#Converting-from-libidn">Converting from libidn</a> for more information.
+</p>
+<p>For technical reference on IDNA protocols, see
+</p><ul>
+<li> RFC 5890 (<a href="https://tools.ietf.org/html/rfc5890">https://tools.ietf.org/html/rfc5890</a>),
+</li><li> RFC 5891 (<a href="https://tools.ietf.org/html/rfc5891">https://tools.ietf.org/html/rfc5891</a>),
+</li><li> RFC 5892 (<a href="https://tools.ietf.org/html/rfc5892">https://tools.ietf.org/html/rfc5892</a>),
+</li><li> RFC 5893 (<a href="https://tools.ietf.org/html/rfc5893">https://tools.ietf.org/html/rfc5893</a>),
+</li><li> TR46 (<a href="http://www.unicode.org/reports/tr46/">http://www.unicode.org/reports/tr46/</a>).
+</li></ul>
+
+<p>Libidn2 uses GNU libunistring
+(<a href="https://www.gnu.org/software/libunistring/">https://www.gnu.org/software/libunistring/</a>) for Unicode
+processing and optionally GNU libiconv
+(<a href="https://www.gnu.org/software/libiconv/">https://www.gnu.org/software/libiconv/</a>) for character set
+conversion.
+</p>
+<p>The library is dual-licensed under LGPLv3 or GPLv2, see the file COPYING for
+detailed information.
+</p>
+<hr>
+<a name="Library-Functions"></a>
+<div class="header">
+<p>
+Next: <a href="#Converting-from-libidn" accesskey="n" rel="next">Converting from libidn</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Library-Functions-1"></a>
+<h2 class="chapter">2 Library Functions</h2>
+<a name="index-Library-Functions"></a>
+
+<p>Below are the interfaces of the Libidn2 library documented.
+</p>
+<a name="Header-file-idn2_002eh"></a>
+<h3 class="section">2.1 Header file <code>idn2.h</code></h3>
+
+<p>To use the functions documented in this chapter, you need to include
+the file <samp>idn2.h</samp> like this:
+</p>
+<div class="example">
+<pre class="example">#include &lt;idn2.h&gt;
+</pre></div>
+
+<a name="Core-Functions"></a>
+<h3 class="section">2.2 Core Functions</h3>
+
+<p>When you have the data encoded in UTF-8 form the direct interfaces to
+the library are as follows.
+</p>
+<a name="idn2_005fto_005fascii_005f8z-1"></a>
+<h4 class="subheading">idn2_to_ascii_8z</h4>
+<a name="idn2_005fto_005fascii_005f8z"></a><dl>
+<dt><a name="index-idn2_005fto_005fascii_005f8z"></a>Function: <em>int</em> <strong>idn2_to_ascii_8z</strong> <em>(const char * <var>input</var>, char ** <var>output</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>input</var>: zero terminated input UTF-8 string.
+</p>
+<p><var>output</var>: pointer to newly allocated output string.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Convert UTF-8 domain name to ASCII string using the IDNA2008
+rules.  The domain name may contain several labels, separated by dots.
+The output buffer must be deallocated by the caller.
+</p>
+<p>When unsure, it is recommended to call this function with the
+<code>IDN2_NONTRANSITIONAL</code>  and <code>IDN2_NFC_INPUT</code>  flags.
+</p>
+<p>Return value: Returns <code>IDN2_OK</code>  on success, or error code.
+</p>
+<p><strong>Since:</strong> 2.0.0
+</p></dd></dl>
+
+<a name="idn2_005fto_005funicode_005f8z8z-1"></a>
+<h4 class="subheading">idn2_to_unicode_8z8z</h4>
+<a name="idn2_005fto_005funicode_005f8z8z"></a><dl>
+<dt><a name="index-idn2_005fto_005funicode_005f8z8z"></a>Function: <em>int</em> <strong>idn2_to_unicode_8z8z</strong> <em>(const char * <var>input</var>, char ** <var>output</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>input</var>: Input zero-terminated UTF-8 string.
+</p>
+<p><var>output</var>: Newly allocated UTF-8 output string.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Converts a possibly ACE encoded domain name in UTF-8 format into a
+UTF-8 string (punycode decoding). The output buffer will be zero-terminated
+and must be deallocated by the caller.
+</p>
+<p><code>output</code> may be NULL to test lookup of  <code>input</code> without allocating memory.
+</p>
+<p><strong>Since:</strong> 2.0.0
+</p></dd></dl>
+
+
+<a name="idn2_005flookup_005fu8-1"></a>
+<h4 class="subheading">idn2_lookup_u8</h4>
+<a name="idn2_005flookup_005fu8"></a><dl>
+<dt><a name="index-idn2_005flookup_005fu8"></a>Function: <em>int</em> <strong>idn2_lookup_u8</strong> <em>(const uint8_t * <var>src</var>, uint8_t ** <var>lookupname</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>src</var>: input zero-terminated UTF-8 string in Unicode NFC normalized form.
+</p>
+<p><var>lookupname</var>: newly allocated output variable with name to lookup in DNS.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Perform IDNA2008 lookup string conversion on domain name  <code>src</code> , as
+described in section 5 of RFC 5891.  Note that the input string
+must be encoded in UTF-8 and be in Unicode NFC form.
+</p>
+<p>Pass <code>IDN2_NFC_INPUT</code>  in  <code>flags</code> to convert input to NFC form before
+further processing.  <code>IDN2_TRANSITIONAL</code>  and <code>IDN2_NONTRANSITIONAL</code> 
+do already imply <code>IDN2_NFC_INPUT</code> .
+Pass <code>IDN2_ALABEL_ROUNDTRIP</code>  in  <code>flags</code> to
+convert any input A-labels to U-labels and perform additional
+testing (not implemented yet).
+Pass <code>IDN2_TRANSITIONAL</code>  to enable Unicode TR46
+transitional processing, and <code>IDN2_NONTRANSITIONAL</code>  to enable
+Unicode TR46 non-transitional processing.  Multiple flags may be
+specified by binary or:ing them together.
+</p>
+<p>After version 2.0.3: <code>IDN2_USE_STD3_ASCII_RULES</code>  disabled by default.
+Previously we were eliminating non-STD3 characters from domain strings
+such as _443._tcp.example.com, or IPs 1.2.3.4/24 provided to libidn2
+functions. That was an unexpected regression for applications switching
+from libidn and thus it is no longer applied by default.
+Use <code>IDN2_USE_STD3_ASCII_RULES</code>  to enable that behavior again.
+</p>
+<p>After version 0.11:  <code>lookupname</code> may be NULL to test lookup of  <code>src</code> without allocating memory.
+</p>
+<p><strong>Returns:</strong> On successful conversion <code>IDN2_OK</code>  is returned, if the
+output domain or any label would have been too long
+<code>IDN2_TOO_BIG_DOMAIN</code>  or <code>IDN2_TOO_BIG_LABEL</code>  is returned, or
+another error code is returned.
+</p>
+<p><strong>Since:</strong> 0.1
+</p></dd></dl>
+
+<a name="idn2_005fregister_005fu8-1"></a>
+<h4 class="subheading">idn2_register_u8</h4>
+<a name="idn2_005fregister_005fu8"></a><dl>
+<dt><a name="index-idn2_005fregister_005fu8"></a>Function: <em>int</em> <strong>idn2_register_u8</strong> <em>(const uint8_t * <var>ulabel</var>, const uint8_t * <var>alabel</var>, uint8_t ** <var>insertname</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>ulabel</var>: input zero-terminated UTF-8 and Unicode NFC string, or NULL.
+</p>
+<p><var>alabel</var>: input zero-terminated ACE encoded string (xn&ndash;), or NULL.
+</p>
+<p><var>insertname</var>: newly allocated output variable with name to register in DNS.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Perform IDNA2008 register string conversion on domain label  <code>ulabel</code> and  <code>alabel</code> , as described in section 4 of RFC 5891.  Note that the
+input  <code>ulabel</code> must be encoded in UTF-8 and be in Unicode NFC form.
+</p>
+<p>Pass <code>IDN2_NFC_INPUT</code>  in  <code>flags</code> to convert input  <code>ulabel</code> to NFC form
+before further processing.
+</p>
+<p>It is recommended to supply both  <code>ulabel</code> and  <code>alabel</code> for better
+error checking, but supplying just one of them will work.  Passing
+in only  <code>alabel</code> is better than only  <code>ulabel</code> .  See RFC 5891 section
+4 for more information.
+</p>
+<p>After version 0.11:  <code>insertname</code> may be NULL to test conversion of  <code>src</code> without allocating memory.
+</p>
+<p><strong>Returns:</strong> On successful conversion <code>IDN2_OK</code>  is returned, when the
+given  <code>ulabel</code> and  <code>alabel</code> does not match each other
+<code>IDN2_UALABEL_MISMATCH</code>  is returned, when either of the input
+labels are too long <code>IDN2_TOO_BIG_LABEL</code>  is returned, when  <code>alabel</code> does does not appear to be a proper A-label <code>IDN2_INVALID_ALABEL</code> 
+is returned, or another error code is returned.
+</p></dd></dl>
+
+
+<a name="Locale-Functions"></a>
+<h3 class="section">2.3 Locale Functions</h3>
+
+<p>As a convenience, the following functions are provided that will
+convert the input from the locale encoding format to UTF-8 and
+normalize the string using NFC, and then apply the core functions
+described earlier.
+</p>
+<a name="idn2_005fto_005fascii_005flz-1"></a>
+<h4 class="subheading">idn2_to_ascii_lz</h4>
+<a name="idn2_005fto_005fascii_005flz"></a><dl>
+<dt><a name="index-idn2_005fto_005fascii_005flz"></a>Function: <em>int</em> <strong>idn2_to_ascii_lz</strong> <em>(const char * <var>input</var>, char ** <var>output</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>input</var>: zero terminated input UTF-8 string.
+</p>
+<p><var>output</var>: pointer to newly allocated output string.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Convert a domain name in locale&rsquo;s encoding to ASCII string using the IDNA2008
+rules.  The domain name may contain several labels, separated by dots.
+The output buffer must be deallocated by the caller.
+</p>
+<p>When unsure, it is recommended to call this function with the
+<code>IDN2_NONTRANSITIONAL</code>  and <code>IDN2_NFC_INPUT</code>  flags.
+</p>
+<p><strong>Returns:</strong> <code>IDN2_OK</code>  on success, or error code.
+Same as described in <code>idn2_lookup_ul()</code>  documentation.
+</p>
+<p><strong>Since:</strong> 2.0.0
+</p></dd></dl>
+
+<a name="idn2_005fto_005funicode_005f8zlz-1"></a>
+<h4 class="subheading">idn2_to_unicode_8zlz</h4>
+<a name="idn2_005fto_005funicode_005f8zlz"></a><dl>
+<dt><a name="index-idn2_005fto_005funicode_005f8zlz"></a>Function: <em>int</em> <strong>idn2_to_unicode_8zlz</strong> <em>(const char * <var>input</var>, char ** <var>output</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>input</var>: Input zero-terminated UTF-8 string.
+</p>
+<p><var>output</var>: Newly allocated output string in current locale&rsquo;s character set.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Converts a possibly ACE encoded domain name in UTF-8 format into a
+string encoded in the current locale&rsquo;s character set (punycode
+decoding). The output buffer will be zero-terminated and must be
+deallocated by the caller.
+</p>
+<p><code>output</code> may be NULL to test lookup of  <code>input</code> without allocating memory.
+</p>
+<p><strong>Since:</strong> 2.0.0
+</p></dd></dl>
+
+<a name="idn2_005fto_005funicode_005flzlz-1"></a>
+<h4 class="subheading">idn2_to_unicode_lzlz</h4>
+<a name="idn2_005fto_005funicode_005flzlz"></a><dl>
+<dt><a name="index-idn2_005fto_005funicode_005flzlz"></a>Function: <em>int</em> <strong>idn2_to_unicode_lzlz</strong> <em>(const char * <var>input</var>, char ** <var>output</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>input</var>: Input zero-terminated string encoded in the current locale&rsquo;s character set.
+</p>
+<p><var>output</var>: Newly allocated output string in current locale&rsquo;s character set.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Converts a possibly ACE encoded domain name in the locale&rsquo;s character
+set into a string encoded in the current locale&rsquo;s character set (punycode
+decoding). The output buffer will be zero-terminated and must be
+deallocated by the caller.
+</p>
+<p><code>output</code> may be NULL to test lookup of  <code>input</code> without allocating memory.
+</p>
+<p><strong>Since:</strong> 2.0.0
+</p></dd></dl>
+
+
+<a name="idn2_005flookup_005ful-1"></a>
+<h4 class="subheading">idn2_lookup_ul</h4>
+<a name="idn2_005flookup_005ful"></a><dl>
+<dt><a name="index-idn2_005flookup_005ful"></a>Function: <em>int</em> <strong>idn2_lookup_ul</strong> <em>(const char * <var>src</var>, char ** <var>lookupname</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>src</var>: input zero-terminated locale encoded string.
+</p>
+<p><var>lookupname</var>: newly allocated output variable with name to lookup in DNS.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Perform IDNA2008 lookup string conversion on domain name  <code>src</code> , as
+described in section 5 of RFC 5891.  Note that the input is assumed
+to be encoded in the locale&rsquo;s default coding system, and will be
+transcoded to UTF-8 and NFC normalized by this function.
+</p>
+<p>Pass <code>IDN2_ALABEL_ROUNDTRIP</code>  in  <code>flags</code> to convert any input A-labels
+to U-labels and perform additional testing.  Pass
+<code>IDN2_TRANSITIONAL</code>  to enable Unicode TR46 transitional processing,
+and <code>IDN2_NONTRANSITIONAL</code>  to enable Unicode TR46 non-transitional
+processing.  Multiple flags may be specified by binary or:ing them
+together, for example <code>IDN2_ALABEL_ROUNDTRIP</code>  |
+<code>IDN2_NONTRANSITIONAL</code> .  The <code>IDN2_NFC_INPUT</code>  in  <code>flags</code> is always
+enabled in this function.
+</p>
+<p>After version 0.11:  <code>lookupname</code> may be NULL to test lookup of  <code>src</code> without allocating memory.
+</p>
+<p><strong>Returns:</strong> On successful conversion <code>IDN2_OK</code>  is returned, if
+conversion from locale to UTF-8 fails then <code>IDN2_ICONV_FAIL</code>  is
+returned, if the output domain or any label would have been too
+long <code>IDN2_TOO_BIG_DOMAIN</code>  or <code>IDN2_TOO_BIG_LABEL</code>  is returned, or
+another error code is returned.
+</p>
+<p><strong>Since:</strong> 0.1
+</p></dd></dl>
+
+<a name="idn2_005fregister_005ful-1"></a>
+<h4 class="subheading">idn2_register_ul</h4>
+<a name="idn2_005fregister_005ful"></a><dl>
+<dt><a name="index-idn2_005fregister_005ful"></a>Function: <em>int</em> <strong>idn2_register_ul</strong> <em>(const char * <var>ulabel</var>, const char * <var>alabel</var>, char ** <var>insertname</var>, int <var>flags</var>)</em></dt>
+<dd><p><var>ulabel</var>: input zero-terminated locale encoded string, or NULL.
+</p>
+<p><var>alabel</var>: input zero-terminated ACE encoded string (xn&ndash;), or NULL.
+</p>
+<p><var>insertname</var>: newly allocated output variable with name to register in DNS.
+</p>
+<p><var>flags</var>: optional <code>idn2_flags</code>  to modify behaviour.
+</p>
+<p>Perform IDNA2008 register string conversion on domain label  <code>ulabel</code> and  <code>alabel</code> , as described in section 4 of RFC 5891.  Note that the
+input  <code>ulabel</code> is assumed to be encoded in the locale&rsquo;s default
+coding system, and will be transcoded to UTF-8 and NFC normalized
+by this function.
+</p>
+<p>It is recommended to supply both  <code>ulabel</code> and  <code>alabel</code> for better
+error checking, but supplying just one of them will work.  Passing
+in only  <code>alabel</code> is better than only  <code>ulabel</code> .  See RFC 5891 section
+4 for more information.
+</p>
+<p>After version 0.11:  <code>insertname</code> may be NULL to test conversion of  <code>src</code> without allocating memory.
+</p>
+<p><strong>Returns:</strong> On successful conversion <code>IDN2_OK</code>  is returned, when the
+given  <code>ulabel</code> and  <code>alabel</code> does not match each other
+<code>IDN2_UALABEL_MISMATCH</code>  is returned, when either of the input
+labels are too long <code>IDN2_TOO_BIG_LABEL</code>  is returned, when  <code>alabel</code> does does not appear to be a proper A-label <code>IDN2_INVALID_ALABEL</code> 
+is returned, or another error code is returned.
+</p></dd></dl>
+
+
+<a name="Control-Flags"></a>
+<h3 class="section">2.4 Control Flags</h3>
+
+<p>The <code>flags</code> parameter can take on the following values, or a
+bit-wise inclusive or of any subset of the parameters:
+</p>
+<dl>
+<dt><a name="index-IDN2_005fNFC_005fINPUT"></a>Global flag: <em>idn2_flags</em> <strong>IDN2_NFC_INPUT</strong></dt>
+<dd><p>Apply NFC normalization on input.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fALABEL_005fROUNDTRIP"></a>Global flag: <em>idn2_flags</em> <strong>IDN2_ALABEL_ROUNDTRIP</strong></dt>
+<dd><p>Apply additional round-trip conversion of A-label inputs.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fTRANSITIONAL"></a>Global flag: <em>idn2_flags</em> <strong>IDN2_TRANSITIONAL</strong></dt>
+<dd><p>Perform Unicode TR46 transitional processing.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fNONTRANSITIONAL"></a>Global flag: <em>idn2_flags</em> <strong>IDN2_NONTRANSITIONAL</strong></dt>
+<dd><p>Perform Unicode TR46 non-transitional processing.
+</p></dd></dl>
+
+<a name="Error-Handling"></a>
+<h3 class="section">2.5 Error Handling</h3>
+
+<a name="idn2_005fstrerror-1"></a>
+<h4 class="subheading">idn2_strerror</h4>
+<a name="idn2_005fstrerror"></a><dl>
+<dt><a name="index-idn2_005fstrerror"></a>Function: <em>const char *</em> <strong>idn2_strerror</strong> <em>(int <var>rc</var>)</em></dt>
+<dd><p><var>rc</var>: return code from another libidn2 function.
+</p>
+<p>Convert internal libidn2 error code to a humanly readable string.
+The returned pointer must not be de-allocated by the caller.
+</p>
+<p>Return value: A humanly readable string describing error.
+</p></dd></dl>
+
+<a name="idn2_005fstrerror_005fname-1"></a>
+<h4 class="subheading">idn2_strerror_name</h4>
+<a name="idn2_005fstrerror_005fname"></a><dl>
+<dt><a name="index-idn2_005fstrerror_005fname"></a>Function: <em>const char *</em> <strong>idn2_strerror_name</strong> <em>(int <var>rc</var>)</em></dt>
+<dd><p><var>rc</var>: return code from another libidn2 function.
+</p>
+<p>Convert internal libidn2 error code to a string corresponding to
+internal header file symbols.  For example,
+idn2_strerror_name(IDN2_MALLOC) will return the string
+&quot;IDN2_MALLOC&quot;.
+</p>
+<p>The caller must not attempt to de-allocate the returned string.
+</p>
+<p>Return value: A string corresponding to error code symbol.
+</p></dd></dl>
+
+
+<a name="Return-Codes"></a>
+<h3 class="section">2.6 Return Codes</h3>
+
+<p>The functions normally return 0 on sucess or a negative error code.
+</p>
+<dl>
+<dt><a name="index-IDN2_005fOK"></a>Return code: <em>idn2_rc</em> <strong>IDN2_OK</strong></dt>
+<dd><p>Successful return.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fMALLOC"></a>Return code: <em>idn2_rc</em> <strong>IDN2_MALLOC</strong></dt>
+<dd><p>Memory allocation error.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fNO_005fCODESET"></a>Return code: <em>idn2_rc</em> <strong>IDN2_NO_CODESET</strong></dt>
+<dd><p>Could not determine locale string encoding format.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fICONV_005fFAIL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_ICONV_FAIL</strong></dt>
+<dd><p>Could not transcode locale string to UTF-8.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fENCODING_005fERROR"></a>Return code: <em>idn2_rc</em> <strong>IDN2_ENCODING_ERROR</strong></dt>
+<dd><p>Unicode data encoding error.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fNFC"></a>Return code: <em>idn2_rc</em> <strong>IDN2_NFC</strong></dt>
+<dd><p>Error normalizing string.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fPUNYCODE_005fBAD_005fINPUT"></a>Return code: <em>idn2_rc</em> <strong>IDN2_PUNYCODE_BAD_INPUT</strong></dt>
+<dd><p>Punycode invalid input.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fPUNYCODE_005fBIG_005fOUTPUT"></a>Return code: <em>idn2_rc</em> <strong>IDN2_PUNYCODE_BIG_OUTPUT</strong></dt>
+<dd><p>Punycode output buffer too small.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fPUNYCODE_005fOVERFLOW"></a>Return code: <em>idn2_rc</em> <strong>IDN2_PUNYCODE_OVERFLOW</strong></dt>
+<dd><p>Punycode conversion would overflow.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fTOO_005fBIG_005fDOMAIN"></a>Return code: <em>idn2_rc</em> <strong>IDN2_TOO_BIG_DOMAIN</strong></dt>
+<dd><p>Domain name longer than 255 characters.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fTOO_005fBIG_005fLABEL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_TOO_BIG_LABEL</strong></dt>
+<dd><p>Domain label longer than 63 characters.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fINVALID_005fALABEL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_INVALID_ALABEL</strong></dt>
+<dd><p>Input A-label is not valid.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fUALABEL_005fMISMATCH"></a>Return code: <em>idn2_rc</em> <strong>IDN2_UALABEL_MISMATCH</strong></dt>
+<dd><p>Input A-label and U-label does not match.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fINVALID_005fFLAGS"></a>Return code: <em>idn2_rc</em> <strong>IDN2_INVALID_FLAGS</strong></dt>
+<dd><p>Invalid combination of flags.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fNOT_005fNFC"></a>Return code: <em>idn2_rc</em> <strong>IDN2_NOT_NFC</strong></dt>
+<dd><p>String is not NFC.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005f2HYPHEN"></a>Return code: <em>idn2_rc</em> <strong>IDN2_2HYPHEN</strong></dt>
+<dd><p>String has forbidden two hyphens.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fHYPHEN_005fSTARTEND"></a>Return code: <em>idn2_rc</em> <strong>IDN2_HYPHEN_STARTEND</strong></dt>
+<dd><p>String has forbidden starting/ending hyphen.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fLEADING_005fCOMBINING"></a>Return code: <em>idn2_rc</em> <strong>IDN2_LEADING_COMBINING</strong></dt>
+<dd><p>String has forbidden leading combining character.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fDISALLOWED"></a>Return code: <em>idn2_rc</em> <strong>IDN2_DISALLOWED</strong></dt>
+<dd><p>String has disallowed character.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fCONTEXTJ"></a>Return code: <em>idn2_rc</em> <strong>IDN2_CONTEXTJ</strong></dt>
+<dd><p>String has forbidden context-j character.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fCONTEXTJ_005fNO_005fRULE"></a>Return code: <em>idn2_rc</em> <strong>IDN2_CONTEXTJ_NO_RULE</strong></dt>
+<dd><p>String has context-j character with no rull.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fCONTEXTO"></a>Return code: <em>idn2_rc</em> <strong>IDN2_CONTEXTO</strong></dt>
+<dd><p>String has forbidden context-o character.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fCONTEXTO_005fNO_005fRULE"></a>Return code: <em>idn2_rc</em> <strong>IDN2_CONTEXTO_NO_RULE</strong></dt>
+<dd><p>String has context-o character with no rull.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fUNASSIGNED"></a>Return code: <em>idn2_rc</em> <strong>IDN2_UNASSIGNED</strong></dt>
+<dd><p>String has forbidden unassigned character.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fBIDI"></a>Return code: <em>idn2_rc</em> <strong>IDN2_BIDI</strong></dt>
+<dd><p>String has forbidden bi-directional properties.
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fDOT_005fIN_005fLABEL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_DOT_IN_LABEL</strong></dt>
+<dd><p>Label has forbidden dot (TR46).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fINVALID_005fTRANSITIONAL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_INVALID_TRANSITIONAL</strong></dt>
+<dd><p>Label has character forbidden in transitional mode (TR46).
+</p></dd></dl>
+
+<dl>
+<dt><a name="index-IDN2_005fINVALID_005fNONTRANSITIONAL"></a>Return code: <em>idn2_rc</em> <strong>IDN2_INVALID_NONTRANSITIONAL</strong></dt>
+<dd><p>Label has character forbidden in non-transitional mode (TR46).
+</p></dd></dl>
+
+<a name="Memory-Handling"></a>
+<h3 class="section">2.7 Memory Handling</h3>
+
+<a name="idn2_005ffree-1"></a>
+<h4 class="subheading">idn2_free</h4>
+<a name="idn2_005ffree"></a><dl>
+<dt><a name="index-idn2_005ffree"></a>Function: <em>void</em> <strong>idn2_free</strong> <em>(void * <var>ptr</var>)</em></dt>
+<dd><p><var>ptr</var>: pointer to deallocate
+</p>
+<p>Call free(3) on the given pointer.
+</p>
+<p>This function is typically only useful on systems where the library
+malloc heap is different from the library caller malloc heap, which
+happens on Windows when the library is a separate DLL.
+</p></dd></dl>
+
+
+<a name="Version-Check"></a>
+<h3 class="section">2.8 Version Check</h3>
+
+<p>It is often desirable to check that the version of Libidn2 used is
+indeed one which fits all requirements.  Even with binary
+compatibility new features may have been introduced but due to problem
+with the dynamic linker an old version is actually used.  So you may
+want to check that the version is okay right after program startup.
+</p>
+<a name="idn2_005fcheck_005fversion-1"></a>
+<h4 class="subheading">idn2_check_version</h4>
+<a name="idn2_005fcheck_005fversion"></a><dl>
+<dt><a name="index-idn2_005fcheck_005fversion"></a>Function: <em>const char *</em> <strong>idn2_check_version</strong> <em>(const char * <var>req_version</var>)</em></dt>
+<dd><p><var>req_version</var>: version string to compare with, or NULL.
+</p>
+<p>Check IDN2 library version.  This function can also be used to read
+out the version of the library code used.  See <code>IDN2_VERSION</code>  for a
+suitable  <code>req_version</code> string, it corresponds to the idn2.h header
+file version.  Normally these two version numbers match, but if you
+are using an application built against an older libidn2 with a
+newer libidn2 shared library they will be different.
+</p>
+<p>Return value: Check that the version of the library is at
+minimum the one given as a string in  <code>req_version</code> and return the
+actual version string of the library; return NULL if the
+condition is not met.  If NULL is passed to this function no
+check is done and only the version string is returned.
+</p></dd></dl>
+
+
+<p>The normal way to use the function is to put something similar to the
+following first in your <code>main</code>:
+</p>
+<div class="example">
+<pre class="example">  if (!idn2_check_version (IDN2_VERSION))
+    {
+      printf (&quot;idn2_check_version() failed:\n&quot;
+              &quot;Header file incompatible with shared library.\n&quot;);
+      exit(EXIT_FAILURE);
+    }
+</pre></div>
+
+<hr>
+<a name="Converting-from-libidn"></a>
+<div class="header">
+<p>
+Next: <a href="#Examples" accesskey="n" rel="next">Examples</a>, Previous: <a href="#Library-Functions" accesskey="p" rel="prev">Library Functions</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Converting-from-libidn-1"></a>
+<h2 class="chapter">3 Converting from libidn</h2>
+<a name="index-libidn"></a>
+
+<p>This library is backwards (API) compatible with the libidn library
+(<a href="https://www.gnu.org/software/libidn/">https://www.gnu.org/software/libidn/</a>).
+</p>
+<p>Although it is recommended for new software to use the native libidn2
+functions (i.e., the ones prefixed with <code>idn2</code>), old software
+isn&rsquo;t always feasible to modify.
+</p>
+<a name="Converting-with-minimal-modifications"></a>
+<h3 class="section">3.1 Converting with minimal modifications</h3>
+<p>As such, libidn2, provides compatibility macros which switch all libidn
+functions, to libidn2 functions in a backwards compatible way. To take
+advantage of these compatibility functions, it is sufficient to replace
+the <code>idna.h</code> header in legacy code, with <code>idn2.h</code>. That
+would transform the software from using libidn, i.e., IDNA2003,
+to using libidn2 with IDNA2008 non-transitional encoding.
+</p>
+<a name="Converting-to-native-APIs"></a>
+<h3 class="section">3.2 Converting to native APIs</h3>
+<p>However, it is recommended to switch applications to the IDN2 native APIs.
+The following table provides a mapping of libidn code snippets to
+libidn2, for switching to IDNA2008.
+</p>
+<table>
+<thead><tr><th width="40%">libidn</th><th width="40%">libidn2</th></tr></thead>
+<tr><td width="40%"><pre class="verbatim">rc = idna_to_ascii_8z (buf, &amp;p, 0 /* any flags */);
+if (rc != IDNA_SUCCESS)
+</pre></td><td width="40%"><pre class="verbatim">rc = idn2_to_ascii_8z (buf, &amp;p, IDN2_NONTRANSITIONAL);
+if (rc != IDN2_OK)
+</pre></td></tr>
+<tr><td width="40%"><pre class="verbatim">rc = idna_to_unicode_8z8z (buf, &amp;p, 0 /* any flags */);
+if (rc != IDNA_SUCCESS)
+</pre></td><td width="40%"><pre class="verbatim">rc = idn2_to_unicode_8z8z (buf, &amp;p, 0);
+if (rc != IDN2_OK)
+</pre></td></tr>
+</table>
+
+<p>Note that, although the table only lists the UTF-8 functions, the mapping
+is identical for every other one on the family of toUnicode and toAscii.
+As the IDNA2003 details differ signicantly to IDNA2008, no flags used in
+the libidn functions map to any specific flags; it is safe to use
+the suggested libidn2 flags.
+</p>
+<a name="Converting-with-backwards-compatibility"></a>
+<h3 class="section">3.3 Converting with backwards compatibility</h3>
+<p>In several cases where IDNA2008 mappings do not exist whereas IDNA2003
+mappings do, software like browsers take a backwards compatible approach.
+That is convert the domain to IDNA2008 form, and if that fails try the
+IDNA2003 conversion. The following example demonstrates that approach.
+</p>
+<pre class="verbatim">rc = idn2_to_ascii_8z (buf, &amp;p, IDN2_NONTRANSITIONAL); /* IDNA2008 */
+if (rc == IDN2_DISALLOWED)
+  rc = idn2_to_ascii_8z (buf, &amp;p, IDN2_TRANSITIONAL); /* IDNA2003 - compatible */
+</pre>
+<a name="Using-libidn-and-libidn2-code"></a>
+<h3 class="section">3.4 Using libidn and libidn2 code</h3>
+<p>In the special case of software that needs to support both
+libraries (e.g., both IDNA2003 and IDNA2008), you must define
+<code>IDN2_SKIP_LIBIDN_COMPAT</code> prior to including <code>idn2.h</code>
+in order to be able to use both libraries&rsquo; functions.
+</p>
+<hr>
+<a name="Examples"></a>
+<div class="header">
+<p>
+Next: <a href="#Invoking-idn2" accesskey="n" rel="next">Invoking idn2</a>, Previous: <a href="#Converting-from-libidn" accesskey="p" rel="prev">Converting from libidn</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Examples-1"></a>
+<h2 class="chapter">4 Examples</h2>
+<a name="index-Examples"></a>
+
+<p>This chapter contains example code which illustrate how Libidn2 is
+used when you write your own application.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#ToASCII" accesskey="1">ToASCII</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Example using IDNA ToASCII.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#ToUnicode" accesskey="2">ToUnicode</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Example using IDNA ToUnicode.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Lookup" accesskey="3">Lookup</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Example IDNA2008 Lookup domain name operation.
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Register" accesskey="4">Register</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">Example IDNA2008 Register label operation.
+</td></tr>
+</table>
+
+<hr>
+<a name="ToASCII"></a>
+<div class="header">
+<p>
+Next: <a href="#ToUnicode" accesskey="n" rel="next">ToUnicode</a>, Up: <a href="#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="ToASCII-example"></a>
+<h3 class="section">4.1 ToASCII example</h3>
+
+<p>This example demonstrates how the library is used to convert
+internationalized domain names into ASCII compatible names (ACE).
+It expects input to be in UTF-8 form.
+</p>
+<pre class="verbatim">/* example-toascii.c --- Example ToASCII() code showing how to use Libidn2.
+ *
+ * This code is placed under public domain.
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;idn2.h&gt;		/* idn2_to_ascii_8z() */
+
+/*
+ * Compiling using pkg-config is recommended:
+ *
+ * $ cc -o example-toascii example-toascii.c $(pkg-config --cflags --libs libidn2)
+ * $ ./example-toascii
+ * Input domain encoded as `UTF-8': βόλος.com
+ * Read string (length 15): ce b2 cf 8c ce bb ce bf cf 82 2e 63 6f 6d 0a
+ * ACE label (length 17): 'xn--nxasmm1c.com'
+ *
+ */
+
+int
+main (void)
+{
+  char buf[BUFSIZ];
+  char *p;
+  int rc;
+  size_t i;
+
+  if (!fgets (buf, BUFSIZ, stdin))
+    perror (&quot;fgets&quot;);
+  buf[strlen (buf) - 1] = '\0';
+
+  printf (&quot;Read string (length %ld): &quot;, (long int) strlen (buf));
+  for (i = 0; i &lt; strlen (buf); i++)
+    printf (&quot;%02x &quot;, (unsigned) buf[i] &amp; 0xFF);
+  printf (&quot;\n&quot;);
+
+  /* Use non-transitional IDNA2008 */
+  rc = idn2_to_ascii_8z (buf, &amp;p, IDN2_NONTRANSITIONAL);
+  if (rc != IDNA_SUCCESS)
+    {
+      printf (&quot;ToASCII() failed (%d): %s\n&quot;, rc, idn2_strerror (rc));
+      return EXIT_FAILURE;
+    }
+
+  printf (&quot;ACE label (length %ld): '%s'\n&quot;, (long int) strlen (p), p);
+
+  free (p); /* or idn2_free() */
+
+  return 0;
+}
+</pre>
+<hr>
+<a name="ToUnicode"></a>
+<div class="header">
+<p>
+Next: <a href="#Lookup" accesskey="n" rel="next">Lookup</a>, Previous: <a href="#ToASCII" accesskey="p" rel="prev">ToASCII</a>, Up: <a href="#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="ToUnicode-example"></a>
+<h3 class="section">4.2 ToUnicode example</h3>
+
+<p>This example demonstrates how the library is used to convert ASCII
+compatible names (ACE) to internationalized domain names.
+Both input and output are in UTF-8 form.
+</p>
+<pre class="verbatim">/* example-tounicode.c --- Example ToUnicode() code showing how to use Libidn2.
+ *
+ * This code is placed under public domain.
+ */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;idn2.h&gt;		/* idn2_to_unicode_8z8z() */
+
+/*
+ * Compiling using pkg-config is recommended:
+ *
+ * $ cc -o example-to-unicode example-to-unicode.c $(pkg-config --cflags --libs libidn2)
+ * $ ./example-tounicode
+ * Input domain (ACE) encoded as `UTF-8': xn--nxasmm1c.com
+ *
+ * Read string (length 16): 78 6e 2d 2d 6e 78 61 73 6d 6d 31 63 2e 63 6f 6d
+ * ACE label (length 14): 'βόλος.com'
+ *
+ */
+
+int
+main (void)
+{
+  char buf[BUFSIZ];
+  char *p;
+  int rc;
+  size_t i;
+
+  if (!fgets (buf, BUFSIZ, stdin))
+    perror (&quot;fgets&quot;);
+  buf[strlen (buf) - 1] = '\0';
+
+  printf (&quot;Read string (length %ld): &quot;, (long int) strlen (buf));
+  for (i = 0; i &lt; strlen (buf); i++)
+    printf (&quot;%02x &quot;, (unsigned) buf[i] &amp; 0xFF);
+  printf (&quot;\n&quot;);
+
+  rc = idn2_to_unicode_8z8z (buf, &amp;p, 0);
+  if (rc != IDNA_SUCCESS)
+    {
+      printf (&quot;ToUnicode() failed (%d): %s\n&quot;, rc, idn2_strerror (rc));
+      return EXIT_FAILURE;
+    }
+
+  printf (&quot;ACE label (length %ld): '%s'\n&quot;, (long int) strlen (p), p);
+
+  free (p); /* or idn2_free() */
+
+  return 0;
+}
+</pre>
+<hr>
+<a name="Lookup"></a>
+<div class="header">
+<p>
+Next: <a href="#Register" accesskey="n" rel="next">Register</a>, Previous: <a href="#ToUnicode" accesskey="p" rel="prev">ToUnicode</a>, Up: <a href="#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Lookup-1"></a>
+<h3 class="section">4.3 Lookup</h3>
+
+<p>This example demonstrates how a domain name is processed before it is
+lookup in the DNS. The input expected is in the locale encoding.
+</p>
+<pre class="verbatim">#include &lt;stdio.h&gt; /* printf, fflush, fgets, stdin, perror, fprintf */
+#include &lt;string.h&gt; /* strlen */
+#include &lt;locale.h&gt; /* setlocale */
+#include &lt;stdlib.h&gt; /* free */
+#include &lt;idn2.h&gt; /* idn2_lookup_ul, IDN2_OK, idn2_strerror, idn2_strerror_name */
+
+int
+main (int argc, char *argv[])
+{
+  int rc;
+  char src[BUFSIZ];
+  char *lookupname;
+
+  setlocale (LC_ALL, &quot;&quot;);
+
+  printf (&quot;Enter (possibly non-ASCII) domain name to lookup: &quot;);
+  fflush (stdout);
+  if (!fgets (src, sizeof (src), stdin))
+    {
+      perror (&quot;fgets&quot;);
+      return 1;
+    }
+  src[strlen (src) - 1] = '\0';
+
+  rc = idn2_lookup_ul (src, &amp;lookupname, 0);
+  if (rc != IDN2_OK)
+    {
+      fprintf (stderr, &quot;error: %s (%s, %d)\n&quot;,
+	       idn2_strerror (rc), idn2_strerror_name (rc), rc);
+      return 1;
+    }
+
+  printf (&quot;IDNA2008 domain name to lookup in DNS: %s\n&quot;, lookupname);
+
+  free (lookupname);
+
+  return 0;
+}
+</pre>
+<hr>
+<a name="Register"></a>
+<div class="header">
+<p>
+Previous: <a href="#Lookup" accesskey="p" rel="prev">Lookup</a>, Up: <a href="#Examples" accesskey="u" rel="up">Examples</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Register-1"></a>
+<h3 class="section">4.4 Register</h3>
+
+<p>This example demonstrates how a domain label is processed before it is
+registered in the DNS. The input expected is in the locale encoding.
+</p>
+<pre class="verbatim">#include &lt;stdio.h&gt; /* printf, fflush, fgets, stdin, perror, fprintf */
+#include &lt;string.h&gt; /* strlen */
+#include &lt;locale.h&gt; /* setlocale */
+#include &lt;stdlib.h&gt; /* free */
+#include &lt;idn2.h&gt; /* idn2_register_ul, IDN2_OK, idn2_strerror, idn2_strerror_name */
+
+int
+main (int argc, char *argv[])
+{
+  int rc;
+  char src[BUFSIZ];
+  char *insertname;
+
+  setlocale (LC_ALL, &quot;&quot;);
+
+  printf (&quot;Enter (possibly non-ASCII) label to register: &quot;);
+  fflush (stdout);
+  if (!fgets (src, sizeof (src), stdin))
+    {
+      perror (&quot;fgets&quot;);
+      return 1;
+    }
+  src[strlen (src) - 1] = '\0';
+
+  rc = idn2_register_ul (src, NULL, &amp;insertname, 0);
+  if (rc != IDN2_OK)
+    {
+      fprintf (stderr, &quot;error: %s (%s, %d)\n&quot;,
+	       idn2_strerror (rc), idn2_strerror_name (rc), rc);
+      return 1;
+    }
+
+  printf (&quot;IDNA2008 label to register in DNS: %s\n&quot;, insertname);
+
+  free (insertname);
+
+  return 0;
+}
+</pre>
+<hr>
+<a name="Invoking-idn2"></a>
+<div class="header">
+<p>
+Next: <a href="#Interface-Index" accesskey="n" rel="next">Interface Index</a>, Previous: <a href="#Examples" accesskey="p" rel="prev">Examples</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Invoking-idn2-1"></a>
+<h2 class="chapter">5 Invoking idn2</h2>
+
+<a name="index-idn2"></a>
+<a name="index-invoking-idn2"></a>
+<a name="index-command-line"></a>
+
+<p><code>idn2</code> translates internationalized domain names to the
+IDNA2008 encoded format, either for lookup or registration.
+</p>
+<p>If strings are specified on the command line, they are used as input
+and the computed output is printed to standard output <code>stdout</code>.
+If no strings are specified on the command line, the program read
+data, line by line, from the standard input <code>stdin</code>, and print
+the computed output to standard output.  What processing is performed
+(e.g., lookup or register) is indicated by options.  If any errors are
+encountered, the execution of the applications is aborted.
+</p>
+<p>All strings are expected to be encoded in the preferred charset used
+by your locale.  Use <code>--debug</code> to find out what this charset is.
+On POSIX systems you may use the <code>LANG</code> environment variable to
+specify a different locale.
+</p>
+<p>To process a string that starts with <code>-</code>, for example
+<code>-foo</code>, use <code>--</code> to signal the end of parameters, as in
+<code>idn2 -r -- -foo</code>.
+</p>
+<a name="Options"></a>
+<h3 class="section">5.1 Options</h3>
+<p><code>idn2</code> recognizes these commands:
+</p>
+<pre class="verbatim">  -h, --help               Print help and exit
+
+  -V, --version            Print version and exit
+
+  -d, --decode             Decode (punycode) domain name
+
+  -l, --lookup             Lookup domain name (default)
+
+  -r, --register           Register label
+
+  -T, --tr46t              Enable TR46 transitional processing
+
+  -N, --tr46nt             Enable TR46 non-transitional processing
+
+      --debug              Print debugging information
+
+      --quiet              Silent operation
+</pre>
+<a name="Environment-Variables"></a>
+<h3 class="section">5.2 Environment Variables</h3>
+
+<p>On POSIX systems the <var>LANG</var> environment variable can be used to
+override the system locale for the command being invoked.  The system
+locale may influence what character set is used to decode data (i.e.,
+strings on the command line or data read from the standard input
+stream), and to encode data to the standard output.  If your system is
+set up correctly, however, the application will use the correct locale
+and character set automatically.  Example usage:
+</p>
+<div class="example">
+<pre class="example">$ LANG=en_US.UTF-8 idn2
+...
+</pre></div>
+
+<a name="Examples-2"></a>
+<h3 class="section">5.3 Examples</h3>
+
+<p>Standard usage, reading input from standard input and disabling
+license and usage instructions:
+</p>
+<div class="example">
+<pre class="example">jas@latte:~$ idn2 --quiet
+r&auml;ksm&ouml;rg&aring;s.se
+xn--rksmrgs-5wao1o.se
+...
+</pre></div>
+
+<p>Reading input from the command line:
+</p>
+<div class="example">
+<pre class="example">jas@latte:~$ idn2 r&auml;ksm&ouml;rg&aring;s.se bl&aring;b&aelig;rgr&oslash;d.no
+xn--rksmrgs-5wao1o.se
+xn--blbrgrd-fxak7p.no
+jas@latte:~$
+</pre></div>
+
+<p>Testing the IDNA2008 Register function:
+</p>
+<div class="example">
+<pre class="example">jas@latte:~$ idn2 --register fu&szlig;ball
+xn--fuball-cta
+jas@latte:~$
+</pre></div>
+
+<a name="Troubleshooting"></a>
+<h3 class="section">5.4 Troubleshooting</h3>
+
+<p>Getting character data encoded right, and making sure Libidn2 use the
+same encoding, can be difficult.  The reason for this is that most
+systems may encode character data in more than one character encoding,
+i.e., using <code>UTF-8</code> together with <code>ISO-8859-1</code> or
+<code>ISO-2022-JP</code>.  This problem is likely to continue to exist until
+only one character encoding come out as the evolutionary winner, or
+(more likely, at least to some extents) forever.
+</p>
+<p>The first step to troubleshooting character encoding problems with
+Libidn2 is to use the &lsquo;<samp>--debug</samp>&rsquo; parameter to find out which
+character set encoding &lsquo;<samp>idn2</samp>&rsquo; believe your locale uses.
+</p>
+<div class="example">
+<pre class="example">jas@latte:~$ idn2 --debug --quiet &quot;&quot;
+Charset: UTF-8
+
+jas@latte:~$
+</pre></div>
+
+<p>If it prints <code>ANSI_X3.4-1968</code> (i.e., <code>US-ASCII</code>), this
+indicate you have not configured your locale properly.  To configure
+the locale, you can, for example, use &lsquo;<samp>LANG=sv_SE.UTF-8; export
+LANG</samp>&rsquo; at a <code>/bin/sh</code> prompt, to set up your locale for a Swedish
+environment using <code>UTF-8</code> as the encoding.
+</p>
+<p>Sometimes &lsquo;<samp>idn2</samp>&rsquo; appear to be unable to translate from your
+system locale into <code>UTF-8</code> (which is used internally), and you
+will get an error message like this:
+</p>
+<div class="example">
+<pre class="example">idn2: lookup: could not convert string to UTF-8
+</pre></div>
+
+<p>One explanation is that you didn&rsquo;t install the &lsquo;<samp>iconv</samp>&rsquo; conversion
+tools.  You can find it as a standalone library in GNU Libiconv
+(<a href="https://www.gnu.org/software/libiconv/">https://www.gnu.org/software/libiconv/</a>).  On many GNU/Linux
+systems, this library is part of the system, but you may have to
+install additional packages to be able to use it.
+</p>
+<p>Another explanation is that the error is correct and you are feeding
+&lsquo;<samp>idn2</samp>&rsquo; invalid data.  This can happen inadvertently if you are
+not careful with the character set encoding you use.  For example, if
+your shell run in a <code>ISO-8859-1</code> environment, and you invoke
+&lsquo;<samp>idn2</samp>&rsquo; with the &lsquo;<samp>LANG</samp>&rsquo; environment variable as follows, you
+will feed it <code>ISO-8859-1</code> characters but force it to believe they
+are <code>UTF-8</code>.  Naturally this will lead to an error, unless the
+byte sequences happen to be valid <code>UTF-8</code>.  Note that even if you
+don&rsquo;t get an error, the output may be incorrect in this situation,
+because <code>ISO-8859-1</code> and <code>UTF-8</code> does not in general encode
+the same characters as the same byte sequences.
+</p>
+<div class="example">
+<pre class="example">jas@latte:~$ idn2 --quiet --debug &quot;&quot;
+Charset: ISO-8859-1
+
+jas@latte:~$ LANG=sv_SE.UTF-8 idn2 --debug r&auml;ksm&ouml;rg&aring;s
+Charset: UTF-8
+input[0] = 0x72
+input[1] = 0xc3
+input[2] = 0xa4
+input[3] = 0xc3
+input[4] = 0xa4
+input[5] = 0x6b
+input[6] = 0x73
+input[7] = 0x6d
+input[8] = 0xc3
+input[9] = 0xb6
+input[10] = 0x72
+input[11] = 0x67
+input[12] = 0xc3
+input[13] = 0xa5
+input[14] = 0x73
+UCS-4 input[0] = U+0072
+UCS-4 input[1] = U+00e4
+UCS-4 input[2] = U+00e4
+UCS-4 input[3] = U+006b
+UCS-4 input[4] = U+0073
+UCS-4 input[5] = U+006d
+UCS-4 input[6] = U+00f6
+UCS-4 input[7] = U+0072
+UCS-4 input[8] = U+0067
+UCS-4 input[9] = U+00e5
+UCS-4 input[10] = U+0073
+output[0] = 0x72
+output[1] = 0xc3
+output[2] = 0xa4
+output[3] = 0xc3
+output[4] = 0xa4
+output[5] = 0x6b
+output[6] = 0x73
+output[7] = 0x6d
+output[8] = 0xc3
+output[9] = 0xb6
+output[10] = 0x72
+output[11] = 0x67
+output[12] = 0xc3
+output[13] = 0xa5
+output[14] = 0x73
+UCS-4 output[0] = U+0072
+UCS-4 output[1] = U+00e4
+UCS-4 output[2] = U+00e4
+UCS-4 output[3] = U+006b
+UCS-4 output[4] = U+0073
+UCS-4 output[5] = U+006d
+UCS-4 output[6] = U+00f6
+UCS-4 output[7] = U+0072
+UCS-4 output[8] = U+0067
+UCS-4 output[9] = U+00e5
+UCS-4 output[10] = U+0073
+xn--rksmrgs-5waap8p
+jas@latte:~$
+</pre></div>
+
+<p>The sense moral here is to forget about &lsquo;<samp>LANG</samp>&rsquo; (instead,
+configure your system locale properly) unless you know what you are
+doing, and if you want to use &lsquo;<samp>LANG</samp>&rsquo;, do it carefully and after
+verifying with &lsquo;<samp>--debug</samp>&rsquo; that you get the desired results.
+</p>
+<hr>
+<a name="Interface-Index"></a>
+<div class="header">
+<p>
+Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previous: <a href="#Invoking-idn2" accesskey="p" rel="prev">Invoking idn2</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Interface-Index-1"></a>
+<h2 class="unnumbered">Interface Index</h2>
+
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Interface-Index_fn_letter-I"><b>I</b></a>
+ &nbsp; 
+</td></tr></table>
+<table class="index-fn" border="0">
+<tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Interface-Index_fn_letter-I">I</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fcheck_005fversion"><code>idn2_check_version</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005ffree"><code>idn2_free</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005flookup_005fu8"><code>idn2_lookup_u8</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005flookup_005ful"><code>idn2_lookup_ul</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fregister_005fu8"><code>idn2_register_u8</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fregister_005ful"><code>idn2_register_ul</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fstrerror"><code>idn2_strerror</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fstrerror_005fname"><code>idn2_strerror_name</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fto_005fascii_005f8z"><code>idn2_to_ascii_8z</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fto_005fascii_005flz"><code>idn2_to_ascii_lz</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fto_005funicode_005f8z8z"><code>idn2_to_unicode_8z8z</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fto_005funicode_005f8zlz"><code>idn2_to_unicode_8zlz</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2_005fto_005funicode_005flzlz"><code>idn2_to_unicode_lzlz</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+</table>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Interface-Index_fn_letter-I"><b>I</b></a>
+ &nbsp; 
+</td></tr></table>
+
+<hr>
+<a name="Concept-Index"></a>
+<div class="header">
+<p>
+Previous: <a href="#Interface-Index" accesskey="p" rel="prev">Interface Index</a>, Up: <a href="#Top" accesskey="u" rel="up">Top</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Interface-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Concept-Index-1"></a>
+<h2 class="unnumbered">Concept Index</h2>
+
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Concept-Index_cp_letter-C"><b>C</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-L"><b>L</b></a>
+ &nbsp; 
+</td></tr></table>
+<table class="index-cp" border="0">
+<tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-Index_cp_letter-C">C</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-command-line">command line</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-idn2">Invoking idn2</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-Index_cp_letter-E">E</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Examples">Examples</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Examples">Examples</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-Index_cp_letter-I">I</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-idn2"><code>idn2</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-idn2">Invoking idn2</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-invoking-idn2">invoking <code>idn2</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invoking-idn2">Invoking idn2</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Concept-Index_cp_letter-L">L</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-libidn">libidn</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Converting-from-libidn">Converting from libidn</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Library-Functions">Library Functions</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Library-Functions">Library Functions</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+</table>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Concept-Index_cp_letter-C"><b>C</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-E"><b>E</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Concept-Index_cp_letter-L"><b>L</b></a>
+ &nbsp; 
+</td></tr></table>
+
+<hr>
+
+
+
+</body>
+</html>

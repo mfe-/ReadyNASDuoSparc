@@ -1,0 +1,215 @@
+idn2.o: idn2.c ../config.h ../gl/stdint.h ../unistring/stdint.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdint.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/stdint.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h \
+ /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
+ /usr/include/bits/wchar.h /usr/include/bits/wordsize.h ../gl/limits.h \
+ ../unistring/limits.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/limits.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/stdio_lim.h ../gl/stdio.h /usr/include/stdio.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/libio.h /usr/include/_G_config.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/wchar.h \
+ /usr/include/gconv.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h \
+ /usr/include/bits/sys_errlist.h ../gl/sys/types.h \
+ ../unistring/sys/types.h /usr/include/sys/types.h /usr/include/time.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/bits/time.h \
+ /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+ /usr/include/bits/sched.h ../gl/stdlib.h /usr/include/stdlib.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/xlocale.h ../unistring/alloca.h ../gl/string.h \
+ /usr/include/string.h /usr/include/bits/string.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno-base.h /usr/include/locale.h \
+ /usr/include/bits/locale.h ../gl/unistd.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/getopt.h ../lib/idn2.h \
+ ../unistring/unitypes.h ../unistring/uniconv.h ../unistring/unitypes.h \
+ ../unistring/iconveh.h ../unistring/striconveha.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h \
+ ../unistring/localcharset.h ../unistring/unistr.h \
+ ../unistring/unused-parameter.h ../unistring/localcharset.h \
+ ../gl/error.h ../gl/gettext.h /usr/include/libintl.h ../gl/progname.h \
+ ../gl/version-etc.h idn2_cmd.h blurbs.h
+
+../config.h:
+
+../gl/stdint.h:
+
+../unistring/stdint.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdint.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/stdint.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/bits/wordsize.h:
+
+../gl/limits.h:
+
+../unistring/limits.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/limits.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/usr/include/bits/stdio_lim.h:
+
+../gl/stdio.h:
+
+/usr/include/stdio.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/wchar.h:
+
+/usr/include/gconv.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdarg.h:
+
+/usr/include/bits/sys_errlist.h:
+
+../gl/sys/types.h:
+
+../unistring/sys/types.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/sched.h:
+
+../gl/stdlib.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/xlocale.h:
+
+../unistring/alloca.h:
+
+../gl/string.h:
+
+/usr/include/string.h:
+
+/usr/include/bits/string.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include-fixed/bits/string2.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+../gl/unistd.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
+../lib/idn2.h:
+
+../unistring/unitypes.h:
+
+../unistring/uniconv.h:
+
+../unistring/unitypes.h:
+
+../unistring/iconveh.h:
+
+../unistring/striconveha.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h:
+
+../unistring/localcharset.h:
+
+../unistring/unistr.h:
+
+../unistring/unused-parameter.h:
+
+../unistring/localcharset.h:
+
+../gl/error.h:
+
+../gl/gettext.h:
+
+/usr/include/libintl.h:
+
+../gl/progname.h:
+
+../gl/version-etc.h:
+
+idn2_cmd.h:
+
+blurbs.h:

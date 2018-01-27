@@ -1,0 +1,12 @@
+# Suppress a valgrind message about use of uninitialized memory in freea().
+# This use is OK because it provides only a speedup.
+{
+    freea
+    Memcheck:Cond
+    fun:freea
+}
+{
+    libunistring_freea
+    Memcheck:Cond
+    fun:libunistring_freea
+}

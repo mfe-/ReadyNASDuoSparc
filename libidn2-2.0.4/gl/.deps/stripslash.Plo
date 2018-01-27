@@ -1,0 +1,14 @@
+stripslash.lo: stripslash.c ../config.h dirname.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h \
+ /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h \
+ dosname.h
+
+../config.h:
+
+dirname.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h:
+
+/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stddef.h:
+
+dosname.h:
