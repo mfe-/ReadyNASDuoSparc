@@ -12,6 +12,9 @@ Qemu image of readynas https://community.netgear.com/t5/Community-Add-ons/Sparc-
 2. Better create a symlink for /usr/local/ -> /c/usr/local/
 3. create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /usr/local/share/ make install`
 4. use ` dpkg -i --force-overwrite whatever.deb` to install debian packages from this repository.
+5. If you retriev error messages like `debian-sparc:~# curl --version
+curl: error while loading shared libraries: libnettle.so.6: cannot open shared object file: No such file or directory
+` when executing an installed application (in this case it would be curl), make sure you installed the required library (in this example it would be libnettle) and exported the enviroment variable LD_LIBRARY_PATH with the proper paths.
 
 <h2>Start</h2>
 
