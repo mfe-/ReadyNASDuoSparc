@@ -107,3 +107,28 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82043 - error: redefinition of ...
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE' 
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82348 - math.lo.dep bytes.gox dependency dropped
+
+
+# init
+```
+apt-get update
+mkdir /c/opt
+mkdir /c/usr
+mkdir /c/usr/local
+mv /opt/* /c/opt/
+rm /opt/ -Rf
+ln -s /c/opt/ /opt
+mv /usr/local/* /c/usr/local/
+rm /usr/local/ -R
+ln -s /c/usr/local/ /usr/local
+apt-get install grep --reinstall
+apt-get install nano -y
+apt-get install less -y
+useradd -s /bin/false man
+apt-get install man-db -y
+apt-get install less -y
+ln -s /usr/bin/less /usr/bin/sensible-pager
+apt-get install screen -y
+apt-get install gcc g++ -y
+
+```
