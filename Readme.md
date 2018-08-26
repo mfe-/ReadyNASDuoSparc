@@ -107,7 +107,8 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82043 - error: redefinition of ...
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE' 
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82348 - math.lo.dep bytes.gox dependency dropped
-
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87013 -gcc8
 
 # init
 ```
