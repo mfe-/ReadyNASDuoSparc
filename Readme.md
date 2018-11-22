@@ -109,6 +109,10 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82348 - math.lo.dep bytes.gox dependency dropped
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87013 -gcc8
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88060 - [Bug go/88060] ../../../gcc-8.2.0/libgo/go/syscall/libcall_linux_utimesnano.go:17:18: error: reference to undefined name ‘_AT_FDCWD’
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88135 - Bug 88135 - error: reference to undefined identifier ‘syscall.WEXITED’ 
 
 # init
 ```
