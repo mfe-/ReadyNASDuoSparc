@@ -113,6 +113,8 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=87013 -gcc8
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88060 - [Bug go/88060] ../../../gcc-8.2.0/libgo/go/syscall/libcall_linux_utimesnano.go:17:18: error: reference to undefined name ‘_AT_FDCWD’
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88135 - Bug 88135 - error: reference to undefined identifier ‘syscall.WEXITED’ 
+</br>
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90527 - gcc9.1 alloc.c:72:7: error: implicit declaration of function ‘posix_memalign’
 
 # init
 ```
