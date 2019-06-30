@@ -1,5 +1,17 @@
-# asdfasdflkjasdflj
+# git overview for sparc readynas duo
 
+## Installing
+
+1. Download zip file and place it on the readynas
+2. unzip *-master.zip 
+3. cd to extracted dir
+4. cat git-2.21.0_2.21.0-1_sparc.parta* > git-2.21.0_2.21.0-1_sparc.deb
+5. dpkg --force-overwrite -i openssl-1.0.2r.deb
+6. dpkg --force-overwrite -i curl-7.64.1_7.deb
+7. dpkg --force-overwrite -i git-2.21.0_2.2.deb
+8. git config --global http.sslVerify false
+
+## Building
 1. openssl:
 2. ./config enable-shared enable-egd
 3. curl:
