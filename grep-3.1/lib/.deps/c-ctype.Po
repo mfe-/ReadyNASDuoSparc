@@ -1,8 +1,0 @@
-c-ctype.o: c-ctype.c ../config.h c-ctype.h \
- /c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h
-
-../config.h:
-
-c-ctype.h:
-
-/c/opt/gcc-7.1/lib/gcc/sparc-unknown-linux-gnu/7.1.0/include/stdbool.h:
