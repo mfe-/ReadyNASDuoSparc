@@ -1,28 +1,37 @@
-<h1>ReadyNASDuoSparc</h1>
+# ReadyNASDuoSparc
 
 This repository contains information, binaries, scripts regarding the readynas duo v1 sparc machine from netgear.</p>
 "The ReadyNAS RAIDiator 4.1.x firmware is a 32-bit SPARC Debian derivative mated to a Linux 2.6.17 kernel with numerous proprietary drivers"
 For more information check: http://wiki.dietpc.org/index.php/DIET-PC_on_SPARC_ReadyNAS
 
 Qemu image of readynas https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841 (dev version)
-<h2>Hints</h2>
 
+## Hints
 
 1. If there is no space left on the root partition you can workaround the issue with: `mount --bind /path/to/dir/with/plenty/of/space /tmp`
 2. Better create a symlink for /usr/local/ -> /c/usr/local/
 3. create dpkg packages with `checkinstall --dpkgflags=--force-overwrite --exclude /usr/local/share/ make install`
-4. use ` dpkg -i --force-overwrite whatever.deb` to install debian packages from this repository.
+4. use `dpkg -i --force-overwrite whatever.deb` to install debian packages from this repository.
 5. If you retriev error messages like `debian-sparc:~# curl --version
-curl: error while loading shared libraries: libnettle.so.6: cannot open shared object file: No such file or directory
-` when executing an installed application (in this case it would be curl), make sure you installed the required library (in this example it would be libnettle) and exported the enviroment variable LD_LIBRARY_PATH with the proper paths.
+curl: error while loading shared libraries: libnettle.so.6: cannot open shared object file: No such file or directory` when executing an installed application (in this case it would be curl), make sure you installed the required library (in this example it would be libnettle) and exported the enviroment variable LD_LIBRARY_PATH with the proper paths.
 
-<h2>Start</h2>
+## Start
 
 1. Download this github repository with `wget --no-check-certificate https://github.com/mfe-/ReadyNASDuoSparc/archive/master.zip`
 2. Unzip and install your required software
-3. You can execute steps 1 to 12 of init. 
+3. You can execute steps 1 to 12 of init.
+4. It makes sense to export some enviroment variables when logging into bash.
+    a. You can make use of `.bashrc`
+    b. add the following lines to export some paths
 
-<h2>Init</h2>
+```bash
+        export PATH=$PATH:/opt/rfw/bin/:/usr/local/ssl/bin/:/opt/git-2.21.0/bin/
+        export PATH=$HOME/.local/bin:$PATH
+        export LD_LIBRARY_PATH=/opt/gcc-4.6.0/lib/:/usr/local/ssl/lib/:/usr/local/lib/
+```
+
+## Init
+
 I reset my readynas and did the following steps:
 
 Because netgear turned off there package repository you can't get the customized netgear packages like libc6-dev for the debian system.
@@ -95,8 +104,8 @@ Compile kernel modules
 
 1. Download last firmware from [Netgear](https://kb.netgear.com/2649/NETGEAR-Open-Source-Code-for-Programmers-GPL) ReadyNAS devices running RAIDiator 4.1 (NV / NV+ / 1100 / Duo) GPL Bundle, RAIDiator 4.1.16
 
+### Issues
 
-<h2>Issues</h2>
 <br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81579 sanitizer_platform_limits_linux.cc:37:15: error: conflicting declaration ‘typedef __gid_t __kernel_gid_t’ </br>
 <br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81451 - missing futex check - libgo/runtime/thread-linux.c:12:0 futex.h:13:12: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘long’</br>
 <br>https://gcc.gnu.org/bugzilla/show_bug.cgi?id=56827 Building Go support for gcc 4.8.0 fails on Linux: undefined type ‘SockFilter’ </br>
@@ -104,7 +113,7 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81449 - runtime.inc:782:28: error: 
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82043 - error: redefinition of ... 
 </br>
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE' 
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82208 - exec_linux.go:197:27: error: reference to undefined name 'SYS_UNSHARE'
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82348 - math.lo.dep bytes.gox dependency dropped
 </br>
@@ -116,7 +125,8 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88135 - Bug 88135 - error: referenc
 </br>
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90527 - gcc9.1 alloc.c:72:7: error: implicit declaration of function ‘posix_memalign’
 
-# init
+#### init
+
 ```
 apt-get update
 mkdir /c/opt
