@@ -8,3 +8,6 @@
  https://lists.gnupg.org/pipermail/gnupg-announce/2012q2/000315.html
 
 gnupg-2.2.32# CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++ LDFLAGS="-L/usr/local/ssl/ -L/usr/local/ssl/lib/ -Wl,-rpath,/usr/local/ssl/,-rpath,/usr/local/ssl/lib/" LIBS="-ldl -lrt" CFLAGS='-gdwarf-2 -gstrict-dwarf -fgnu89-inline -lrt' ./configure && /usr/local/bin/make
+
+
+perl module Parse::Yapp::Driver 1.05                                              : not found                                                                                       perl module "Parse::Yapp::Driver" not found     
