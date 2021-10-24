@@ -13,9 +13,14 @@
 gnupg-2.2.32# CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++ LDFLAGS="-L/usr/local/ssl/ -L/usr/local/ssl/lib/ -Wl,-rpath,/usr/local/ssl/,-rpath,/usr/local/ssl/lib/" LIBS="-ldl -lrt" CFLAGS='-gdwarf-2 -gstrict-dwarf -fgnu89-inline -lrt' ./configure && /usr/local/bin/make
 
 
+
 perl module Parse::Yapp::Driver 1.05                                              : not found                                                                                       perl module "Parse::Yapp::Driver" not found     
 
 dpkg -i --force-overwrite /backup/ReadyNASDuoSparc/perl*   
 cpanm install Parse::Yapp::Driver 
 
 jansson-2.14.tar.gz
+
+without-json
+
+libarchive support not found. Try installing libarchive-dev or libarchive-devel. Otherwise, use --without-libarchive to build without libarchive support. libarchive support is required for the smbclient tar-file mode                                                                                                                                                (complete log in /c/backup/fes-readynasduo/samba-4.14.6/bin/config.log)  
