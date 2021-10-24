@@ -23,4 +23,6 @@ jansson-2.14.tar.gz
 
 without-json
 
-libarchive support not found. Try installing libarchive-dev or libarchive-devel. Otherwise, use --without-libarchive to build without libarchive support. libarchive support is required for the smbclient tar-file mode                                                                                                                                                (complete log in /c/backup/fes-readynasduo/samba-4.14.6/bin/config.log)  
+libarchive support not found. Try installing libarchive-dev or libarchive-devel. Otherwise, use --without-libarchive to build without libarchive support. libarchive support is required for the smbclient tar-file mode                                                                                                                                                (complete log in /c/backup/fes-readynasduo/samba-4.14.6/bin/config.log) 
+
+dbus
