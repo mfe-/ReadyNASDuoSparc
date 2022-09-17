@@ -26,3 +26,63 @@
 11. NO_TCLTK=1 make    
 12. git config --global core.editor "nano" (if you have installed nano)
 13. git config --global http.sslVerify false 
+
+## Create remote git repository on readynas
+
+Sign on to SSH as root: ssh root@your_nas_ip
+Create the folder for your repository: mkdir /c/git/what_ever && cd /c/git/what_ever
+Initialise the repository: git – bare init
+Exit SSH (exit)
+
+### /etc/frontview/apache/addons/GITSCM.conf
+
+```bash
+SetEnv GIT_PROJECT_ROOT /c/git
+SetEnv GIT_HTTP_EXPORT_ALL
+#  ScriptAlias /git/ /opt/git-2.21.0/libexec/git-core/git-http-backend/  
+
+
+RewriteCond %{QUERY_STRING} service=git-receive-pack [OR]
+RewriteCond %{REQUEST_URI} /git-receive-pack$
+RewriteRule ^/gitweb/ - [E=AUTHREQUIRED:yes]
+
+AliasMatch ^/gitweb/(.*/objects/[0-9a-f]{2}/[0-9a-f]{38})$          /c/git/$1
+AliasMatch ^/gitweb/(.*/objects/pack/pack-[0-9a-f]{40}.(pack|idx))$ /c/git/$1
+ScriptAliasMatch \
+	"(?x)^/gitweb/(.*/(HEAD | \
+			info/refs | \
+			objects/info/[^/]+ | \
+			git-(upload|receive)-pack))$" \
+	/opt/git-2.21.0/libexec/git-core/git-http-backend/$1
+
+<LocationMatch "^/gitweb/">
+	Order Deny,Allow
+	Deny from env=AUTHREQUIRED
+	AuthType Basic
+	AuthName "Git Access"
+	#Require group committers
+	Satisfy Any
+</LocationMatch>
+
+
+Alias /GITSCM /c/var/www/GITSCM
+<Location /GITSCM>
+  Order deny,allow
+  Options ExecCGI
+#  AuthType Basic
+#  Require valid-user
+  Allow from all
+</Location>
+
+ScriptAlias /gitweb /c/var/www/GITSCM/gitweb/gitweb.cgi
+<Directory "/c/var/www/GITSCM/gitweb">
+        Options Indexes FollowSymlinks ExecCGI
+	AllowOverride None
+	Order allow,deny
+        Allow from all
+</Directory>
+
+
+```
+
+
