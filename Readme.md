@@ -29,6 +29,11 @@ curl: error while loading shared libraries: libnettle.so.6: cannot open shared o
         export LD_LIBRARY_PATH=/opt/gcc-4.6.0/lib/:/usr/local/ssl/lib/:/usr/local/lib/
 ```
 
+5. `curl https://curl.se/ca/cacert.pem -k -o cacert.pem`
+6. `sudo mkdir -p /opt/git-2.21.0/etc
+    touch /opt/git-2.21.0/etc/gitconfig`
+7. `/opt/git-2.21.0/bin/git config --global http.sslCAInfo /etc/ssl/certs/cacert.pem`
+
 ## Init
 
 I reset my readynas and did the following steps:
