@@ -236,3 +236,19 @@ The kernel must be compiled with gcc 3.3, and if you use anything other than gcc
 If you do encounter "Unknown relocation: 17" errors, you can run "strip --strip-unneeded -R .eh_frame" on the *.ko files to make the problem go away.
 Certain kernel features cannot be altered without rendering the essential binary-only OEM kernel modules (in particular padre_gmac.ko, the gigabit NIC driver) inoperable. For safety, you should leave CONFIG_MODVERSIONS enabled so that you can see when you have strayed from the path. Non-obvious requirements include CONFIG_OPROFILE, CONFIG_SCHEDSTATS, CONFIG_QUOTA and CONFIG_ATALK. You must not turn CONFIG_NETCONSOLE on (even as a module).
 For unknown reasons, using an initramfs (gzip-compressed cpio archive) as your initrd doesn't work. You will have to use an actual initrd with a supported filesystem (e.g. ext2 or ext3)
+
+### Mount ReadyNAS Duo (v1) drive
+Copied from stack exchange for documentation purpose https://superuser.com/a/1341410/532554
+I was able to gain read access (I did not require write access and did not seek it) to a ReadyNAS Duo (v1) drive (X-RAID - the two drives were acting redundantly) in Arch Linux by following a process similar to that laid out in [this blogpost][1] and [this other blogpost][2]:
+
+ 1. <code>lsblk</code> (before and after plugging in the drive via USB)
+    to identify the path to the device (in my case /dev/sdb)
+ 2. <code>vgscan</code> to confirm that <code>c</code> was the appropriate drive group.
+ 3. <code>vgchange -ay c</code> to activate the <code>c</code> drive group.
+ 4. <code>fuse-ext2 -o allow_other,ro /dev/c/c /mnt/readynas</code> to mount the disk. I had to use Fuse (<code>fuse-ext2</code> from the AUR). The standard mount command returned an error.
+ 5. When finished, unmount the disk: <code>fusermount -u /mnt/readynas</code> 
+
+Note, however, that I was only able to read the "left" drive (in bay 1) with this process. The "right" drive (bay 2) has no partitions according to <code>fdisk -l</code> and does not appear in a <code>vgscan</code>.
+
+  [1]: https://jim-st.blogspot.com/2012/07/mouning-readynas-drives-on-x86-systems.html
+  [2]: https://technostuff.blogspot.com/2012/06/how-to-mount-disk-used-by-readynas.html
