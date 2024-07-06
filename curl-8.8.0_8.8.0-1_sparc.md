@@ -3,11 +3,12 @@
 depends on:
 - openssl-3.2.1_3.2.1-1_sparc.deb
 
-./configure --with-openssl --disable-docs
+`./configure --with-openssl --disable-docs`
 
 
 configure: Configured to build curl/libcurl:
 
+```
   Host setup:       sparc-unknown-linux-gnu
   Install prefix:   /usr/local
   Compiler:         gcc -std=gnu99
@@ -54,4 +55,4 @@ configure: Configured to build curl/libcurl:
   WebSockets:       no      (--enable-websockets)
   Protocols:        DICT FILE FTP FTPS GOPHER GOPHERS HTTP HTTPS IMAP IMAPS IPFS IPNS LDAP LDAPS MQTT POP3 POP3S RTSP SMB SMBS SMTP SMTPS TELNET TFTP
   Features:         AsynchDNS HSTS HTTPS-proxy IPv6 Largefile NTLM SSL TLS-SRP UnixSockets alt-svc libz threadsafe
-
+```
