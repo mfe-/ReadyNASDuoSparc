@@ -1,8 +1,8 @@
 # openssh-portable_9.8.1-1_sparc
 
 depends on:
-- openssl-3.2.1_3.2.1-1_sparc.deb
-- zlib-1.3.1_1.3.1-1_sparc.deb
+- [openssl-3.2.1_3.2.1-1_sparc.deb](https://github.com/mfe-/ReadyNASDuoSparc/blob/master/openssl-3.2.1_3.2.1-1_sparc.deb)
+- [zlib-1.3.1_1.3.1-1_sparc.deb](https://github.com/mfe-/ReadyNASDuoSparc/blob/master/zlib-1.3.1_1.3.1-1_sparc.deb)
 
 To enable SSH login on the ReadyNAS Duo v1, you need to install the "Enable Root SSH Access" add-on, which can be found on the [Add-ons for RAIDiator 4.1.3+ (Sparc)](https://kb.netgear.com/24546/Add-ons-for-RAIDiator-4-1-3-Sparc?article=24546) page.
 
