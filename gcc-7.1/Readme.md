@@ -16,14 +16,16 @@
   12. if it fails with `cc1: error while loading shared libraries: libmpc.so.3: cannot open shared object file: No such file or directory` install the missing software with `dpkg -i --force-overwrite mpc-1.0.3_1.0.3-1_sparc.deb`
   13. if it fails with `cc1: error while loading shared libraries: libmpfr.so.4: cannot open shared object file: No such file or directory` install the missing software with  `dpkg -i --force-overwrite mpfr-3.1.5_3.1.5-1_sparc.deb`
   14. if it fails with `: error while loading shared libraries: libgmp.so.10: cannot open shared object file: No such file or directory` install the missing software with `dpkg -i --force-overwrite gmp-6.1.2_6.1.2-1_sparc.deb`
-15. Compile a test program with
-16. ```echo '#include <stdio.h>
+15. Copy the header files if you haven't already with `cp libc6-dev/usr/ / -Rf`
+16. Compile a test program with
+17. ```
+    echo '#include <stdio.h>
 
-int main() {
-    printf("Hello, World!\n");
-    return 0;
-}' | /opt/gcc-7.1/bin/gcc -I/usr/include -x c -o test -```
-17. Set CC and CXX param when compiling stuff e.g. ./configure CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++
+    int main() {
+       printf("Hello, World!\n");
+       return 0;
+    }' | /opt/gcc-7.1/bin/gcc -I/usr/include -x c -o test -```
+18. Set CC and CXX param when compiling stuff e.g. ./configure CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++
 
 # Requirements:
 
