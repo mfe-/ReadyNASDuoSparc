@@ -1,11 +1,91 @@
+# Install minidlna-1.3.3 on ReadyNAS Duo Sparc
 
-# Prerequisites:
+Notice
+
+1. Install all [Prerequisites](#prerequisites) packages (like `dpkg -i libsqlite3_3.35.5-1_sparc.deb `, [...] )
+   - dpkg -i ffmpeg-5.1.6_5.1.6-1_sparc.deb
+   - `dpkg -i libsqlite3_3.35.5-1_sparc.deb `
+   - dpkg -i libjpeg_9-1_sparc.deb
+   - dpkg -i libexif_0.6.21-1_sparc.deb
+   - dpkg -i libid3tag_0.15-1_sparc.deb
+
+2. Create a backup of the old minidlna with `mv /usr/sbin/minidlna /usr/sbin/backup.minidlna`.
+3. Notice after the installation you cannot start or stop the minidlna over the readynas duo web interface. You have to start and stop the minidlna over the command line! 
+4. Remove the old minidlna with `dpkg -r minidlna`
+4. Install `dpkg -i minidlna_1.3.3-1_sparc.deb`
+3. Create the startup script with `nano /etc/init.d/minidlna` and add the following content:
+```bash
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          minidlna
+# Required-Start:    $local_fs $network
+# Required-Stop:     $local_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop MiniDLNA server
+### END INIT INFO
+
+DAEMON=/usr/sbin/minidlnad
+DAEMON_OPTS="-f /etc/minidlna.conf"
+NAME=minidlna
+DESC="MiniDLNA server"
+PIDFILE=/var/run/$NAME.pid
+
+case "$1" in
+    start)
+        echo "Starting $DESC: $NAME"
+        start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        ;;
+    stop)
+        echo "Stopping $DESC: $NAME"
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+        ;;
+    restart)
+        echo "Restarting $DESC: $NAME"
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+        sleep 1
+        start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        ;;
+    status)
+        if ps aux | grep minidlnad | grep -v grep > /dev/null
+        then
+            echo "$DESC is running"
+            exit 0
+        else
+            echo "$DESC is not running"
+            exit 1
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit 0
+
+
+```
+
+7. ` chmod +x /etc/init.d/minidlna`
+8. ` update-rc.d minidlna defaults`
+9. ` /etc/init.d/minidlna start`
+10. The configuration file is located in `/etc/minidlna.conf`. You can edit the file with `nano /etc/minidlna.conf`.
+
+
+
+## Prerequisites:
 
 ## zlib
 dpkg -i zlib-1.3.1_1.3.1-1_sparc.deb # see parent folder
 
 ## sqlite3
-dpkg -i libsqlite3_347-1_sparc.deb # see parent folder
+
+Please notice the version of libqsqlite3 is not compatible with the version of minidlna. 
+
+dpkg -i libsqlite3_3.35.5-1_sparc.deb # see parent folder
+
+~~dpkg -i libsqlite3_347-1_sparc.deb # see parent folder~~
 
 ## ffmpeg-5.1.6
 dpkg -i ffmpeg-5.1.6_5.1.6-1_sparc.deb
@@ -132,32 +212,19 @@ config.status: creating po/POTFILES
 config.status: creating po/Makefile
 ```
 
-The original minidlna of the readynas version is installed with:
+open the minidlna.c file and add to the header section:
+```c
+#include <sys/queue.h> 
+
+#ifndef LIST_EMPTY
+#define LIST_EMPTY(head) ((head)->lh_first == NULL)
+#endif
+```
+
+
+The original minidlna of the readynas version (Version 1.1.4) is installed in /usr/sbin/minidlna.
 
 fes-a120d19nas:/nas-source/minidlna-1.3.3# dpkg -l | grep mini
-ii  iptables                          1.2.11-10                   Linux kernel 2.4+ iptables administration to
 ii  minidlna                          1.1.4-netgear1              lightweight DLNA/UPnP-AV server targeted at 
-ii  passwd                            1:4.0.3-31sarge9            change and administer password and group dat
-fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/bin/
-Display all 310 possibilities? (y or n)
-fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/sbin/minidlna --help
-Usage:
-	/usr/sbin/minidlna [-d] [-v] [-f config_file] [-p port]
-		[-i network_interface] [-u uid_to_run_as]
-		[-t notify_interval] [-P pid_filename]
-		[-s serial] [-m model_number]
-		[-w url] [-R] [-L] [-S] [-V] [-h]
 
-Notes:
-	Notify interval is in seconds. Default is 895 seconds.
-	Default pid file is /var/run/minidlna/minidlna.pid.
-	With -d minidlna will run in debug mode (not daemonize).
-	-w sets the presentation url. Default is http address on port 80
-	-v enables verbose output
-	-h displays this text
-	-R forces a full rescan
-	-L do not create playlists
-	-S changes behaviour for systemd
-	-V print the version number
-fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/sbin/minidlna -V
-Version 1.1.4
+If you want to backup the original version of minidlna you can rename the file to minidlna-1.1.4-netgear1.
