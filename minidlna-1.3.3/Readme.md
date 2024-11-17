@@ -6,3 +6,7 @@
 Notes:
 - vp9 resulted in an internal compiler error therefore we disabled it.
 - During compilation there was an error in `error.c` which was fixed with copilot.
+
+## libjpeg_9-1_sparc
+
+## libexif-0.6.21
