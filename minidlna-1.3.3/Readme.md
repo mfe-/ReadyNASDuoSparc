@@ -131,3 +131,33 @@ config.status: executing po-directories commands
 config.status: creating po/POTFILES
 config.status: creating po/Makefile
 ```
+
+The original minidlna of the readynas version is installed with:
+
+fes-a120d19nas:/nas-source/minidlna-1.3.3# dpkg -l | grep mini
+ii  iptables                          1.2.11-10                   Linux kernel 2.4+ iptables administration to
+ii  minidlna                          1.1.4-netgear1              lightweight DLNA/UPnP-AV server targeted at 
+ii  passwd                            1:4.0.3-31sarge9            change and administer password and group dat
+fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/bin/
+Display all 310 possibilities? (y or n)
+fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/sbin/minidlna --help
+Usage:
+	/usr/sbin/minidlna [-d] [-v] [-f config_file] [-p port]
+		[-i network_interface] [-u uid_to_run_as]
+		[-t notify_interval] [-P pid_filename]
+		[-s serial] [-m model_number]
+		[-w url] [-R] [-L] [-S] [-V] [-h]
+
+Notes:
+	Notify interval is in seconds. Default is 895 seconds.
+	Default pid file is /var/run/minidlna/minidlna.pid.
+	With -d minidlna will run in debug mode (not daemonize).
+	-w sets the presentation url. Default is http address on port 80
+	-v enables verbose output
+	-h displays this text
+	-R forces a full rescan
+	-L do not create playlists
+	-S changes behaviour for systemd
+	-V print the version number
+fes-a120d19nas:/nas-source/minidlna-1.3.3# /usr/sbin/minidlna -V
+Version 1.1.4
