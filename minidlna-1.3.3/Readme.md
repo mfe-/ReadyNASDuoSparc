@@ -13,7 +13,8 @@ Notice
 3. Notice after the installation you cannot start or stop the minidlna over the readynas duo web interface. You have to start and stop the minidlna over the command line! 
 4. Remove the old minidlna with `dpkg -r minidlna`
 4. Install `dpkg -i minidlna_1.3.3-1_sparc.deb`
-3. Create the startup script with `nano /etc/init.d/minidlna` and add the following content:
+3. *Create a startup script for minidlna*: At boot time, the hard disk drives are probably not mounted. In case they are not mounted, we need to wait until they get mounted; otherwise, minidlna will reset the indexed database, and the UPnP client devices will not be able to browse your media. As a workaround, the startup script will start a function asynchronously and periodically check whether /c and /d are mounted. If not, it will sleep for 1 second; otherwise, it will start minidlna.
+   - a. Create the startup script for minidlna with `nano /etc/init.d/minidlna` and add the following content if you have TWO mount points /c and /d (in the case you have only one mount point /c use the next option b. !):
 ```bash
 #!/bin/sh
 ### BEGIN INIT INFO
@@ -31,14 +32,41 @@ NAME=minidlna
 DESC="MiniDLNA server"
 PIDFILE=/var/run/$NAME.pid
 
+is_mounted() {
+    MOUNT_POINT=$1
+    grep " $MOUNT_POINT " /proc/mounts > /dev/null
+}
+
+check_and_restart() {
+    TIMEOUT=60
+    while [ $TIMEOUT -gt 0 ]; do
+        if is_mounted /c && is_mounted /d; then
+            echo "/c and /d are mounted. Starting $DESC: $NAME"
+            start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+            return 0
+        fi
+        sleep 1
+        TIMEOUT=$((TIMEOUT - 1))
+    done
+    echo "Error: /c and /d were not mounted within the timeout period."
+    return 1
+}
+
 case "$1" in
     start)
-        echo "Starting $DESC: $NAME"
-        start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        if is_mounted /c && is_mounted /d; then
+            echo "/c and /d are mounted. Starting $DESC: $NAME"
+            start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        else
+            echo "/c and /d are not mounted. Checking mounts asynchronously"
+            check_and_restart &
+        fi
         ;;
     stop)
         echo "Stopping $DESC: $NAME"
         start-stop-daemon --stop --quiet --pidfile $PIDFILE
+        sleep 1
+        killall minidlnad
         ;;
     restart)
         echo "Restarting $DESC: $NAME"
@@ -47,8 +75,7 @@ case "$1" in
         start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
         ;;
     status)
-        if ps aux | grep minidlnad | grep -v grep > /dev/null
-        then
+        if ps aux | grep minidlnad | grep -v grep > /dev/null; then
             echo "$DESC is running"
             exit 0
         else
@@ -63,13 +90,88 @@ case "$1" in
 esac
 
 exit 0
+```
+  - b. Create the startup script for minidlna with `nano /etc/init.d/minidlna` and add the following content if you have only ONE mount point /c !:
+```bash
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          minidlna
+# Required-Start:    $local_fs $network
+# Required-Stop:     $local_fs $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop MiniDLNA server
+### END INIT INFO
 
+DAEMON=/usr/sbin/minidlnad
+DAEMON_OPTS="-f /etc/minidlna.conf"
+NAME=minidlna
+DESC="MiniDLNA server"
+PIDFILE=/var/run/$NAME.pid
 
+is_mounted() {
+    MOUNT_POINT=$1
+    grep " $MOUNT_POINT " /proc/mounts > /dev/null
+}
+
+check_and_restart() {
+    TIMEOUT=60
+    while [ $TIMEOUT -gt 0 ]; do
+        if is_mounted /c; then
+            echo "/c is mounted. Starting $DESC: $NAME"
+            start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+            return 0
+        fi
+        sleep 1
+        TIMEOUT=$((TIMEOUT - 1))
+    done
+    echo "Error: /c was not mounted within the timeout period."
+    return 1
+}
+
+case "$1" in
+    start)
+        if is_mounted /c; then
+            echo "/c is mounted. Starting $DESC: $NAME"
+            start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        else
+            echo "/c is not mounted. Checking mount asynchronously"
+            check_and_restart &
+        fi
+        ;;
+    stop)
+        echo "Stopping $DESC: $NAME"
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+        sleep 1
+        killall minidlnad
+        ;;
+    restart)
+        echo "Restarting $DESC: $NAME"
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
+        sleep 1
+        start-stop-daemon --start --quiet --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+        ;;
+    status)
+        if ps aux | grep minidlnad | grep -v grep > /dev/null; then
+            echo "$DESC is running"
+            exit 0
+        else
+            echo "$DESC is not running"
+            exit 1
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit 0
 ```
 
 7. ` chmod +x /etc/init.d/minidlna`
 8. ` update-rc.d minidlna defaults`
-9. ` /etc/init.d/minidlna start`
+9. check if the startup script works with ` /etc/init.d/minidlna start`
 10. The configuration file is located in `/etc/minidlna.conf`. You can edit the file with `nano /etc/minidlna.conf`.
 
 
