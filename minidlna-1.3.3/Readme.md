@@ -183,7 +183,7 @@ dpkg -i zlib-1.3.1_1.3.1-1_sparc.deb # see parent folder
 
 ## sqlite3
 
-Please notice the version of libqsqlite3 is not compatible with the version of minidlna. 
+Please notice the newer version `libsqlite3_347-1_sparc.deb` is not compatible with the version of minidlna. You need to use the older version `libsqlite3_3.35.5-1_sparc.deb` . 
 
 dpkg -i libsqlite3_3.35.5-1_sparc.deb # see parent folder
 
