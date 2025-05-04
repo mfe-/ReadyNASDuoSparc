@@ -25,7 +25,12 @@
        printf("Hello, World!\n");
        return 0;
     }' | /opt/gcc-7.1/bin/gcc -I/usr/include -x c -o test -```
-18. Set CC and CXX param when compiling stuff e.g. ./configure CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++
+
+18 (optional). if compiling fails with: `/usr/local/bin/ld:/c/opt/gcc-7.1/bin/../lib/gcc/sparc-unknown-linux-gnu/7.1.0/../../../libgcc_s.so: file format not recognized; treating as linker script /usr/local/bin/ld:/c/opt/gcc-7.1/bin/../lib/gcc/sparc-unknown-linux-gnu/7.1.0/../../../libgcc_s.so:0: syntax error collect2: error: ld returned 1 exit status` check `file /c/opt/gcc-7.1/lib/libgcc_s.so
+/c/opt/gcc-7.1/lib/libgcc_s.so: ASCII text, with no line terminators`. In this case you need to do:
+19 (optional). make sure `LD_LIBRARY_PATH` does not point to any older gcc versions
+20. (optional). create a symlink: `/c/opt/gcc-7.1/lib/libgcc_s.so -> /c/opt/gcc-7.1/lib/libgcc_s.so.1` if you got `libgcc_s.so:0: syntax error collect2: error: ld returned 1 exit status`
+20. Set CC and CXX param when compiling stuff e.g. ./configure CC=/opt/gcc-7.1/bin/gcc CXX=/opt/gcc-7.1/bin/g++
 
 # Requirements:
 
