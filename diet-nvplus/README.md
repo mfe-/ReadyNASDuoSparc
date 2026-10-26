@@ -19,6 +19,13 @@ disk spindown, LCD (hostname, temperature, IP, backlight timeout), power button
 
 All binaries are built for **SPARC V7** – the IT3107 has a hardware bug in signed division (`sdiv`),
 see [`tools/sdiv-test.c`](tools/sdiv-test.c) and [`toolchain/`](toolchain/).
+Infrant knew about it: their kernel has `CONFIG_PADRE_DIV_BUG` ("bug 940 (divide) fix") with workarounds in
+`arch/padre/lib/sdiv.S` and `rem.S`, and their glibc carries matching patches.
+
+The NETGEAR GPL archive for RAIDiator 4.1.x (`RNR4_RND4_RND2_4.1.6_WW_src.zip`) contains the full
+kernel source `linux-2.6.17.8` with the `arch/padre` platform code and the register map
+`include/asm-padre/padre0.h`, plus `glibc-2.3.2.ds1` with the Infrant patches. The drivers for SATA/RAID
+(`padre_io`), Ethernet (`padre_gmac`), fan/button, LEDs and LCD are binary-only modules and not included.
 
 ## Install
 
