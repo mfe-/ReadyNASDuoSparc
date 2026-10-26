@@ -263,7 +263,7 @@ function render(s){
   }).join('');
 
   $('#ip').textContent = s.ip || '–';
-  const names = {smbd:'Samba',nmbd:'Netzwerkname',rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:'Zeit',hwmon:'Überwachung'};
+  const names = {nfs:'NFS',smbd:'Samba',nmbd:'Netzwerkname',rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:'Zeit',hwmon:'Überwachung'};
   $('#svc').innerHTML = Object.entries(s.svc).filter(([k,v])=>v||k!=='ntpd')
     .map(([k,v])=>`<span class="chip"><span class="led ${v?'on':'dn'}"></span>${names[k]||k}</span>`).join('');
   $('#upd').textContent = 'Stand ' + new Date().toLocaleTimeString('de-AT');

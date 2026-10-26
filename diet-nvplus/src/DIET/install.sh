@@ -46,7 +46,7 @@ if [ -f /diet/etc/hostname ]; then
   # --- Update: Konfiguration des bestehenden DIET uebernehmen ---
   echo "Update: uebernehme Konfiguration aus /diet"
   for f in etc/hostname etc/TZ etc/diet-net.conf etc/httpd.conf etc/rsyncd.conf etc/passwd etc/group \
-           etc/samba/smb.conf etc/samba/shares.conf etc/samba/smbpasswd etc/samba/private etc/dropbear root/.ssh; do
+           etc/samba/smb.conf etc/samba/shares.conf etc/samba/smbpasswd etc/samba/private etc/dropbear root/.ssh etc/exports; do
     if [ -e /diet/$f ]; then rm -rf $N/$f; mkdir -p $N/$(dirname $f); cp -a /diet/$f $N/$f; fi
   done
   # diet.conf: alte Werte behalten, neue Schluessel ergaenzen
@@ -62,6 +62,7 @@ if [ -f /diet/etc/hostname ]; then
 else
   # --- Neuinstallation: Einstellungen aus RAIDiator uebernehmen ---
   echo "Neuinstallation: uebernehme Einstellungen aus RAIDiator"
+  FRESH=1
   H=$(hostname | tr 'A-Z' 'a-z' | tr -cd 'a-z0-9-' | cut -c1-15); [ -n "$H" ] || H=readynas
   echo "$H" > $N/etc/hostname
 
@@ -132,6 +133,20 @@ if [ ! -f $N/etc/diet-net.conf ]; then
   echo "Netz: $(tr '\n' ' ' < $N/etc/diet-net.conf)"
 fi
 
+# NFS: Freigaben aus RAIDiator uebernehmen (nur Neuinstallation und nur, wenn NFS dort aktiv war).
+# RAIDiator exportiert "/Name" fuer alle (*); DIET exportiert /c/Name nur ins lokale Netz.
+if [ "$FRESH" = 1 ] && grep -q '^NFS=1' /etc/default/services 2>/dev/null && grep -q '^"*/' /etc/exports 2>/dev/null; then
+  CUR=$(ifconfig eth0 | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
+  MASK=$(ifconfig eth0 | sed -n 's/.*Mask:\([0-9.]*\).*/\1/p')
+  NETWORK=""; PREFIX=""
+  eval `$N/bin/busybox ipcalc -n -p "$CUR" "${MASK:-255.255.255.0}" 2>/dev/null`
+  if [ -n "$NETWORK" ] && [ -n "$PREFIX" ]; then
+    sed -n "s|^\"*/\([^\" ]*\)\"*[ \t]*\*(\(.*\))|/c/\1 $NETWORK/$PREFIX(\2,no_subtree_check)|p" /etc/exports > $N/etc/exports
+    echo "NFS-Freigaben uebernommen: $(grep -c '^/' $N/etc/exports) ($NETWORK/$PREFIX)"
+    [ -s $N/etc/exports ] || rm -f $N/etc/exports
+  fi
+fi
+
 # --- Umschalten: alte Version als /diet.old behalten ---
 rm -rf /diet.old
 [ -d /diet ] && { mv /diet /diet.old || fail "kann altes /diet nicht verschieben"; }
@@ -148,6 +163,7 @@ fi
 [ -x /sbin/init.real ] || fail "/sbin/init.real fehlt"
 mv /sbin/init.neu /sbin/init || fail "kann Weichensteller nicht setzen"
 rm -f /.diet_pending /.raidiator_once
+rm -rf /diet-test-alt /sbin/init.alt   # Reste frueherer Testversionen
 sync
 
 echo "OK: DIET $VER installiert. Beim naechsten Neustart startet DIET."

@@ -8,6 +8,7 @@ echo 2 > /proc/sys/dev/led/power 2>/dev/null
 echo "[$(cut -d' ' -f1 /proc/uptime)] Herunterfahren ($MODE)" >> $LOG
 killall diet-hwmon 2>/dev/null
 echo /bin/true > /proc/sys/kernel/hotplug
+[ -x /sbin/diet-nfs ] && /sbin/diet-nfs stop >/dev/null 2>&1
 killall httpd smbd nmbd rsync dropbear ntpd udhcpc 2>/dev/null
 sleep 2
 sync

@@ -29,6 +29,7 @@ status() {
     pidof $p >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC\"$p\":$s,"
   done
   pgrep -f diet-hwmon >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC\"hwmon\":$s"
+  if grep -q "^/" /etc/exports 2>/dev/null; then pidof nfsd >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC,\"nfs\":$s"; fi
   DSK=""
   for d in $DISKS; do
     read M < /proc/ide/$d/model; read C < /proc/ide/$d/capacity

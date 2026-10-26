@@ -4,13 +4,14 @@ A small, modern userland for the **ReadyNAS NV+ v1** (RAIDiator 4.1.x, IT3107 "p
 It is installed as a normal RAIDiator add-on, boots **instead of RAIDiator**, and keeps RAIDiator on disk as
 an automatic fallback. **The NAND flash is never written.**
 
-| | RAIDiator 4.1.16 | DIET 2.8 |
+| | RAIDiator 4.1.16 | DIET 2.9 |
 |---|---|---|
 | Boot time | minutes | ~25 s |
 | RAM used | ~45 MB | ~26 MB |
 | SSH | OpenSSH 4.3p2 (legacy KEX/ciphers only) | dropbear 2024.86 (ed25519, modern KEX) |
 | SMB | Samba 3.5.22, SMB1 | Samba 3.6.25, **SMB2.02** |
 | rsync | 3.0.9 | 3.4.1 |
+| NFS | NFSv3, kernel nfsd | NFSv3, kernel nfsd (helpers taken from RAIDiator) |
 | Web UI | Frontview, HTTPS with TLS 1.0 only | small UI on HTTP port 80, password protected |
 
 What else is in it: fan control (PWM curve from board and SMART disk temperatures, emergency shutdown),
@@ -29,7 +30,7 @@ kernel source `linux-2.6.17.8` with the `arch/padre` platform code and the regis
 
 ## Install
 
-1. Frontview → **System → Update → Local** → select `DIET_2.8.bin` → **Upload and verify image**.
+1. Frontview → **System → Update → Local** → select `DIET_2.9.bin` → **Upload and verify image**.
    RAIDiator warns that the add-on is not signed by NETGEAR – that is expected. Then **Perform System Update**.
 2. Wait. The NAS reboots, RAIDiator installs the add-on during that boot, and about 2 minutes later it
    reboots once more by itself. From then on it boots DIET (~5 minutes in total).
@@ -37,19 +38,35 @@ kernel source `linux-2.6.17.8` with the `arch/padre` platform code and the regis
 
 On a **fresh install** the installer takes over from RAIDiator: hostname, network (static or DHCP),
 time zone, users and their Samba passwords (`smbpasswd` file), shares (`Shares.conf`) and the admin
-password (root for SSH, `admin` for the web UI). The rsync daemon stays off until you create
-`/etc/rsyncd.conf`.
+password (root for SSH, `admin` for the web UI). If NFS was enabled in RAIDiator, its exports are taken
+over as `/c/<share>`, but only for the local subnet (RAIDiator exports to `*`). The rsync daemon stays off
+until you create `/etc/rsyncd.conf`; NFS stays off as long as `/etc/exports` is empty.
 On an **update** (installing a newer `DIET_x.y.bin` the same way) the existing DIET configuration is kept,
 the previous version stays in `/diet.old`.
 
 Install log (seen from RAIDiator): `/var/log/diet-install.log`. In DIET the RAIDiator root is mounted at
 `/mnt/root`, so the log is `/mnt/root/var/log/diet-install.log`.
 
+## Throughput
+
+The CPU is the limit, not the disks or the network. Measured from a Linux client over Wi-Fi with `dd` (300 MB):
+
+| | write | read |
+|---|---|---|
+| local on the NAS (RAID5, ext3) | 15 MB/s | 21 MB/s |
+| raw TCP (`nc`) | – | ~20 MB/s |
+| Samba 3.6 (SMB2) | 5–9 MB/s | 5–9 MB/s |
+| NFSv3 (kernel nfsd) | ~7 MB/s | ~10 MB/s |
+
+While writing via NFS the CPU has 0 % idle: about half goes to nfsd, ~20 % to the RAID5 parity
+(`md2_raid5`), the rest to ext3 journalling and network interrupts. Smaller NFS block sizes and Ethernet pause
+frames did not help. Use NFS for Linux clients and Samba for Windows/Android.
+
 ## Back to RAIDiator / uninstall
 
 - Web UI → **RAIDiator starten**, or `zu-raidiator` via SSH: boots RAIDiator **once**.
 - If DIET does not come up (no SSH after boot), the next power cycle boots RAIDiator automatically.
-- To remove DIET completely: boot RAIDiator, install `DIET_remove_2.8.bin` the same way. It restores the
+- To remove DIET completely: boot RAIDiator, install `DIET_remove_2.9.bin` the same way. It restores the
   original `/sbin/init` and deletes `/diet`.
 
 ## How it works
@@ -91,7 +108,7 @@ Worked out from Frontview and `linuxrc`, confirmed on real hardware:
 ## Status
 
 Tested on one NV+ v1 (4× 1 TB, RAID5): updates via Frontview, power button, LEDs, fan control,
-spindown, Samba (SMB2, Linux cifs client), web UI, fallback to RAIDiator.
+spindown, Samba (SMB2, Linux cifs client), NFSv3, web UI, fallback to RAIDiator.
 **Not yet tested on real hardware:** a fresh install on a box that never had DIET (only in emulation
 with a copy of a real RAIDiator root), and `DIET_remove`. Feedback welcome.
 Not for the Duo v1 or other models (the installer refuses to run there).
@@ -101,7 +118,7 @@ The web UI is German for now.
 
 ```sh
 cd src
-sh prepare_tree.sh ../DIET_2.8.bin   # binaries from the existing add-on + scripts from rootfs/
+sh prepare_tree.sh ../DIET_2.9.bin   # binaries from the existing add-on + scripts from rootfs/
 sh build_addon.sh                    # writes out/DIET_<version>.bin and out/DIET_remove_<version>.bin
 ```
 

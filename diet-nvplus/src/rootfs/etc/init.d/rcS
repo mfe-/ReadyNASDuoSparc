@@ -73,6 +73,11 @@ if grep -q " /c " /proc/mounts; then
   smbd -D && log "smbd (Samba $(smbd -V)) laeuft"
 fi
 
+# --- NFS (Kernel-nfsd), nur wenn /etc/exports Freigaben enthaelt ---
+if grep -q "^/" /etc/exports 2>/dev/null && grep -q " /c " /proc/mounts; then
+  /sbin/diet-nfs start >> $LOG 2>&1 && log "NFS laeuft"
+fi
+
 # --- Web-Oberflaeche (startet nur, wenn ein Passwort gesetzt ist) ---
 if grep -q '^/:' /etc/httpd.conf 2>/dev/null; then
   httpd -p 80 -h /www -c /etc/httpd.conf -r "$(hostname)" && log "Web-Oberflaeche laeuft: http://$IP/"
