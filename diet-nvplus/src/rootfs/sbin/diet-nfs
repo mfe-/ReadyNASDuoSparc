@@ -1,0 +1,33 @@
+#!/bin/sh
+# NFS-Server fuer DIET: Kernel-nfsd (im Netgear-Kernel eingebaut),
+# Hilfsprogramme (portmap, mountd, statd, exportfs) aus dem RAIDiator-System unter /mnt/root.
+# Aufruf: diet-nfs start | stop | status
+R=/mnt/root
+case "$1" in
+  start)
+    [ -s /etc/exports ] || { echo "/etc/exports fehlt"; exit 1; }
+    [ -x $R/usr/sbin/rpc.nfsd ] || { echo "NFS-Programme von RAIDiator fehlen"; exit 1; }
+    grep -q " $R " /proc/mounts || { echo "$R nicht eingehaengt"; exit 1; }
+    grep -q " $R/proc " /proc/mounts || mount -t proc proc $R/proc
+    grep -q " $R/c " /proc/mounts || mount --bind /c $R/c
+    mkdir -p $R/var/lib/nfs
+    cp /etc/exports $R/etc/exports
+    pidof portmap >/dev/null || chroot $R /sbin/portmap
+    chroot $R /usr/sbin/exportfs -r
+    grep -q " $R/proc/fs/nfsd " /proc/mounts || mount -t nfsd nfsd $R/proc/fs/nfsd 2>/dev/null
+    pidof rpc.statd >/dev/null || chroot $R /sbin/rpc.statd -p 32765 -o 32766
+    chroot $R /usr/sbin/rpc.nfsd 4
+    pidof rpc.mountd >/dev/null || chroot $R /usr/sbin/rpc.mountd -p 32767
+    echo "NFS laeuft:"; chroot $R /usr/sbin/exportfs -v ;;
+  stop)
+    chroot $R /usr/sbin/rpc.nfsd 0 2>/dev/null
+    killall rpc.mountd rpc.statd portmap 2>/dev/null
+    chroot $R /usr/sbin/exportfs -ua 2>/dev/null
+    sleep 1
+    umount $R/proc/fs/nfsd 2>/dev/null; umount $R/c 2>/dev/null; umount $R/proc 2>/dev/null
+    echo "NFS gestoppt" ;;
+  status)
+    for p in portmap rpc.statd rpc.mountd nfsd; do printf "%-11s " $p; pidof $p >/dev/null && echo laeuft || echo aus; done
+    chroot $R /usr/sbin/exportfs -v 2>/dev/null ;;
+  *) echo "Aufruf: diet-nfs start|stop|status"; exit 1 ;;
+esac

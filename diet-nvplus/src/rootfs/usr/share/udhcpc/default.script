@@ -1,0 +1,16 @@
+#!/bin/sh
+[ -n "$broadcast" ] && BC="broadcast $broadcast"
+[ -n "$subnet" ] && NM="netmask $subnet"
+case "$1" in
+  deconfig) ifconfig $interface 0.0.0.0 up ;;
+  renew|bound)
+    ifconfig $interface $ip $BC $NM
+    if [ -n "$router" ]; then
+      while route del default gw 0.0.0.0 dev $interface 2>/dev/null; do :; done
+      for r in $router; do route add default gw $r dev $interface; break; done
+    fi
+    # nur bei Aenderung schreiben (jeder Schreibzugriff weckt die Platten)
+    for d in $dns; do echo "nameserver $d"; done > /tmp/resolv.new
+    cmp -s /tmp/resolv.new /etc/resolv.conf || cp /tmp/resolv.new /etc/resolv.conf ;;
+esac
+exit 0

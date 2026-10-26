@@ -1,0 +1,10 @@
+# nur aus privaten Netzen erreichbar
+A:192.168.0.0/16
+A:10.0.0.0/8
+A:172.16.0.0/12
+A:127.0.0.1
+D:*
+# alles hinter Passwort (Passwort aendern: diet-webpass)
+/:@USER@:@HASH@
+.json:application/json
+.svg:image/svg+xml

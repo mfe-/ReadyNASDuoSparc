@@ -1,0 +1,150 @@
+#!/bin/sh
+# DIET Web-API (CGI fuer busybox httpd)
+#   GET  ?a=status | config | log&f=boot|hotplug|dmesg|smbd|nmbd | smart&d=hdc
+#   POST ?a=lcd|spindown|samba|reboot|poweroff|raidiator|config  (nur mit Header X-Diet: 1)
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+CONF=/etc/diet.conf
+KEYS="SPINDOWN_MIN FAN_PWM_MIN FAN_PWM_MAX TEMP_LOW TEMP_HIGH TEMP_CRIT DISK_HIGH DISK_CRIT LCD_TIMEOUT"
+DISKS=""; for d in hdc hde hdg hdi; do [ -d /proc/ide/$d ] && DISKS="$DISKS $d"; done
+
+hdr() { printf 'Content-Type: %s\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\n\r\n' "$1"; }
+fail() { printf 'HTTP/1.1 %s\r\n' "$1"; hdr 'text/plain; charset=utf-8'; echo "$2"; exit 0; }
+ok() { hdr application/json; echo "{\"ok\":true,\"msg\":\"$1\"}"; }
+qp() { echo "&$QUERY_STRING&" | sed -n "s/.*&$1=\([A-Za-z0-9_]*\)&.*/\1/p"; }
+esc() { sed 's/\\/\\\\/g; s/"/\\"/g'; }
+bg() { setsid sh -c "$1" </dev/null >/dev/null 2>&1 & }
+
+status() {
+  H=$(cat /proc/sys/kernel/hostname)
+  read UP _ < /proc/uptime
+  read L1 L5 L15 _ < /proc/loadavg
+  read VER < /etc/diet-version 2>/dev/null
+  temp=; fan=; pwm=; disks=
+  [ -r /var/run/hwmon.status ] && . /var/run/hwmon.status
+  BL=0; [ -r /proc/sys/dev/lcd/backlight ] && read BL < /proc/sys/dev/lcd/backlight
+  IP=$(ifconfig eth0 2>/dev/null | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
+  ALARM=""; [ -s /var/run/disk_alarm ] && ALARM=$(tail -1 /var/run/disk_alarm | esc)
+  SVC=""
+  for p in smbd nmbd rsync httpd dropbear ntpd; do
+    pidof $p >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC\"$p\":$s,"
+  done
+  pgrep -f diet-hwmon >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC\"hwmon\":$s"
+  if grep -q "^/" /etc/exports 2>/dev/null; then pidof nfsd >/dev/null 2>&1 && s=1 || s=0; SVC="$SVC,\"nfs\":$s"; fi
+  DSK=""
+  for d in $DISKS; do
+    read M < /proc/ide/$d/model; read C < /proc/ide/$d/capacity
+    t=$(echo " $disks " | sed -n "s/.* $d:\([^ ]*\).*/\1/p")
+    DSK="$DSK{\"dev\":\"$d\",\"model\":\"$(echo $M | esc)\",\"gb\":$((C / 1953125)),\"temp\":\"$t\"},"
+  done
+  hdr application/json
+  printf '{"host":"%s","ver":"%s","ip":"%s","uptime":%s,"load":[%s,%s,%s],' "$H" "$VER" "$IP" "${UP%.*}" "$L1" "$L5" "$L15"
+  printf '"temp":%s,"fan":%s,"pwm":%s,"lcd":%s,"alarm":"%s","svc":{%s},"disks":[%s],' \
+    "${temp:-null}" "${fan:-null}" "${pwm:-null}" "$BL" "$ALARM" "$SVC" "${DSK%,}"
+  # RAM, /c, RAID, Zaehler (CPU, Netz, md2) in einem awk-Lauf
+  df -P -k /c 2>/dev/null | tail -1 > /tmp/.df.$$
+  awk '
+    FILENAME=="/proc/meminfo" { m[$1]=$2; next }
+    FILENAME=="/proc/stat" && $1=="cpu" { busy=$2+$3+$4+$7+$8; tot=busy+$5+$6; next }
+    FILENAME=="/proc/net/dev" && /eth0:/ { sub(/.*eth0:/,""); rx=$1; tx=$9; next }
+    FILENAME=="/proc/diskstats" && $3=="md2" { rd=$6; wr=$10; next }
+    FILENAME=="/proc/mdstat" {
+      if ($0 ~ /^md[0-9]+ :/) { n++; name[n]=$1; st[n]=$3; lvl[n]=$4; next }
+      if (n && match($0, /\[[U_]+\]/)) { map[n]=substr($0, RSTART+1, RLENGTH-2); next }
+      if (n && match($0, /(resync|recovery|reshape|check) *= *[0-9.]+%.*/)) { sy[n]=substr($0, RSTART); next }
+      next
+    }
+    FILENAME ~ /\.df\./ { csize=$2; cused=$3; cfree=$4; next }
+    END {
+      printf "\"mem\":{\"total\":%d,\"free\":%d,\"buf\":%d,\"cache\":%d,\"swap\":%d},", m["MemTotal:"], m["MemFree:"], m["Buffers:"], m["Cached:"], m["SwapTotal:"]-m["SwapFree:"]
+      printf "\"c\":{\"size\":%.0f,\"used\":%.0f,\"free\":%.0f},", csize, cused, cfree
+      printf "\"cnt\":{\"busy\":%.0f,\"tot\":%.0f,\"rx\":%.0f,\"tx\":%.0f,\"rd\":%.0f,\"wr\":%.0f},", busy, tot, rx, tx, rd, wr
+      printf "\"md\":["
+      for (i=1; i<=n; i++) printf "%s{\"name\":\"%s\",\"state\":\"%s\",\"level\":\"%s\",\"map\":\"%s\",\"sync\":\"%s\"}", (i>1?",":""), name[i], st[i], lvl[i], map[i], sy[i]
+      printf "]}\n"
+    }' /proc/meminfo /proc/stat /proc/net/dev /proc/diskstats /proc/mdstat /tmp/.df.$$
+  rm -f /tmp/.df.$$
+}
+
+config_get() {
+  hdr application/json
+  awk -F'[= \t]+' -v keys="$KEYS" 'BEGIN{ n=split(keys,k," "); for(i=1;i<=n;i++) want[k[i]]=1 }
+    $1 in want { v[$1]=$2 }
+    END { printf "{"; for(i=1;i<=n;i++) printf "%s\"%s\":%d", (i>1?",":""), k[i], v[k[i]]; print "}" }' $CONF
+}
+
+config_set() {
+  . $CONF; GOT=0
+  for kv in $(echo "$BODY" | tr '&' ' '); do
+    k=${kv%%=*}; v=${kv#*=}
+    case " $KEYS " in *" $k "*) ;; *) continue;; esac
+    case "$v" in ''|*[!0-9]*) fail "400 Bad Request" "$k: keine ganze Zahl";; esac
+    [ ${#v} -le 5 ] || fail "400 Bad Request" "$k: zu gross"
+    eval "$k=$v"; GOT=$((GOT + 1))
+  done
+  [ $GOT -gt 0 ] || fail "400 Bad Request" "keine Werte erhalten"
+  [ $FAN_PWM_MIN -le $FAN_PWM_MAX ] && [ $FAN_PWM_MAX -le 255 ] || fail "400 Bad Request" "Luefter: 0 <= Min <= Max <= 255"
+  [ $FAN_PWM_MIN -ge 20 ] || fail "400 Bad Request" "Luefter-Minimum unter 20 ist zu riskant"
+  [ $TEMP_LOW -ge 20 ] && [ $TEMP_LOW -lt $TEMP_HIGH ] && [ $TEMP_HIGH -lt $TEMP_CRIT ] && [ $TEMP_CRIT -le 75 ] || fail "400 Bad Request" "Board: 20 <= Ruhig < Voll < Notaus <= 75"
+  [ $DISK_HIGH -ge 30 ] && [ $DISK_HIGH -lt $DISK_CRIT ] && [ $DISK_CRIT -le 70 ] || fail "400 Bad Request" "Platten: 30 <= Voll < Notaus <= 70"
+  [ $SPINDOWN_MIN -le 330 ] || fail "400 Bad Request" "Standby: 0..330 Minuten"
+  [ $LCD_TIMEOUT -le 86400 ] || fail "400 Bad Request" "Display: 0..86400 Sekunden"
+  cp $CONF $CONF.tmp
+  for k in $KEYS; do eval "v=\$$k"; sed -i "s/^$k=[0-9]*/$k=$v/" $CONF.tmp; done
+  mv $CONF.tmp $CONF
+  # sofort anwenden: Standby-Zeit und Ueberwachung
+  if [ $SPINDOWN_MIN -le 20 ]; then S=$((SPINDOWN_MIN * 12)); else S=$((240 + SPINDOWN_MIN / 30)); fi
+  for d in $DISKS; do hdparm -S $S /dev/$d >/dev/null 2>&1; done
+  killall diet-hwmon 2>/dev/null
+  bg /sbin/diet-hwmon
+  echo "[$(cut -d' ' -f1 /proc/uptime)] Einstellungen ueber Web geaendert ($REMOTE_ADDR)" >> /var/log/boot.log
+  ok "Gespeichert und angewendet"
+}
+
+A=$(qp a)
+if [ "$REQUEST_METHOD" = "POST" ]; then
+  [ "$HTTP_X_DIET" = "1" ] || fail "403 Forbidden" "Aktion nur ueber die Oberflaeche"
+  BODY=""; CL=${CONTENT_LENGTH:-0}
+  case "$CL" in *[!0-9]*) CL=0;; esac
+  [ "$CL" -lt 4096 ] || fail "413 Request Entity Too Large" "zu viele Daten"
+  [ "$CL" -gt 0 ] && BODY=$(head -c "$CL")
+  [ ${#BODY} -eq "$CL" ] || fail "500 Internal Server Error" "Daten unvollstaendig angekommen, bitte nochmal"
+  case "$A" in
+    lcd)
+      read BL < /proc/sys/dev/lcd/backlight
+      if [ "$BL" = "1" ]; then echo 0 > /proc/sys/dev/lcd/backlight; ok "Display aus"
+      else echo 1 > /proc/sys/dev/lcd/backlight; cut -d. -f1 /proc/uptime > /var/run/lcd_on; ok "Display an"; fi ;;
+    spindown)
+      for d in $DISKS; do hdparm -y /dev/$d >/dev/null 2>&1; done; ok "Platten schlafen" ;;
+    samba)
+      killall smbd nmbd 2>/dev/null; sleep 1
+      nmbd -D </dev/null >/dev/null 2>&1; smbd -D </dev/null >/dev/null 2>&1
+      sleep 1; pidof smbd >/dev/null && ok "Samba neu gestartet" || fail "500 Internal Server Error" "smbd startet nicht" ;;
+    reboot)    ok "Neustart";            bg "sleep 2; reboot" ;;
+    poweroff)  ok "Ausschalten";         bg ": > /var/run/poweroff; sleep 2; poweroff" ;;
+    raidiator) ok "Neustart in RAIDiator"; bg "sleep 2; /sbin/zu-raidiator" ;;
+    config)    config_set ;;
+    *) fail "400 Bad Request" "unbekannte Aktion" ;;
+  esac
+  exit 0
+fi
+
+case "$A" in
+  status|"") status ;;
+  config) config_get ;;
+  log)
+    hdr 'text/plain; charset=utf-8'
+    case "$(qp f)" in
+      boot)    tail -n 300 /var/log/boot.log ;;
+      hotplug) tail -n 300 /var/log/hotplug.log ;;
+      dmesg)   dmesg | tail -n 300 ;;
+      smbd)    tail -n 300 /var/log/samba/log.smbd 2>/dev/null ;;
+      nmbd)    tail -n 300 /var/log/samba/log.nmbd 2>/dev/null ;;
+      *) echo "unbekanntes Protokoll" ;;
+    esac ;;
+  smart)
+    d=$(qp d)
+    case " $DISKS " in *" $d "*) ;; *) fail "400 Bad Request" "unbekannte Platte";; esac
+    hdr 'text/plain; charset=utf-8'
+    smartctl -H -i -A /dev/$d 2>&1 ;;
+  *) fail "400 Bad Request" "unbekannt" ;;
+esac

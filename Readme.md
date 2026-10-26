@@ -5,6 +5,12 @@ This repository contains information, binaries, scripts regarding the readynas d
 
 Qemu image of readynas <https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841> (dev version)
 
+## DIET for the ReadyNAS NV+ v1 (own userland as RAIDiator add-on)
+
+A small modern userland (busybox, dropbear, Samba 3.6 with SMB2, rsync 3.4, fan/LCD/power-button control,
+web UI) that installs as a normal add-on via Frontview, boots instead of RAIDiator and keeps RAIDiator
+as fallback, without writing the flash. See [diet-nvplus](diet-nvplus/README.md).
+
 ## Hints
 
 1. If there is no space left on the root partition you can workaround the issue with: `mount --bind /path/to/dir/with/plenty/of/space /tmp`

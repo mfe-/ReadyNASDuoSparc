@@ -1,0 +1,26 @@
+#!/bin/sh
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+LOG=/var/log/boot.log
+lcd() { [ -e /proc/sys/dev/lcd/cmd ] || return; echo 1 > /proc/sys/dev/lcd/backlight; echo $1 > /proc/sys/dev/lcd/cmd; printf "%-16s" "$2" > /dev/lcd; }
+if [ -f /var/run/poweroff ]; then MODE=poweroff; lcd 2 "Ausschalten..."; else MODE=reboot; lcd 2 "Neustart..."; fi
+lcd 192 ""
+echo 2 > /proc/sys/dev/led/power 2>/dev/null
+echo "[$(cut -d' ' -f1 /proc/uptime)] Herunterfahren ($MODE)" >> $LOG
+killall diet-hwmon 2>/dev/null
+echo /bin/true > /proc/sys/kernel/hotplug
+[ -x /sbin/diet-nfs ] && /sbin/diet-nfs stop >/dev/null 2>&1
+killall httpd smbd nmbd rsync dropbear ntpd udhcpc 2>/dev/null
+sleep 2
+sync
+if grep -q " /c " /proc/mounts; then
+  umount /c 2>>$LOG || mount -o remount,ro /c 2>>$LOG
+fi
+lvm vgchange -an --ignorelockingfailure >/dev/null 2>&1
+echo "[$(cut -d' ' -f1 /proc/uptime)] /c ausgehaengt" >> $LOG
+killall syslogd 2>/dev/null
+umount /mnt/root 2>/dev/null
+for d in /var/log/samba /var/lock /var/run /tmp; do umount $d 2>/dev/null; done
+sync
+mount -o remount,ro / 2>/dev/null
+[ "$MODE" = "poweroff" ] && echo 2 > /proc/sys/dev/lcd/hwreset 2>/dev/null
+exit 0
