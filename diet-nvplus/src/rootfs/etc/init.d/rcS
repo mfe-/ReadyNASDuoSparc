@@ -1,0 +1,92 @@
+#!/bin/sh
+# DIET-System Start (ReadyNAS NV+ v1)
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export TZ=$(cat /etc/TZ 2>/dev/null)
+. /etc/diet.conf
+LOG=/var/log/boot.log
+log() { echo "[$(cut -d' ' -f1 /proc/uptime)] $*" >> $LOG; }
+lcd() {
+  [ -e /proc/sys/dev/lcd/cmd ] || return 0
+  echo 1 > /proc/sys/dev/lcd/backlight
+  echo $1 > /proc/sys/dev/lcd/cmd
+  printf "%-16s" "$2" > /dev/lcd
+}
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys 2>/dev/null
+mkdir -p /dev/pts; mount -t devpts devpts /dev/pts 2>/dev/null
+# fluechtige Verzeichnisse im RAM, damit die Platten schlafen koennen
+for d in /var/run /var/lock /var/log/samba /tmp; do mkdir -p $d; mount -t tmpfs -o size=8m tmpfs $d; done
+chmod 1777 /tmp
+mkdir -p /var/lock/lvm /var/lock/samba /var/ncalrpc
+log "==== DIET $(cat /etc/diet-version) startet ===="
+lcd 2 "DIET $(cat /etc/diet-version)"
+
+# --- Hardware: Power-Knopf + Kernel-Ereignisse ---
+echo 1 > /proc/sys/dev/hwmon/POWER_SWITCH
+echo /sbin/diet-hotplug > /proc/sys/kernel/hotplug
+log "Power-Knopf aktiv, hotplug -> $(cat /proc/sys/kernel/hotplug)"
+
+hostname -F /etc/hostname
+ifconfig lo 127.0.0.1 up
+ifconfig eth0 up
+# Netz: /etc/diet-net.conf (NET=dhcp|static, IPADDR, NETMASK, GATEWAY, DNS, FALLBACK_IP)
+NET=dhcp; IPADDR=""; NETMASK=255.255.255.0; GATEWAY=""; DNS=""; FALLBACK_IP=""
+[ -f /etc/diet-net.conf ] && . /etc/diet-net.conf
+if [ "$NET" = "static" ] && [ -n "$IPADDR" ]; then
+  ifconfig eth0 $IPADDR netmask $NETMASK up
+  [ -n "$GATEWAY" ] && route add default gw $GATEWAY
+  if [ -n "$DNS" ]; then : > /etc/resolv.conf; for n in $DNS; do echo "nameserver $n" >> /etc/resolv.conf; done; fi
+  log "Netz statisch: $IPADDR"
+elif udhcpc -n -t 5 -T 3 -i eth0 -x hostname:$(hostname) -p /var/run/udhcpc.pid -s /usr/share/udhcpc/default.script >> /tmp/udhcpc.log 2>&1; then
+  log "DHCP ok"
+elif [ -n "$FALLBACK_IP" ]; then
+  ifconfig eth0 $FALLBACK_IP netmask $NETMASK; log "DHCP fehlgeschlagen -> $FALLBACK_IP"
+else log "DHCP fehlgeschlagen, keine Adresse"; fi
+IP=$(ifconfig eth0 | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
+lcd 192 "$IP"
+ntpd -q -n -p pool.ntp.org >> $LOG 2>&1 && log "Zeit gesetzt: $(date)" &
+if dropbear -R -p 22 >> $LOG 2>&1; then log "dropbear laeuft auf $IP:22"
+else log "dropbear FEHLER -> Notfall-telnetd"; telnetd -l /bin/sh; fi
+syslogd -C64 2>/dev/null
+
+# --- Datenvolume /c ---
+lvm vgscan --ignorelockingfailure --mknodes >> $LOG 2>&1
+lvm vgchange -ay --ignorelockingfailure >> $LOG 2>&1
+if [ -b /dev/c/c ]; then
+  if mount -t ext3 -o noatime,data=ordered,acl,user_xattr /dev/c/c /c 2>>$LOG; then log "/c eingehaengt (ext3)"
+  elif mount -t ext2 -o noatime,acl,user_xattr /dev/c/c /c 2>>$LOG; then log "/c eingehaengt (ext2)"
+  else log "FEHLER: /c konnte nicht eingehaengt werden"; fi
+else log "FEHLER: /dev/c/c nicht gefunden"; fi
+grep -q " /c " /proc/mounts && log "$(df -h /c | tail -1)"
+
+# --- Platten-Standby ---
+if [ "$SPINDOWN_MIN" -gt 0 ]; then
+  if [ $SPINDOWN_MIN -le 20 ]; then S=$((SPINDOWN_MIN * 12)); else S=$((240 + SPINDOWN_MIN / 30)); fi
+  for d in hdc hde hdg hdi; do [ -d /proc/ide/$d ] && hdparm -S $S /dev/$d >/dev/null 2>&1; done
+  log "Platten-Standby nach $SPINDOWN_MIN min (hdparm -S $S)"
+fi
+
+# --- Dienste ---
+if grep -q " /c " /proc/mounts; then
+  [ -f /etc/rsyncd.conf ] && rsync --daemon --config=/etc/rsyncd.conf && log "rsync-Dienst laeuft"
+  nmbd -D && log "nmbd laeuft"
+  smbd -D && log "smbd (Samba $(smbd -V)) laeuft"
+fi
+
+# --- Web-Oberflaeche (startet nur, wenn ein Passwort gesetzt ist) ---
+if grep -q '^/:' /etc/httpd.conf 2>/dev/null; then
+  httpd -p 80 -h /www -c /etc/httpd.conf -r "$(hostname)" && log "Web-Oberflaeche laeuft: http://$IP/"
+else log "Web-Oberflaeche aus: zuerst diet-webpass ausfuehren"; fi
+
+# --- Ueberwachung: Temperatur, Luefter, Platten, Display ---
+/sbin/diet-hwmon &
+log "hwmon gestartet (Board $(cat /proc/sys/dev/hwmon/temp_0)C, Luefter $(cat /proc/sys/dev/hwmon/fan_0) U/min)"
+
+# Boot-Erfolg melden: Weichensteller startet beim naechsten Mal wieder DIET
+grep -q " /mnt/root " /proc/mounts || mount /dev/md0 /mnt/root 2>/dev/null
+if pidof dropbear >/dev/null && rm -f /mnt/root/.diet_pending; then log "Start erfolgreich (DIET bleibt Standard)"
+else log "WARNUNG: Erfolgsmarke nicht gesetzt -> naechster Start in RAIDiator"; fi
+# --- LEDs: gruene Platten-LEDs an (P0-Board: disk_N_fault=1 heisst "Platte da"), Power-LED ruhig ---
+ch=1; for d in hdc hde hdg hdi; do [ -d /proc/ide/$d ] && echo 1 > /proc/sys/dev/led/disk_${ch}_fault; ch=$((ch+1)); done
+echo 1 > /proc/sys/dev/led/power
+log "bereit (Speicher: $(free | awk '/Mem:/{print $3" kB belegt, "$4" kB frei"}'))"

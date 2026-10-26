@@ -1,0 +1,3 @@
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PS1='[diet] \h:\w\$ '
+alias ll='ls -la'

@@ -1,0 +1,25 @@
+#!/bin/sh
+# Kernel-Ereignisse: Power-Knopf kurz = Display an/aus, >=3 s = ausschalten; Platten
+if [ -d /diet/bin ]; then P=/diet; else P=""; fi
+B=$P/bin/busybox
+LOG=$P/var/log/hotplug.log
+echo "[$($B cut -d' ' -f1 /proc/uptime)] ARGS=$* ACTION=$ACTION DEVICE=$DEVICE" >> $LOG
+case "$1" in
+  powersave)
+    if [ "$($B cat /proc/sys/dev/lcd/backlight)" = "1" ]; then
+      echo 0 > /proc/sys/dev/lcd/backlight
+    else
+      echo 1 > /proc/sys/dev/lcd/backlight
+      $B cut -d. -f1 /proc/uptime > $P/var/run/lcd_on
+    fi ;;
+  powerdown)
+    : > $P/var/run/poweroff
+    $B kill -USR2 1 ;;
+  sata)
+    case "$DEVICE" in hdc) ch=1;; hde) ch=2;; hdg) ch=3;; hdi) ch=4;; *) ch=0;; esac
+    if [ "$ACTION" = "fail" -o "$ACTION" = "PFA" -o "$ACTION" = "remove" ] && [ $ch -gt 0 ]; then
+      ( while true; do echo 0 > /proc/sys/dev/led/disk_${ch}_fault; $B usleep 250000; echo 1 > /proc/sys/dev/led/disk_${ch}_fault; $B usleep 250000; done ) &
+      echo "disk$ch $ACTION" >> $P/var/run/disk_alarm
+    fi ;;
+esac
+exit 0

@@ -1,0 +1,5 @@
+::sysinit:/etc/init.d/rcS
+ttyS1::respawn:/sbin/getty -L 9600 ttyS1 vt100
+::ctrlaltdel:/sbin/reboot
+::shutdown:/etc/init.d/rcK
+::restart:/sbin/init

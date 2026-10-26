@@ -1,0 +1,10 @@
+#!/bin/sh
+# Kurzuebersicht
+. /var/run/hwmon.status 2>/dev/null
+echo "Board: ${temp}C   Luefter: ${fan} U/min (PWM ${pwm})"
+echo "Platten:${disks}"
+grep -E "^md|blocks" /proc/mdstat | grep -A1 "^md2" | tr -s ' '
+df -h /c | tail -1
+free | awk '/Mem:/{print "RAM: "$3" kB belegt, "$4" kB frei"}'
+echo "Dienste: $(for p in dropbear smbd nmbd rsync diet-hwmon; do pidof $p >/dev/null || pgrep -f $p >/dev/null && printf "$p "; done)"
+[ -s /var/run/disk_alarm ] && echo "ALARM: $(cat /var/run/disk_alarm)"

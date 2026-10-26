@@ -1,0 +1,28 @@
+#!/bin/sh
+# Passwort fuer die Web-Oberflaeche setzen (Benutzer: $1, Standard admin)
+U=${1:-admin}
+case "$U" in *[!a-zA-Z0-9_-]*|"") echo "Ungueltiger Benutzername"; exit 1;; esac
+printf "Neues Web-Passwort fuer %s: " "$U"; stty -echo; read -r P; stty echo; echo
+printf "Nochmal: "; stty -echo; read -r P2; stty echo; echo
+[ ${#P} -ge 6 ] || { echo "Abbruch: mindestens 6 Zeichen"; exit 1; }
+[ "$P" = "$P2" ] || { echo "Abbruch: Eingaben ungleich"; exit 1; }
+case "$P" in *:*) echo "Abbruch: kein Doppelpunkt im Passwort"; exit 1;; esac
+H=$(httpd -m "$P")
+umask 077
+cat > /etc/httpd.conf.new <<EOC
+# nur aus dem Heimnetz erreichbar
+A:192.168.0.0/16
+A:10.0.0.0/8
+A:172.16.0.0/12
+A:127.0.0.1
+D:*
+# alles hinter Passwort
+/:$U:$H
+.json:application/json
+.svg:image/svg+xml
+EOC
+mv /etc/httpd.conf.new /etc/httpd.conf
+if pidof httpd >/dev/null; then killall -HUP httpd; echo "Passwort geaendert."
+else
+  httpd -p 80 -h /www -c /etc/httpd.conf -r "$(hostname)" && echo "Web-Oberflaeche gestartet: http://$(ifconfig eth0 | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')/"
+fi

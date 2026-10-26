@@ -1,0 +1,13 @@
+#!/bin/sh
+# Im DIET-System ausfuehren: installiert den neuen Weichensteller auf md0
+set -e
+grep -q " /mnt/root " /proc/mounts || mount /dev/md0 /mnt/root
+M=/mnt/root
+[ -x $M/sbin/init.real ] || { echo "FEHLER: $M/sbin/init.real fehlt - Abbruch"; exit 1; }
+cp /sbin/init-weiche $M/sbin/init.neu
+sh -n $M/sbin/init.neu
+chmod 755 $M/sbin/init.neu
+cp $M/sbin/init $M/sbin/init.alt
+mv $M/sbin/init.neu $M/sbin/init
+rm -f $M/.diet_once $M/.diet_pending $M/.raidiator_once
+echo "OK: DIET ist jetzt Standard. Zurueck zu RAIDiator (einmalig): zu-raidiator"

@@ -1,0 +1,29 @@
+#!/bin/sh
+# Weichensteller (ersetzt /sbin/init auf md0). Standard: DIET.
+# RAIDiator wird gestartet, wenn
+#   - /.raidiator_once existiert (einmalig, z.B. per "zu-raidiator"), oder
+#   - der letzte DIET-Start nicht als erfolgreich markiert wurde (/.diet_pending), oder
+#   - eine Add-on-Installation wartet (/tmp/addons/*/install.sh, einmal pro Paketstand), oder
+#   - /diet/sbin/init fehlt.
+if [ $$ -eq 1 ]; then
+  MODE=diet; R=""
+  if [ -f /.raidiator_once ]; then rm -f /.raidiator_once; MODE=raidiator; R="angefordert"; fi
+  if [ -f /.diet_pending ]; then rm -f /.diet_pending; MODE=raidiator; R="letzter DIET-Start unvollstaendig"; fi
+  # wartende Add-on-Installation (RAIDiator installiert sie beim Start in rc3) -> einmal RAIDiator
+  P=`ls -l /tmp/addons/*/install.sh 2>/dev/null | tr -s ' \n' ' '`
+  if [ -n "$P" ] && [ "$P" != "`cat /.diet_addons_seen 2>/dev/null`" ]; then
+    echo "$P" > /.diet_addons_seen; MODE=raidiator; R="Add-on wartet: `ls /tmp/addons | tr '\n' ' '`"
+  fi
+  [ -n "$P" ] || rm -f /.diet_addons_seen
+  [ -x /diet/sbin/init ] || { MODE=raidiator; R="/diet fehlt"; }
+  if [ "$MODE" = "diet" ]; then
+    echo "`date` starte DIET" >> /diet-boot.log
+    : > /.diet_pending
+    umount /initrd 2>/dev/null && [ -x /sbin/blockdev ] && /sbin/blockdev --flushbufs /dev/ram0
+    mount --bind /dev /diet/dev
+    mkdir -p /diet/mnt/root && mount --bind / /diet/mnt/root
+    exec /usr/sbin/chroot /diet /sbin/init
+  fi
+  echo "`date` starte RAIDiator ($R)" >> /diet-boot.log
+fi
+exec /sbin/init.real "$@"
