@@ -26,7 +26,7 @@ fail() {
 }
 
 # --- Pruefungen ---
-grep -q "^model:.*NV+" /proc/sys/dev/boot/info 2>/dev/null || fail "nur fuer ReadyNAS NV+ v1"
+grep -Eq "^model:.*(NV\+|ReadyNAS Duo)" /proc/sys/dev/boot/info 2>/dev/null || fail "nur fuer ReadyNAS NV+ v1 und Duo v1"
 PCB=$(sed -n 's/^pcbid:[ \t]*//p' /proc/sys/dev/boot/info)
 [ -n "$PCB" ] && [ "$PCB" -lt 128 ] 2>/dev/null || fail "unbekanntes Board (pcbid $PCB)"
 case "$(uname -r)" in 2.6.17*) ;; *) fail "Kernel $(uname -r) wird nicht unterstuetzt";; esac
@@ -46,7 +46,7 @@ if [ -f /diet/etc/hostname ]; then
   # --- Update: Konfiguration des bestehenden DIET uebernehmen ---
   echo "Update: uebernehme Konfiguration aus /diet"
   for f in etc/hostname etc/TZ etc/diet-net.conf etc/httpd.conf etc/rsyncd.conf etc/passwd etc/group \
-           etc/samba/smb.conf etc/samba/shares.conf etc/samba/smbpasswd etc/samba/private etc/dropbear root/.ssh etc/exports; do
+           etc/samba/smb.conf etc/samba/shares.conf etc/samba/smbpasswd etc/samba/private etc/dropbear root/.ssh etc/exports etc/diet-notify.conf; do
     if [ -e /diet/$f ]; then rm -rf $N/$f; mkdir -p $N/$(dirname $f); cp -a /diet/$f $N/$f; fi
   done
   # diet.conf: alte Werte behalten, neue Schluessel ergaenzen
@@ -145,6 +145,26 @@ if [ "$FRESH" = 1 ] && grep -q '^NFS=1' /etc/default/services 2>/dev/null && gre
     echo "NFS-Freigaben uebernommen: $(grep -c '^/' $N/etc/exports) ($NETWORK/$PREFIX)"
     [ -s $N/etc/exports ] || rm -f $N/etc/exports
   fi
+fi
+
+# Systemlaufwerk merken: /dev/md0 (Flex-RAID) oder z.B. /dev/hde1 (X-RAID, Duo v1)
+RD=$(awk '$2=="/" && $1 ~ /^\/dev\// {d=$1} END {print d}' /proc/mounts)
+[ -b "$RD" ] || RD=/dev/md0
+echo "$RD" > $N/etc/diet-rootdev
+echo "Systemlaufwerk: $RD"
+
+# Kein Board-Temperatursensor (Duo v1: temp_0 ist immer 0): Luefter-Grundstufe nicht unter den
+# Wert legen, mit dem RAIDiator gerade laeuft (sonst cftpwm/minpwm aus den Boot-Infos, sonst 130).
+if [ "$FRESH" = 1 ] && [ "$(cut -d. -f1 /proc/sys/dev/hwmon/temp_0 2>/dev/null)" = "0" ]; then
+  binfo() { sed -n "s/^$1:[ \t]*//p" /proc/sys/dev/boot/info; }
+  F=$(cat /proc/sys/dev/hwmon/fan0_speed_control 2>/dev/null | tr -cd '0-9')
+  MINP=$(binfo minpwm | tr -cd '0-9'); CFT=$(binfo cftpwm | tr -cd '0-9')
+  [ -n "$F" ] && [ "$F" -ge 20 ] && [ "$F" -le 255 ] || F=${CFT:-130}
+  [ -n "$MINP" ] && [ "$F" -lt "$MINP" ] && F=$MINP
+  [ "$F" -ge 20 ] && [ "$F" -le 255 ] || F=130
+  sed "s/^FAN_PWM_MIN=[0-9]*/FAN_PWM_MIN=$F/" $N/etc/diet.conf > /tmp/diet.conf.fan && cat /tmp/diet.conf.fan > $N/etc/diet.conf
+  rm -f /tmp/diet.conf.fan
+  echo "Kein Board-Sensor: Luefter-Grundstufe FAN_PWM_MIN=$F, Regelung nach Plattentemperatur"
 fi
 
 # --- Umschalten: alte Version als /diet.old behalten ---

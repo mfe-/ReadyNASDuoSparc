@@ -1,7 +1,7 @@
 [global]
     workgroup = @WORKGROUP@
     netbios name = @NETBIOS@
-    server string = ReadyNAS NV+ (DIET)
+    server string = ReadyNAS (DIET)
     security = user
     passdb backend = smbpasswd:/etc/samba/smbpasswd
     map to guest = Bad User

@@ -6,6 +6,7 @@ LOG=$P/var/log/hotplug.log
 echo "[$($B cut -d' ' -f1 /proc/uptime)] ARGS=$* ACTION=$ACTION DEVICE=$DEVICE" >> $LOG
 case "$1" in
   powersave)
+    [ -e /proc/sys/dev/lcd/backlight ] || exit 0
     if [ "$($B cat /proc/sys/dev/lcd/backlight)" = "1" ]; then
       echo 0 > /proc/sys/dev/lcd/backlight
     else

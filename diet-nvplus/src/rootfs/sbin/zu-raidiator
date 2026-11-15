@@ -1,4 +1,4 @@
 #!/bin/sh
 # Einmalig RAIDiator starten (danach wieder DIET)
-grep -q " /mnt/root " /proc/mounts || mount /dev/md0 /mnt/root
-: > /mnt/root/.raidiator_once && echo "Naechster Start: RAIDiator (einmalig). Neustart..." && sleep 1 && reboot
+grep -q " /mnt/root " /proc/mounts || mount $(cat /etc/diet-rootdev 2>/dev/null || echo /dev/md0) /mnt/root
+: > /mnt/root/.raidiator_once && echo "Prochain démarrage : RAIDiator (une seule fois). Redémarrage..." && sleep 1 && reboot

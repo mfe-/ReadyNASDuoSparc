@@ -1,0 +1,26 @@
+#!/bin/sh
+# Affiche sur une ligne les problèmes en cours (RAID, disques, SMART) ; rien si tout va bien.
+# Appelé chaque minute par diet-hwmon, qui notifie quand cette ligne change.
+XR=${DIET_XRAID:-/proc/xraid/configuration}; MD=${DIET_MDSTAT:-/proc/mdstat}; RUN=${DIET_RUN:-/var/run}
+A=""
+add() { A="${A:+$A ; }$1"; }
+if [ -r "$XR" ]; then
+  x=$(sed -n 's/^LOGICAL_DRIVE:\([0-9]*\):.*status=\([^,]*\).*/\1=\2/p' "$XR" | grep -v '=redundant$' | tr '\n' ' ')
+  [ -n "$x" ] && add "RAID dégradé (volume ${x% })"
+  x=$(sed -n 's/^PHYSICAL_DRIVE:.*device=\([^,]*\),.*state=\([^,]*\),.*/\1=\2/p' "$XR" | grep -v '=online$' | tr '\n' ' ')
+  [ -n "$x" ] && add "disque hors du RAID (${x% })"
+fi
+x=$(awk '/^md[0-9]+ :/ { n=$1 } /\[[U_]*_[U_]*\]/ { printf "%s ", n }' "$MD" 2>/dev/null)
+[ -n "$x" ] && add "RAID dégradé (${x% })"
+[ -s "$RUN/disk_alarm" ] && add "alarme disque ($(tail -1 "$RUN/disk_alarm"))"
+for f in "$RUN"/smart.*; do
+  [ -r "$f" ] || continue
+  health=""; realloc=0; pending=0; uncorr=0; . "$f"
+  p=""
+  [ -n "$health" ] && [ "$health" != PASSED ] && p="SMART $health"
+  [ "$realloc" -gt 0 ] && p="${p:+$p, }$realloc secteurs réalloués"
+  [ "$pending" -gt 0 ] && p="${p:+$p, }$pending secteurs en attente"
+  [ "$uncorr" -gt 0 ] && p="${p:+$p, }$uncorr secteurs illisibles"
+  [ -n "$p" ] && add "${f##*.} : $p"
+done
+echo "$A"

@@ -1,10 +1,15 @@
 #!/bin/sh
 # Kurzuebersicht
 . /var/run/hwmon.status 2>/dev/null
-echo "Board: ${temp}C   Luefter: ${fan} U/min (PWM ${pwm})"
-echo "Platten:${disks}"
+echo "Température : ${temp}C   Ventilateur : ${fan} tr/min (PWM ${pwm})"
+echo "Disques :${disks}"
 grep -E "^md|blocks" /proc/mdstat | grep -A1 "^md2" | tr -s ' '
+# X-RAID (Duo v1): Zustand der logischen Laufwerke, der Platten und einer laufenden Synchronisation
+[ -r /proc/xraid/configuration ] && sed -n \
+  -e 's/^LOGICAL_DRIVE:\([0-9]*\):.*status=\([^,]*\).*/X-RAID volume \1 : \2/p' \
+  -e 's/^PHYSICAL_DRIVE:.*device=\([^,]*\).*state=\([^,]*\).*/X-RAID disque \1 : \2/p' \
+  -e 's/^RAID_REBUILD::sync=\([0-9]*\).*sectors=\([0-9]*\),total=\([0-9]*\).*/X-RAID synchronisation=\1 (\2 sur \3)/p' /proc/xraid/configuration
 df -h /c | tail -1
-free | awk '/Mem:/{print "RAM: "$3" kB belegt, "$4" kB frei"}'
-echo "Dienste: $(for p in dropbear smbd nmbd rsync diet-hwmon; do pidof $p >/dev/null || pgrep -f $p >/dev/null && printf "$p "; done)"
-[ -s /var/run/disk_alarm ] && echo "ALARM: $(cat /var/run/disk_alarm)"
+echo "Mémoire : $(awk '/^MemTotal:/{t=$2} /^MemFree:/{f=$2} END{print t-f" ko utilisés, "f" ko libres"}' /proc/meminfo)"
+echo "Services : $(for p in dropbear smbd nmbd rsync diet-hwmon; do pidof $p >/dev/null || pgrep -f $p >/dev/null && printf "$p "; done)"
+[ -s /var/run/disk_alarm ] && echo "ALARME : $(cat /var/run/disk_alarm)"
