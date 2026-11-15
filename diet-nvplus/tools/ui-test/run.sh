@@ -3,4 +3,4 @@
 cd "$(dirname "$0")" || exit 1
 T=$(mktemp) && trap 'rm -f "$T"' EXIT
 sed -n '/<script>/,/<\/script>/p' ../../src/rootfs/www/index.html | sed '1d;$d' > "$T"
-node render-test.js "$T" duo-ok.json duo-fake-degraded.json
+DIET_HTML=../../src/rootfs/www/index.html node render-test.js "$T" duo-ok.json duo-fake-degraded.json

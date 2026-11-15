@@ -88,7 +88,7 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
 <div class="wrap">
   <div class="top">
     <div><h1 id="title">NAS</h1><div class="sub" id="sub">connexion…</div></div>
-    <div class="sub" id="upd"></div>
+    <div class="sub" style="display:flex;gap:10px;align-items:center"><span id="upd"></span><select id="lang" title="Langue" style="padding:3px 6px"><option value="fr">FR</option><option value="de">DE</option><option value="en">EN</option></select></div>
   </div>
 
   <div class="front">
@@ -236,6 +236,188 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
 <script>
 const $ = s => document.querySelector(s);
 const API = '/cgi-bin/api';
+// Langue : choix mémorisé dans ce navigateur, sinon langue du navigateur (fr, de), sinon anglais.
+// Les textes sont écrits en français dans la page ; I18N donne pour chacun [allemand, anglais].
+const LANGS = ['fr', 'de', 'en'];
+let LANG = (()=>{
+  try{ const s = localStorage.getItem('dietLang'); if(LANGS.includes(s)) return s; }catch(e){}
+  const nav = typeof navigator === 'undefined' ? [] : (navigator.languages || [navigator.language || '']);
+  for(const l of nav){ const c = String(l).slice(0, 2).toLowerCase(); if(LANGS.includes(c)) return c; }
+  return 'en';
+})();
+const I18N = {
+  "connexion…": ["Verbinde …", "connecting…"],
+  "Masquer cet avertissement jusqu’à ce qu’il change": ["Diese Warnung ausblenden, bis sie sich ändert", "Hide this warning until it changes"],
+  "Masquer": ["Ausblenden", "Hide"],
+  "Vue d’ensemble": ["Übersicht", "Overview"],
+  "Partages": ["Freigaben", "Shares"],
+  "Réglages": ["Einstellungen", "Settings"],
+  "Journaux": ["Protokolle", "Logs"],
+  "Système": ["System", "System"],
+  "Température": ["Temperatur", "Temperature"],
+  "Ventilateur": ["Lüfter", "Fan"],
+  "Mémoire": ["Arbeitsspeicher", "Memory"],
+  "Charge": ["Last", "Load"],
+  "En marche depuis": ["Laufzeit", "Uptime"],
+  "Swap utilisé": ["Swap belegt", "Swap used"],
+  "Stockage /c": ["Speicher /c", "Storage /c"],
+  "libre": ["frei", "free"],
+  "Lecture": ["Lesen", "Read"],
+  "Écriture": ["Schreiben", "Write"],
+  "Réseau et services": ["Netzwerk & Dienste", "Network & services"],
+  "Adresse": ["Adresse", "Address"],
+  "Reçu": ["Empfangen", "Received"],
+  "Envoyé": ["Gesendet", "Sent"],
+  "Actions": ["Aktionen", "Actions"],
+  "Écran allumé/éteint": ["Display an/aus", "Display on/off"],
+  "Mettre les disques en veille": ["Platten schlafen legen", "Spin down disks"],
+  "Redémarrer Samba": ["Samba neu starten", "Restart Samba"],
+  "Redémarrer maintenant ?": ["Jetzt neu starten?", "Restart now?"],
+  "Redémarrer": ["Neustart", "Restart"],
+  "Vraiment éteindre ? Le rallumage ne se fait qu’avec le bouton de l’appareil.": ["Wirklich ausschalten? Einschalten geht dann nur am Gerät.", "Really power off? It can only be switched on again with the button on the device."],
+  "Éteindre": ["Ausschalten", "Power off"],
+  "Démarrer une fois RAIDiator (Netgear) ? DIET reprendra au démarrage suivant.": ["Einmalig RAIDiator (Netgear) starten? Danach startet wieder DIET.", "Boot RAIDiator (Netgear) once? DIET comes back on the next boot."],
+  "Démarrer RAIDiator": ["RAIDiator starten", "Boot RAIDiator"],
+  "Bouton d’alimentation de l’appareil :": ["Power-Knopf am Gerät:", "Power button on the device:"],
+  "appui court = écran allumé/éteint,": ["kurz = Display an/aus,", "short press = display on/off,"],
+  "maintenu 3 s = extinction.": ["3 s halten = ausschalten.", "hold 3 s = power off."],
+  "Partages réseau (Samba)": ["Netzwerkfreigaben (Samba)", "Network shares (Samba)"],
+  "nom du nouveau partage": ["Name der neuen Freigabe", "new share name"],
+  "Créer": ["Anlegen", "Create"],
+  "Un partage correspond au dossier /c/nom ; un nouveau partage est créé accessible en écriture, sans mot de passe. « Retirer » enlève le partage du réseau sans effacer le dossier ni son contenu.": ["Eine Freigabe entspricht dem Ordner /c/name; eine neue Freigabe ist beschreibbar und ohne Passwort. „Entfernen“ nimmt die Freigabe aus dem Netz, ohne den Ordner oder seinen Inhalt zu löschen.", "A share is the folder /c/name; a new share is writable and needs no password. “Remove” takes the share off the network without deleting the folder or its contents."],
+  "Utilisateurs des partages": ["Benutzer der Freigaben", "Share users"],
+  "nom d’utilisateur": ["Benutzername", "user name"],
+  "mot de passe (6 caractères min.)": ["Passwort (mind. 6 Zeichen)", "password (6 characters min.)"],
+  "Créer ou changer le mot de passe": ["Anlegen oder Passwort ändern", "Create or change password"],
+  "Ces comptes servent à ouvrir les partages qui ne sont pas « sans mot de passe ». Saisir un nom existant change son mot de passe. Supprimer un compte ne touche pas à ses fichiers.": ["Mit diesen Konten öffnet man Freigaben, die nicht „ohne Passwort“ sind. Ein vorhandener Name ändert dessen Passwort. Das Löschen eines Kontos lässt seine Dateien unberührt.", "These accounts open the shares that are not “no password”. Entering an existing name changes its password. Deleting an account leaves its files untouched."],
+  "Réglages matériels": ["Hardware-Einstellungen", "Hardware settings"],
+  "Disques": ["Platten", "Disks"],
+  "Mise en veille après (minutes)": ["Standby nach (Minuten)", "Spin down after (minutes)"],
+  "0 = jamais": ["0 = nie", "0 = never"],
+  "Ventilateur (0–255)": ["Lüfter (0–255)", "Fan (0–255)"],
+  "Niveau minimal": ["Grundstufe", "Minimum level"],
+  "jusqu’à la température de repos": ["bis zur Ruhetemperatur", "up to the idle temperature"],
+  "Niveau maximal": ["Höchststufe", "Maximum level"],
+  "Température de la carte (°C), ou du disque le plus chaud sans sonde": ["Board-Temperatur (°C), ohne Sensor die der wärmsten Platte", "Board temperature (°C), or the warmest disk without a sensor"],
+  "Niveau minimal jusqu’à": ["Grundstufe bis", "Minimum level up to"],
+  "Pleine vitesse à partir de": ["Volle Drehzahl ab", "Full speed from"],
+  "Arrêt d’urgence à partir de": ["Notabschaltung ab", "Emergency shutdown from"],
+  "deux mesures consécutives": ["zwei Messungen in Folge", "two readings in a row"],
+  "Température des disques (°C)": ["Platten-Temperatur (°C)", "Disk temperature (°C)"],
+  "Écran": ["Display", "Display"],
+  "Extinction du rétroéclairage après (secondes)": ["Beleuchtung aus nach (Sekunden)", "Backlight off after (seconds)"],
+  "0 = toujours allumé": ["0 = immer an", "0 = always on"],
+  "Enregistrer": ["Speichern", "Save"],
+  "Réglages système": ["Systemeinstellungen", "System settings"],
+  "Général": ["Allgemein", "General"],
+  "Nom du NAS": ["Name des NAS", "NAS name"],
+  "minuscules, chiffres et tirets, 15 au plus": ["Kleinbuchstaben, Ziffern und Bindestriche, höchstens 15", "lowercase letters, digits and dashes, 15 max."],
+  "Fuseau horaire": ["Zeitzone", "Time zone"],
+  "appliqué au prochain redémarrage": ["gilt ab dem nächsten Neustart", "applied at the next reboot"],
+  "Réseau": ["Netzwerk", "Network"],
+  "(appliqué au prochain redémarrage)": ["(gilt ab dem nächsten Neustart)", "(applied at the next reboot)"],
+  "Mode": ["Modus", "Mode"],
+  "Automatique (DHCP)": ["Automatisch (DHCP)", "Automatic (DHCP)"],
+  "Adresse fixe": ["Feste Adresse", "Static address"],
+  "Adresse IP": ["IP-Adresse", "IP address"],
+  "Masque": ["Netzmaske", "Netmask"],
+  "Passerelle": ["Gateway", "Gateway"],
+  "Serveurs DNS": ["DNS-Server", "DNS servers"],
+  "séparés par un espace": ["durch Leerzeichen getrennt", "separated by spaces"],
+  "Notifications Telegram": ["Telegram-Benachrichtigungen", "Telegram notifications"],
+  "Jeton du bot": ["Bot-Token", "Bot token"],
+  "donné par @BotFather": ["von @BotFather", "from @BotFather"],
+  "inchangé": ["unverändert", "unchanged"],
+  "Identifiant de discussion": ["Chat-ID", "Chat ID"],
+  "vide = notifications désactivées": ["leer = Benachrichtigungen aus", "empty = notifications off"],
+  "Envoyer une notification de test": ["Testnachricht senden", "Send a test notification"],
+  "Une alerte est envoyée quand le RAID se dégrade, qu’un disque sort du RAID ou présente des secteurs défectueux, en cas de surchauffe ou de ventilateur arrêté, puis au retour à la normale.": ["Eine Meldung wird gesendet, wenn das RAID beeinträchtigt ist, eine Platte das RAID verlässt oder defekte Sektoren meldet, bei Überhitzung oder stehendem Lüfter und wieder, wenn alles normal ist.", "An alert is sent when the RAID degrades, a disk leaves the RAID or reports bad sectors, on overheating or a stopped fan, and again on recovery."],
+  "Journal de démarrage": ["Startprotokoll", "Boot log"],
+  "Événements matériels": ["Hardware-Ereignisse", "Hardware events"],
+  "Noyau (dmesg)": ["Kernel (dmesg)", "Kernel (dmesg)"],
+  "Recharger": ["Neu laden", "Reload"],
+  "Rapport SMART (réveille le disque) :": ["SMART-Bericht (weckt die Platte):", "SMART report (wakes the disk):"],
+  "Langue": ["Sprache", "Language"],
+  "To": ["TB", "TB"],
+  "Go": ["GB", "GB"],
+  "Mo": ["MB", "MB"],
+  "ko": ["kB", "kB"],
+  "Mo/s": ["MB/s", "MB/s"],
+  "ko/s": ["kB/s", "kB/s"],
+  "o/s": ["B/s", "B/s"],
+  "j": ["T", "d"],
+  "Données": ["Daten", "Data"],
+  "volume {0}": ["Volume {0}", "volume {0}"],
+  "{0} ans de marche": ["{0} Jahre Laufzeit", "{0} years powered on"],
+  "{0} h de marche": ["{0} h Laufzeit", "{0} h powered on"],
+  "{0} secteurs réalloués": ["{0} Sektoren umgelagert", "{0} reallocated sectors"],
+  "{0} secteurs en attente": ["{0} Sektoren ausstehend", "{0} pending sectors"],
+  "{0} secteurs illisibles": ["{0} Sektoren unlesbar", "{0} unreadable sectors"],
+  "Température sur {0}": ["Temperatur über {0}", "Temperature over {0}"],
+  "tr/min": ["U/min", "rpm"],
+  "Baie {0}": ["Schacht {0}", "Bay {0}"],
+  "baie {0}": ["Schacht {0}", "bay {0}"],
+  "vide": ["leer", "empty"],
+  "en veille": ["schläft", "asleep"],
+  "Alarme disque : {0}": ["Plattenalarm: {0}", "Disk alarm: {0}"],
+  "RAID dégradé : {0}": ["RAID beeinträchtigt: {0}", "RAID degraded: {0}"],
+  "Disque à surveiller : {0}": ["Platte beobachten: {0}", "Disk to watch: {0}"],
+  "tr/min, niveau {0}/255": ["U/min, Stufe {0}/255", "rpm, level {0}/255"],
+  "cache disque compris": ["inklusive Plattencache", "disk cache included"],
+  "libres sur {0} · {1} % utilisés": ["frei von {0} · {1} % belegt", "free of {0} · {1} % used"],
+  "non monté": ["nicht eingehängt", "not mounted"],
+  "en bon état": ["in Ordnung", "healthy"],
+  "DÉGRADÉ": ["BEEINTRÄCHTIGT", "DEGRADED"],
+  "Synchronisation : {0}": ["Synchronisation: {0}", "Resync: {0}"],
+  "Nom réseau": ["Netzwerkname", "Network name"],
+  "Heure": ["Zeit", "Time"],
+  "Surveillance": ["Überwachung", "Monitoring"],
+  "Mis à jour à {0}": ["Stand {0}", "Updated {0}"],
+  "pas de connexion": ["keine Verbindung", "no connection"],
+  "Le NAS ne répond pas.<br><small>Vérifier en SSH ou recharger la page plus tard.</small>": ["Das NAS meldet sich nicht.<br><small>Mit SSH nachsehen oder Seite später neu laden.</small>", "The NAS does not answer.<br><small>Check over SSH or reload the page later.</small>"],
+  "fait": ["erledigt", "done"],
+  "Redémarrage en cours…<br><small>La page se rechargera toute seule.</small>": ["Neustart läuft …<br><small>Seite lädt automatisch neu.</small>", "Restarting…<br><small>The page will reload by itself.</small>"],
+  "Démarrage de RAIDiator…<br><small>Interface Netgear : https://{0}/admin</small>": ["Startet RAIDiator …<br><small>Netgear-Oberfläche: https://{0}/admin</small>", "Booting RAIDiator…<br><small>Netgear interface: https://{0}/admin</small>"],
+  "Extinction en cours.<br><small>Rallumer avec le bouton de l’appareil.</small>": ["Wird ausgeschaltet.<br><small>Einschalten mit dem Knopf am Gerät.</small>", "Powering off.<br><small>Switch on again with the button on the device.</small>"],
+  "Erreur : {0}": ["Fehler: {0}", "Error: {0}"],
+  "Non enregistré : {0}": ["Nicht gespeichert: {0}", "Not saved: {0}"],
+  "Paris, Bruxelles, Berlin, Madrid": ["Paris, Brüssel, Berlin, Madrid", "Paris, Brussels, Berlin, Madrid"],
+  "Londres, Lisbonne": ["London, Lissabon", "London, Lisbon"],
+  "Helsinki, Athènes, Kiev": ["Helsinki, Athen, Kiew", "Helsinki, Athens, Kyiv"],
+  "Montréal, New York": ["Montreal, New York", "Montreal, New York"],
+  "Actuel : {0}": ["Aktuell: {0}", "Current: {0}"],
+  "un jeton est enregistré ; laisser vide pour le garder": ["ein Token ist gespeichert; leer lassen, um es zu behalten", "a token is saved; leave empty to keep it"],
+  "Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.": ["Auf feste Adresse umstellen? Eine falsche Adresse macht das NAS nach dem Neustart unerreichbar.", "Switch to a static address? A wrong address would make the NAS unreachable after the reboot."],
+  "dossier absent": ["Ordner fehlt", "folder missing"],
+  "lecture seule": ["schreibgeschützt", "read-only"],
+  "sans mot de passe": ["ohne Passwort", "no password"],
+  "Retirer": ["Entfernen", "Remove"],
+  "Aucun partage.": ["Keine Freigaben.", "No shares."],
+  "Retirer le partage « {0} » du réseau ? Le dossier et son contenu sont conservés.": ["Freigabe „{0}“ aus dem Netz nehmen? Ordner und Inhalt bleiben erhalten.", "Remove the share “{0}” from the network? The folder and its contents are kept."],
+  "pas de mot de passe Samba": ["kein Samba-Passwort", "no Samba password"],
+  "Supprimer": ["Löschen", "Delete"],
+  "compte système": ["Systemkonto", "system account"],
+  "Aucun utilisateur.": ["Keine Benutzer.", "No users."],
+  "Supprimer l’utilisateur « {0} » ? Ses fichiers sont conservés.": ["Benutzer „{0}“ löschen? Seine Dateien bleiben erhalten.", "Delete the user “{0}”? Their files are kept."],
+  "chargement…": ["lade …", "loading…"],
+  "(vide)": ["(leer)", "(empty)"],
+  "lecture SMART de la baie {0}…": ["lese SMART von Schacht {0} …", "reading SMART of bay {0}…"]
+};
+function t(s, ...a){
+  const r = LANG === 'fr' ? s : ((I18N[s] || [])[LANG === 'de' ? 0 : 1] ?? s);
+  return r.replace(/\{(\d)\}/g, (m, i) => a[i]);
+}
+function translatePage(){
+  document.documentElement.lang = LANG;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for(let n; (n = w.nextNode()); ){
+    const m = n.nodeValue.match(/^(\s*)([\s\S]*?)(\s*)$/), k = m[2].replace(/\s+/g, ' ');
+    if(I18N[k]) n.nodeValue = m[1] + t(k) + m[3];
+  }
+  document.querySelectorAll('[placeholder],[title],[data-q]').forEach(e=>{
+    for(const a of ['placeholder', 'title', 'data-q']){ const v = e.getAttribute(a); if(v && I18N[v]) e.setAttribute(a, t(v)); }
+  });
+}
 let prev = null, last = null, timer = null, polls = 0, critText = '', warnText = '';
 // Bandeau : les alertes graves (RAID, disque en panne) restent toujours visibles ; l'avertissement SMART peut être masqué
 // dans ce navigateur, et revient dès que son texte change (par exemple si le nombre de secteurs augmente).
@@ -249,16 +431,18 @@ function banner(){
 }
 
 function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('show'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('show'),3200); }
-function kb(k){ k=+k; if(k>=1073741824) return (k/1073741824).toFixed(2)+' To'; if(k>=1048576) return (k/1048576).toFixed(1)+' Go'; if(k>=1024) return (k/1024).toFixed(0)+' Mo'; return k+' ko'; }
-function rate(b){ if(b<0||!isFinite(b)) return '–'; if(b>=1048576) return (b/1048576).toFixed(1)+' Mo/s'; if(b>=1024) return (b/1024).toFixed(0)+' ko/s'; return b.toFixed(0)+' o/s'; }
-function dur(s){ s=+s; const d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60); return (d?d+' j ':'')+(d||h?h+' h ':'')+m+' min'; }
+// nombres avec la virgule ou le point décimal de la langue
+function num(x, d){ return (+x).toLocaleString(LANG, {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function kb(k){ k=+k; if(k>=1073741824) return num(k/1073741824,2)+' '+t('To'); if(k>=1048576) return num(k/1048576,1)+' '+t('Go'); if(k>=1024) return num(k/1024,0)+' '+t('Mo'); return k+' '+t('ko'); }
+function rate(b){ if(b<0||!isFinite(b)) return '–'; if(b>=1048576) return num(b/1048576,1)+' '+t('Mo/s'); if(b>=1024) return num(b/1024,0)+' '+t('ko/s'); return num(b,0)+' '+t('o/s'); }
+function dur(s){ s=+s; const d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60); return (d?d+' '+t('j')+' ':'')+(d||h?h+' h ':'')+m+' min'; }
 function mdOk(m){ return !!m.map && !m.map.includes('_') && (!m.name.startsWith('xraid') || m.state==='redundant'); }
-function mdLabel(m){ const x=m.name.match(/^xraid(\d+)$/); if(x) return 'X-RAID · '+(x[1]==='0'?'Système':x[1]==='1'?'Données':'volume '+x[1]);
-  return (m.name==='md2'?'Données':m.name==='md1'?'Swap':m.name==='md0'?'Système':m.name)+' · '+m.name; }
-function age(h){ return h>=8766 ? (h/8766).toFixed(1).replace('.',',')+' ans de marche' : h+' h de marche'; }
+function mdLabel(m){ const x=m.name.match(/^xraid(\d+)$/); if(x) return 'X-RAID · '+(x[1]==='0'?t('Système'):x[1]==='1'?t('Données'):t('volume {0}', x[1]));
+  return (m.name==='md2'?t('Données'):m.name==='md1'?'Swap':m.name==='md0'?t('Système'):m.name)+' · '+m.name; }
+function age(h){ return h>=8766 ? t('{0} ans de marche', (h/8766).toLocaleString(LANG, {maximumFractionDigits:1})) : t('{0} h de marche', h); }
 function smartProblems(sm){ const p=[]; if(!sm) return p;
   if(sm.health && sm.health!=='PASSED') p.push('SMART '+sm.health);
-  if(sm.realloc>0) p.push(sm.realloc+' secteurs réalloués'); if(sm.pending>0) p.push(sm.pending+' secteurs en attente'); if(sm.uncorr>0) p.push(sm.uncorr+' secteurs illisibles');
+  if(sm.realloc>0) p.push(t('{0} secteurs réalloués', sm.realloc)); if(sm.pending>0) p.push(t('{0} secteurs en attente', sm.pending)); if(sm.uncorr>0) p.push(t('{0} secteurs illisibles', sm.uncorr));
   return p; }
 function spark(vals, color){
   const v = vals.filter(x=>x!=null); if(v.length<2) return '';
@@ -270,21 +454,21 @@ async function loadHist(){
   try{
     const rows = (await get('hist', true)).trim().split('\n').map(l=>l.split(' ')).filter(r=>r.length>=3);
     if(rows.length<2){ $('#hist').innerHTML=''; return; }
-    const t = rows.map(r=>r[1]==='-'?null:+r[1]), f = rows.map(r=>+r[2]);
+    const temps = rows.map(r=>r[1]==='-'?null:+r[1]), f = rows.map(r=>+r[2]);
     const rng = a=>{ const v=a.filter(x=>x!=null); return v.length ? Math.min(...v)+'–'+Math.max(...v) : '–'; };
-    $('#hist').innerHTML = `<div class="row"><span>Température sur ${dur(rows[rows.length-1][0]-rows[0][0])}</span><span>${rng(t)} °C</span></div>${spark(t,'var(--accent)')}`+
-      `<div class="row" style="margin-top:6px"><span>Ventilateur</span><span>${rng(f)} tr/min</span></div>${spark(f,'var(--mute)')}`;
+    $('#hist').innerHTML = `<div class="row"><span>${t('Température sur {0}', dur(rows[rows.length-1][0]-rows[0][0]))}</span><span>${rng(temps)} °C</span></div>${spark(temps,'var(--accent)')}`+
+      `<div class="row" style="margin-top:6px"><span>${t('Ventilateur')}</span><span>${rng(f)} ${t('tr/min')}</span></div>${spark(f,'var(--mute)')}`;
   }catch(e){}
 }
 function esc(t){ return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 async function get(a, text){
-  const r = await fetch(API+'?a='+a, {cache:'no-store'});
+  const r = await fetch(API+'?a='+a+'&l='+LANG, {cache:'no-store'});
   if(!r.ok) throw new Error(await r.text());
   return text ? r.text() : r.json();
 }
 async function post(a, body){
-  const r = await fetch(API+'?a='+a, {method:'POST', headers:{'X-Diet':'1','Content-Type':'application/x-www-form-urlencoded'}, body: body||''});
+  const r = await fetch(API+'?a='+a+'&l='+LANG, {method:'POST', headers:{'X-Diet':'1','Content-Type':'application/x-www-form-urlencoded'}, body: body||''});
   const t = await r.text();
   if(!r.ok) throw new Error(t.trim());
   try { return JSON.parse(t); } catch(e){ return {msg:t}; }
@@ -306,18 +490,18 @@ function render(s){
   const smartAl = [];
   const bays = devs.map((dev,i)=>{
     const d = s.disks.find(x=>x.dev===dev);
-    if(!d) return `<div class="bay"><span><span class="led"></span><b>Baie ${i+1}</b></span><span class="m">vide</span></div>`;
+    if(!d) return `<div class="bay"><span><span class="led"></span><b>${t('Baie {0}', i+1)}</b></span><span class="m">${t('vide')}</span></div>`;
     const sleeping = /veille|schlaeft/.test(d.temp), bad = (s.alarm && s.alarm.indexOf('disk'+(i+1))===0) || (d.raid && d.raid!=='online');
     const led = bad?'bad':sleeping?'sleep':'on';
-    const t = sleeping ? 'en veille' : (d.temp || '–');
-    const sp = smartProblems(d.smart); if(sp.length) smartAl.push('baie '+(i+1)+' ('+sp.join(', ')+')');
-    const sm = !d.smart ? '' : sp.length ? `<span style="color:#ff8a8a">${esc(sp.join(', '))}</span>` : `<span>SMART OK · ${age(d.smart.hours)}</span>`;
-    return `<div class="bay"><span><span class="led ${led}"></span><b>Baie ${i+1}</b></span><span class="m" title="${esc(d.model)}">${esc(d.model)}</span><span>${d.gb} Go · ${esc(t)}${d.raid && d.raid!=='online' ? ' · '+esc(d.raid) : ''}</span>${sm}</div>`;
+    const tt = sleeping ? t('en veille') : (d.temp || '–');
+    const sp = smartProblems(d.smart); if(sp.length) smartAl.push(t('baie {0}', i+1)+' ('+sp.join(', ')+')');
+    const sm = !d.smart ? '' : sp.length ? `<span style="color:#ff8a8a">${esc(sp.join(', '))}</span>` : `<span>SMART OK · ${esc(age(d.smart.hours))}</span>`;
+    return `<div class="bay"><span><span class="led ${led}"></span><b>${t('Baie {0}', i+1)}</b></span><span class="m" title="${esc(d.model)}">${esc(d.model)}</span><span>${d.gb} ${t('Go')} · ${esc(tt)}${d.raid && d.raid!=='online' ? ' · '+esc(d.raid) : ''}</span>${sm}</div>`;
   }).join('');
   $('#bays').innerHTML = bays;
   const degraded = s.md.filter(m=>!mdOk(m)).map(m=>mdLabel(m)+(m.state?' ('+m.state+')':''));
-  critText = [s.alarm ? 'Alarme disque : '+s.alarm : '', degraded.length ? 'RAID dégradé : '+degraded.join(', ') : ''].filter(Boolean).join(' — ');
-  warnText = smartAl.length ? 'Disque à surveiller : '+smartAl.join(', ') : '';
+  critText = [s.alarm ? t('Alarme disque : {0}', s.alarm) : '', degraded.length ? t('RAID dégradé : {0}', degraded.join(', ')) : ''].filter(Boolean).join(' — ');
+  warnText = smartAl.length ? t('Disque à surveiller : {0}', smartAl.join(', ')) : '';
   banner();
 
   // Raten aus Zaehlern
@@ -333,11 +517,11 @@ function render(s){
 
   $('#tmp').textContent = (s.temp??'–')+' °C';
   $('#fan').textContent = s.fan!=null ? s.fan : '–';
-  $('#fan').title = 'tr/min, niveau '+s.pwm+'/255';
+  $('#fan').title = t('tr/min, niveau {0}/255', s.pwm);
   // Le noyau de ce NAS annonce libre + cache > total : on compte donc simplement total - libre (cache compris), jamais négatif.
   const used = Math.max(0, s.mem.total - s.mem.free);
   $('#memt').textContent = kb(used)+' / '+kb(s.mem.total);
-  $('#memt').title = 'cache disque compris';
+  $('#memt').title = t('cache disque compris');
   $('#memb').style.width = (100*used/s.mem.total).toFixed(1)+'%';
   $('#load').textContent = s.load.map(x=>(+x).toFixed(2)).join(' · ');
   $('#up').textContent = dur(s.uptime);
@@ -346,23 +530,23 @@ function render(s){
   if(s.c.size){
     const pct = 100*s.c.used/s.c.size;
     $('#cfree').textContent = kb(s.c.free);
-    $('#cfreet').textContent = 'libres sur '+kb(s.c.size)+' · '+pct.toFixed(0)+' % utilisés';
+    $('#cfreet').textContent = t('libres sur {0} · {1} % utilisés', kb(s.c.size), pct.toFixed(0));
     $('#cbar').style.width = pct.toFixed(1)+'%';
     $('#cbarw').className = 'bar'+(pct>95?' b':pct>85?' w':'');
-  } else { $('#cfree').textContent = 'non monté'; $('#cfreet').textContent=''; }
+  } else { $('#cfree').textContent = t('non monté'); $('#cfreet').textContent=''; }
 
   $('#md').innerHTML = s.md.map(m=>{
     const slots = [...(m.map||'')].map((c,i)=>`<span class="${c==='U'?'u':'f'}">${i+1}</span>`).join('');
     const ok = mdOk(m);
-    return `<div class="row small" style="margin-top:8px"><span>${esc(mdLabel(m))} · ${esc(m.level)}</span><span style="color:var(--${ok?'ok':'bad'})">${ok?'en bon état':'DÉGRADÉ'}</span></div>
-      <div class="raid">${slots}</div>${m.sync?`<div class="small">${esc(m.sync)}</div>`:''}`;
+    return `<div class="row small" style="margin-top:8px"><span>${esc(mdLabel(m))} · ${esc(m.level)}</span><span style="color:var(--${ok?'ok':'bad'})">${ok?t('en bon état'):t('DÉGRADÉ')}</span></div>
+      <div class="raid">${slots}</div>${m.sync?`<div class="small">${esc(t('Synchronisation : {0}', m.sync))}</div>`:''}`;
   }).join('');
 
   $('#ip').textContent = s.ip || '–';
-  const names = {nfs:'NFS',smbd:'Samba',nmbd:'Nom réseau',rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:'Heure',hwmon:'Surveillance'};
+  const names = {nfs:'NFS',smbd:'Samba',nmbd:t('Nom réseau'),rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:t('Heure'),hwmon:t('Surveillance')};
   $('#svc').innerHTML = Object.entries(s.svc).filter(([k,v])=>v||k!=='ntpd')
     .map(([k,v])=>`<span class="chip"><span class="led ${v?'on':'dn'}"></span>${names[k]||k}</span>`).join('');
-  $('#upd').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR');
+  $('#upd').textContent = t('Mis à jour à {0}', new Date().toLocaleTimeString(LANG));
 
   if(!$('#smartb').children.length)
     $('#smartb').innerHTML = s.disks.map((d,i)=>`<button class="b" data-smart="${d.dev}">${i+1}</button>`).join('');
@@ -371,7 +555,7 @@ function render(s){
 async function poll(){
   clearTimeout(timer);
   try { last = await get('status'); render(last); if(polls++ % 12 === 0) loadHist(); }
-  catch(e){ $('#upd').textContent = 'pas de connexion'; }
+  catch(e){ $('#upd').textContent = t('pas de connexion'); }
   if(document.visibilityState==='visible') timer = setTimeout(poll, 5000);
 }
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') poll(); });
@@ -396,32 +580,32 @@ async function waitBack(text, expectOff){
     try { await get('status'); location.reload(); return; } catch(e){}
     await new Promise(r=>setTimeout(r, 5000));
   }
-  $('#ovt').innerHTML = 'Le NAS ne répond pas.<br><small>Vérifier en SSH ou recharger la page plus tard.</small>';
+  $('#ovt').innerHTML = t('Le NAS ne répond pas.<br><small>Vérifier en SSH ou recharger la page plus tard.</small>');
 }
 document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
   if(b.dataset.q && !confirm(b.dataset.q)) return;
   b.disabled = true;
   try{
     const r = await post(b.dataset.a);
-    toast(r.msg || 'fait');
-    if(b.dataset.a==='reboot') waitBack('Redémarrage en cours…<br><small>La page se rechargera toute seule.</small>');
-    else if(b.dataset.a==='raidiator') waitBack('Démarrage de RAIDiator…<br><small>Interface Netgear : https://'+(last?last.ip:'')+'/admin</small>', true);
-    else if(b.dataset.a==='poweroff') waitBack('Extinction en cours.<br><small>Rallumer avec le bouton de l’appareil.</small>', true);
+    toast(r.msg || t('fait'));
+    if(b.dataset.a==='reboot') waitBack(t('Redémarrage en cours…<br><small>La page se rechargera toute seule.</small>'));
+    else if(b.dataset.a==='raidiator') waitBack(t('Démarrage de RAIDiator…<br><small>Interface Netgear : https://{0}/admin</small>', esc(last?last.ip:'')), true);
+    else if(b.dataset.a==='poweroff') waitBack(t('Extinction en cours.<br><small>Rallumer avec le bouton de l’appareil.</small>'), true);
     else poll();
-  }catch(e){ toast('Erreur : '+e.message); }
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
   b.disabled = false;
 });
 
 // Einstellungen
 async function loadCfg(){
   try{ const c = await get('config'); for(const [k,v] of Object.entries(c)){ const i=$(`#cfg [name=${k}]`); if(i) i.value=v; } }
-  catch(e){ toast('Erreur : '+e.message); }
+  catch(e){ toast(t('Erreur : {0}', e.message)); }
 }
 $('#cfg').onsubmit = async ev=>{
   ev.preventDefault();
   const btn = ev.target.querySelector('button'); btn.disabled = true;
   try{ const r = await post('config', new URLSearchParams(new FormData(ev.target)).toString()); toast(r.msg); }
-  catch(e){ toast('Non enregistré : '+e.message); }
+  catch(e){ toast(t('Non enregistré : {0}', e.message)); }
   btn.disabled = false;
 };
 
@@ -435,20 +619,20 @@ function sysMode(){ const st = sysField('net').value==='static'; document.queryS
 async function loadSys(){
   try{
     const c = await get('sys');
-    const z = TZS.some(t=>t[1]===c.tz) ? TZS : TZS.concat([['Actuel : '+c.tz, c.tz]]);
-    sysField('tz').innerHTML = z.map(t=>`<option value="${esc(t[1])}">${esc(t[0])}</option>`).join('');
+    const z = TZS.some(o=>o[1]===c.tz) ? TZS : TZS.concat([[t('Actuel : {0}', c.tz), c.tz]]);
+    sysField('tz').innerHTML = z.map(o=>`<option value="${esc(o[1])}">${esc(t(o[0]))}</option>`).join('');
     for(const k of ['host','tz','net','ip','mask','gw','dns','tgchat']) sysField(k).value = c[k] ?? '';
     sysField('tgtoken').value = '';
-    $('#tgs').textContent = c.tgset ? 'un jeton est enregistré ; laisser vide pour le garder' : 'donné par @BotFather';
+    $('#tgs').textContent = c.tgset ? t('un jeton est enregistré ; laisser vide pour le garder') : t('donné par @BotFather');
     sysMode();
-  }catch(e){ toast('Erreur : '+e.message); }
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
 }
 $('#sys').onchange = ev=>{ if(ev.target.name==='net') sysMode(); };
 $('#sys').onsubmit = async ev=>{
   ev.preventDefault();
-  if(sysField('net').value==='static' && !confirm('Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.')) return;
+  if(sysField('net').value==='static' && !confirm(t('Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.'))) return;
   const body = ['host','tz','net','ip','mask','gw','dns','tgtoken','tgchat'].map(k=>k+'='+encodeURIComponent(sysField(k).value.trim())).join('&');
-  try{ const r = await post('sys_set', body); toast(r.msg); loadSys(); }catch(e){ toast('Non enregistré : '+e.message); }
+  try{ const r = await post('sys_set', body); toast(r.msg); loadSys(); }catch(e){ toast(t('Non enregistré : {0}', e.message)); }
 };
 $('#tgtest').onclick = async ev=>{
   ev.target.disabled = true;
@@ -461,15 +645,15 @@ async function loadShares(){
   try{
     const l = await get('shares');
     $('#shl').innerHTML = l.length ? l.map(s=>`<div class="row shrow" data-name="${esc(s.name)}" style="align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
-      <span><b>${esc(s.name)}</b><br><span class="small">${esc(s.path)}${s.exists ? '' : ' · dossier absent'}</span></span>
+      <span><b>${esc(s.name)}</b><br><span class="small">${esc(s.path)}${s.exists ? '' : ' · '+t('dossier absent')}</span></span>
       <span class="btns" style="align-items:center">
-        <label class="small"><input type="checkbox" data-k="ro" ${s.ro?'checked':''}> lecture seule</label>
-        <label class="small"><input type="checkbox" data-k="guest" ${s.guest?'checked':''}> sans mot de passe</label>
-        <button class="b danger" data-del="1">Retirer</button></span></div>`).join('') : '<p class="small">Aucun partage.</p>';
-  }catch(e){ toast('Erreur : '+e.message); }
+        <label class="small"><input type="checkbox" data-k="ro" ${s.ro?'checked':''}> ${t('lecture seule')}</label>
+        <label class="small"><input type="checkbox" data-k="guest" ${s.guest?'checked':''}> ${t('sans mot de passe')}</label>
+        <button class="b danger" data-del="1">${t('Retirer')}</button></span></div>`).join('') : '<p class="small">'+t('Aucun partage.')+'</p>';
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
 }
 async function shareDo(a, body){
-  try{ const r = await post(a, body); toast(r.msg || 'fait'); }catch(e){ toast('Erreur : '+e.message); }
+  try{ const r = await post(a, body); toast(r.msg || t('fait')); }catch(e){ toast(t('Erreur : {0}', e.message)); }
   loadShares();
 }
 $('#shl').onchange = ev=>{
@@ -479,7 +663,7 @@ $('#shl').onchange = ev=>{
 $('#shl').onclick = ev=>{
   if(!ev.target.dataset.del) return;
   const n = ev.target.closest('.shrow').dataset.name;
-  if(confirm('Retirer le partage « '+n+' » du réseau ? Le dossier et son contenu sont conservés.')) shareDo('share_del', 'name='+encodeURIComponent(n));
+  if(confirm(t('Retirer le partage « {0} » du réseau ? Le dossier et son contenu sont conservés.', n))) shareDo('share_del', 'name='+encodeURIComponent(n));
 };
 $('#shadd').onsubmit = ev=>{ ev.preventDefault(); const i = ev.target.querySelector('input'); shareDo('share_add', 'name='+encodeURIComponent(i.value.trim())); i.value=''; };
 
@@ -488,18 +672,18 @@ async function loadUsers(){
   try{
     const l = await get('users');
     $('#usl').innerHTML = l.length ? l.map(u=>`<div class="row usrow" data-name="${esc(u.name)}" style="align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
-      <span><b>${esc(u.name)}</b>${u.smb ? '' : ' <span class="small">· pas de mot de passe Samba</span>'}</span>
-      <span class="btns">${u.uid >= 1000 ? '<button class="b danger" data-del="1">Supprimer</button>' : '<span class="small">compte système</span>'}</span></div>`).join('') : '<p class="small">Aucun utilisateur.</p>';
-  }catch(e){ toast('Erreur : '+e.message); }
+      <span><b>${esc(u.name)}</b>${u.smb ? '' : ' <span class="small">· '+t('pas de mot de passe Samba')+'</span>'}</span>
+      <span class="btns">${u.uid >= 1000 ? '<button class="b danger" data-del="1">'+t('Supprimer')+'</button>' : '<span class="small">'+t('compte système')+'</span>'}</span></div>`).join('') : '<p class="small">'+t('Aucun utilisateur.')+'</p>';
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
 }
 async function userDo(a, body){
-  try{ const r = await post(a, body); toast(r.msg || 'fait'); }catch(e){ toast('Erreur : '+e.message); }
+  try{ const r = await post(a, body); toast(r.msg || t('fait')); }catch(e){ toast(t('Erreur : {0}', e.message)); }
   loadUsers();
 }
 $('#usl').onclick = ev=>{
   if(!ev.target.dataset.del) return;
   const n = ev.target.closest('.usrow').dataset.name;
-  if(confirm('Supprimer l’utilisateur « '+n+' » ? Ses fichiers sont conservés.')) userDo('user_del', 'name='+encodeURIComponent(n));
+  if(confirm(t('Supprimer l’utilisateur « {0} » ? Ses fichiers sont conservés.', n))) userDo('user_del', 'name='+encodeURIComponent(n));
 };
 $('#usadd').onsubmit = ev=>{
   ev.preventDefault(); const f = ev.target;
@@ -508,17 +692,20 @@ $('#usadd').onsubmit = ev=>{
 
 // Protokolle
 async function loadLog(){
-  $('#logo').textContent = 'chargement…';
-  try{ const t = await get('log&f='+$('#logf').value, true); $('#logo').textContent = t || '(vide)'; $('#logo').scrollTop = 1e9; }
-  catch(e){ $('#logo').textContent = 'Erreur : '+e.message; }
+  $('#logo').textContent = t('chargement…');
+  try{ const t2 = await get('log&f='+$('#logf').value, true); $('#logo').textContent = t2 || t('(vide)'); $('#logo').scrollTop = 1e9; }
+  catch(e){ $('#logo').textContent = t('Erreur : {0}', e.message); }
 }
 $('#logf').onchange = loadLog; $('#logr').onclick = loadLog;
 $('#smartb').onclick = async ev=>{
   const d = ev.target.dataset.smart; if(!d) return;
-  $('#logo').textContent = 'lecture SMART de la baie '+ev.target.textContent+'…';
-  try{ $('#logo').textContent = await get('smart&d='+d, true); }catch(e){ $('#logo').textContent='Erreur : '+e.message; }
+  $('#logo').textContent = t('lecture SMART de la baie {0}…', ev.target.textContent);
+  try{ $('#logo').textContent = await get('smart&d='+d, true); }catch(e){ $('#logo').textContent=t('Erreur : {0}', e.message); }
 };
 
+if(LANG !== 'fr') translatePage();
+$('#lang').value = LANG;
+$('#lang').onchange = ev=>{ try{ localStorage.setItem('dietLang', ev.target.value); }catch(e){} location.reload(); };
 poll();
 </script>
 </body>

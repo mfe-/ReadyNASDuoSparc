@@ -18,8 +18,8 @@ printf 'root:x:0:\nusers:x:100:\n' > "$T/group"
 printf '#\n# SMB password file.\n#\nadmin:98:X:Y:[U ]:LCT-1:\nalice:1002:X:Y:[U ]:LCT-1:\n' > "$T/smbpasswd"
 fails=0
 E="env PATH=$T/bin:$PATH DIET_PASSWD=$T/passwd DIET_SMBPW=$T/smbpasswd DIET_SMBPASSWD=$T/bin/smbpasswd DIET_DATA=/c"
-get()  { $E REQUEST_METHOD=GET QUERY_STRING="a=users" busybox ash $API | tr -d '\r' | tail -1; }
-post() { printf %s "$2" | $E REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1" busybox ash $API | tr -d '\r'; }
+get()  { $E REQUEST_METHOD=GET QUERY_STRING="a=users&l=fr" busybox ash $API | tr -d '\r' | tail -1; }
+post() { printf %s "$2" | $E REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1&l=fr" busybox ash $API | tr -d '\r'; }
 ok()   { echo "ok   $1"; }
 ko()   { echo "FAIL $1 :: $2" | cut -c1-300; fails=$((fails + 1)); }
 check() { if echo "$out" | grep -qE -- "$2"; then ok "$1"; else ko "$1" "$out"; fi; }

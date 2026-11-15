@@ -22,8 +22,8 @@ cat > "$T/shares.conf" <<EOC
   writeable = 1
 EOC
 fails=0
-get()  { env DIET_SHARES="$T/shares.conf" DIET_DATA="$T/c" REQUEST_METHOD=GET QUERY_STRING="a=shares" busybox ash $API | tr -d '\r' | tail -1; }
-post() { printf %s "$2" | env DIET_SHARES="$T/shares.conf" DIET_DATA="$T/c" REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1" busybox ash $API | tr -d '\r'; }
+get()  { env DIET_SHARES="$T/shares.conf" DIET_DATA="$T/c" REQUEST_METHOD=GET QUERY_STRING="a=shares&l=fr" busybox ash $API | tr -d '\r' | tail -1; }
+post() { printf %s "$2" | env DIET_SHARES="$T/shares.conf" DIET_DATA="$T/c" REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1&l=fr" busybox ash $API | tr -d '\r'; }
 check() { if echo "$out" | grep -qE -- "$2"; then echo "ok   $1"; else echo "FAIL $1 :: $out" | cut -c1-300; fails=$((fails + 1)); fi; }
 nocheck() { if echo "$out" | grep -qE -- "$2"; then echo "FAIL $1 :: $out" | cut -c1-300; fails=$((fails + 1)); else echo "ok   $1"; fi; }
 
@@ -51,4 +51,10 @@ out=$(get);                                   nocheck "retrait : absent de la li
 out=$(post share_del 'name=media'); [ -d "$T/c/media" ] && echo "ok   retrait : le dossier est conservé" || { echo "FAIL dossier supprimé"; fails=$((fails + 1)); }
 out=$(post share_del 'name=inconnu');         check "retrait d un partage inconnu refusé" '^HTTP/1.1 404'
 [ -f "$T/shares.conf.bak" ] && echo "ok   sauvegarde .bak présente" || { echo "FAIL pas de sauvegarde"; fails=$((fails + 1)); }
+# langue des messages : allemand, anglais, et anglais par défaut
+lang() { printf %s "$3" | env DIET_SHARES="$T/shares.conf" DIET_DATA="$T/c" REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#3} QUERY_STRING="a=$1$2" busybox ash $API | tr -d '\r'; }
+out=$(lang share_add '&l=de' 'name=global');  check "message en allemand" 'Dieser Name ist reserviert'
+out=$(lang share_add '&l=en' 'name=global');  check "message en anglais" 'This name is reserved'
+out=$(lang share_add '' 'name=global');       check "anglais sans langue indiquée" 'This name is reserved'
+out=$(lang share_add '&l=xx' 'name=global');  check "anglais pour une langue inconnue" 'This name is reserved'
 [ "$fails" = 0 ] && echo "Tout passe." || { echo "$fails échec(s)"; exit 1; }

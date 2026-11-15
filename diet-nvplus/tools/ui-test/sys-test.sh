@@ -17,8 +17,8 @@ printf 'NET=dhcp\nFALLBACK_IP=192.168.1.10\nNETMASK=255.255.255.0\n' > "$T/etc/d
 printf '[global]\n    workgroup = VOLUME\n    netbios name = NAS-TEST\n    security = user\n' > "$T/etc/samba/smb.conf"
 fails=0
 E="env PATH=$T/bin:$PATH DIET_ETC=$T/etc DIET_PASSWD=$T/etc/passwd DIET_NOTIFY=$R/sbin/diet-notify DIET_WGET=$T/bin/wget"
-get()  { $E REQUEST_METHOD=GET QUERY_STRING="a=sys" busybox ash $API | tr -d '\r' | tail -1; }
-post() { printf %s "$2" | $E REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1" busybox ash $API | tr -d '\r'; }
+get()  { $E REQUEST_METHOD=GET QUERY_STRING="a=sys&l=fr" busybox ash $API | tr -d '\r' | tail -1; }
+post() { printf %s "$2" | $E REQUEST_METHOD=POST HTTP_X_DIET=1 CONTENT_LENGTH=${#2} QUERY_STRING="a=$1&l=fr" busybox ash $API | tr -d '\r'; }
 ok()   { echo "ok   $1"; }
 ko()   { echo "FAIL $1 :: $2" | cut -c1-300; fails=$((fails + 1)); }
 check() { if echo "$out" | grep -qE -- "$2"; then ok "$1"; else ko "$1" "$out"; fi; }
