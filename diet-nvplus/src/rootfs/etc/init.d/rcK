@@ -1,11 +1,12 @@
 #!/bin/sh
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 LOG=/var/log/boot.log
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
 lcd() { [ -e /proc/sys/dev/lcd/cmd ] || return; echo 1 > /proc/sys/dev/lcd/backlight; echo $1 > /proc/sys/dev/lcd/cmd; printf "%-16s" "$2" > /dev/lcd; }
-if [ -f /var/run/poweroff ]; then MODE=poweroff; lcd 2 "Extinction..."; else MODE=reboot; lcd 2 "Redemarrage..."; fi
+if [ -f /var/run/poweroff ]; then MODE=poweroff; lcd 2 "$(tx "Extinction..." "Ausschalten..." "Power off...")"; else MODE=reboot; lcd 2 "$(tx "Redemarrage..." "Neustart..." "Restarting...")"; fi
 lcd 192 ""
 echo 2 > /proc/sys/dev/led/power 2>/dev/null
-echo "[$(cut -d' ' -f1 /proc/uptime)] Arrêt du système ($MODE)" >> $LOG
+echo "[$(cut -d' ' -f1 /proc/uptime)] $(tx "Arrêt du système ($MODE)" "Herunterfahren ($MODE)" "Shutting down ($MODE)")" >> $LOG
 killall diet-hwmon 2>/dev/null
 echo /bin/true > /proc/sys/kernel/hotplug
 # nur wenn NFS laeuft: "rpc.nfsd 0" ohne portmap haengt sonst ~90 s im RPC-Timeout
@@ -17,7 +18,7 @@ if grep -q " /c " /proc/mounts; then
   umount /c 2>>$LOG || mount -o remount,ro /c 2>>$LOG
 fi
 lvm vgchange -an --ignorelockingfailure >/dev/null 2>&1
-echo "[$(cut -d' ' -f1 /proc/uptime)] /c démonté" >> $LOG
+echo "[$(cut -d' ' -f1 /proc/uptime)] $(tx "/c démonté" "/c ausgehängt" "/c unmounted")" >> $LOG
 killall syslogd 2>/dev/null
 umount /mnt/root 2>/dev/null
 for d in /var/log/samba /var/lock /var/run /tmp; do umount $d 2>/dev/null; done

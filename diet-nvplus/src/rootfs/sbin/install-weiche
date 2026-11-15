@@ -1,13 +1,14 @@
 #!/bin/sh
 # Im DIET-System ausfuehren: installiert den neuen Weichensteller auf md0
 set -e
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
 grep -q " /mnt/root " /proc/mounts || mount $(cat /etc/diet-rootdev 2>/dev/null || echo /dev/md0) /mnt/root
 M=/mnt/root
-[ -x $M/sbin/init.real ] || { echo "ERREUR : $M/sbin/init.real absent - abandon"; exit 1; }
+[ -x $M/sbin/init.real ] || { echo "$(tx "ERREUR : $M/sbin/init.real absent - abandon" "FEHLER: $M/sbin/init.real fehlt - Abbruch" "ERROR: $M/sbin/init.real missing - aborting")"; exit 1; }
 cp /sbin/init-weiche $M/sbin/init.neu
 sh -n $M/sbin/init.neu
 chmod 755 $M/sbin/init.neu
 cp $M/sbin/init $M/sbin/init.alt
 mv $M/sbin/init.neu $M/sbin/init
 rm -f $M/.diet_once $M/.diet_pending $M/.raidiator_once
-echo "OK : DIET est maintenant le système par défaut. Retour ponctuel à RAIDiator : zu-raidiator"
+echo "$(tx "OK : DIET est maintenant le système par défaut. Retour ponctuel à RAIDiator : zu-raidiator" "OK: DIET ist jetzt Standard. Zurück zu RAIDiator (einmalig): zu-raidiator" "OK: DIET is now the default. To boot RAIDiator once: zu-raidiator")"

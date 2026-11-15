@@ -1,6 +1,7 @@
 #!/bin/sh
 # Temperatur-/Luefterregelung, Plattenueberwachung, Display (laeuft im DIET-System)
 . /etc/diet.conf
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
 LOG=/var/log/boot.log
 ST=/var/run/hwmon.status
 H=/proc/sys/dev/hwmon
@@ -17,7 +18,7 @@ while true; do
     DTMAX=0; DTXT=""
     for d in $DISKS; do
       out=$(smartctl -n standby -H -A /dev/$d 2>/dev/null)
-      if echo "$out" | grep -q "STANDBY"; then DTXT="$DTXT $d:veille"; continue; fi
+      if echo "$out" | grep -q "STANDBY"; then DTXT="$DTXT $d:standby"; continue; fi
       dt=$(echo "$out" | awk '$1==194 || $1==190 {print $10; exit}')
       # SMART-Kurzfassung fuer die Web-Oberflaeche (bleibt stehen, solange die Platte schlaeft)
       sh=$(echo "$out" | sed -n 's/.*self-assessment test result: //p' | tr -cd 'A-Za-z')
@@ -36,22 +37,22 @@ while true; do
   [ $DTMAX -ge $DISK_HIGH ] && P=$FAN_PWM_MAX
   if [ $P -ne $LASTPWM ]; then echo $P > $H/fan0_speed_control; LASTPWM=$P; fi
   # Alarm / Notabschaltung (2 Messungen in Folge)
-  if [ $T -ge $TEMP_CRIT -o $DTMAX -ge $DISK_CRIT ]; then HOT=$((HOT+1)); log "SURCHAUFFE carte=${T}C disques=${DTMAX}C ($HOT)"
-    bl 1; lcd 2 "SURCHAUFFE ${T}C"
-    if [ $HOT -ge 2 ]; then log "Arrêt d’urgence !"; /sbin/diet-notify "ARRÊT D’URGENCE : surchauffe ${T}C" >/dev/null 2>&1; : > /var/run/poweroff; poweroff; fi
+  if [ $T -ge $TEMP_CRIT -o $DTMAX -ge $DISK_CRIT ]; then HOT=$((HOT+1)); log "$(tx "SURCHAUFFE carte=${T}C disques=${DTMAX}C ($HOT)" "ÜBERTEMPERATUR Board=${T}C Platten=${DTMAX}C ($HOT)" "OVERHEATING board=${T}C disks=${DTMAX}C ($HOT)")"
+    bl 1; lcd 2 "$(tx "SURCHAUFFE ${T}C" "UEBERTEMP ${T}C" "OVERHEAT ${T}C")"
+    if [ $HOT -ge 2 ]; then log "$(tx "Arrêt d’urgence !" "Notabschaltung!" "Emergency shutdown!")"; /sbin/diet-notify "$(tx "ARRÊT D’URGENCE : surchauffe ${T}C" "NOTABSCHALTUNG: Überhitzung ${T}C" "EMERGENCY SHUTDOWN: overheating ${T}C")" >/dev/null 2>&1; : > /var/run/poweroff; poweroff; fi
   else HOT=0; fi
-  [ "$RPM" -lt 300 ] 2>/dev/null && log "ATTENTION : ventilateur à ${RPM} tr/min"
+  [ "$RPM" -lt 300 ] 2>/dev/null && log "$(tx "ATTENTION : ventilateur à ${RPM} tr/min" "WARNUNG: Lüfter ${RPM} U/min" "WARNING: fan at ${RPM} rpm")"
   # Verlauf fuer die Web-Oberflaeche: Zeit, Temperatur (- = unbekannt), Drehzahl, Stufe; etwa 12 Stunden
   echo "$(date +%s) $([ $T -gt 0 ] && echo $T || echo -) ${RPM:-0} $P" >> /var/run/hwmon.hist
   [ $((N % 60)) -eq 59 ] && tail -n 720 /var/run/hwmon.hist > /var/run/hwmon.hist.tmp && mv /var/run/hwmon.hist.tmp /var/run/hwmon.hist
   # Benachrichtigung (Telegram, wenn eingerichtet) nur bei Zustandswechsel
   AL=$(/sbin/diet-alerts 2>/dev/null)
-  [ $HOT -gt 0 ] && AL="${AL:+$AL ; }surchauffe ${T}C"
-  [ "$RPM" -lt 300 ] 2>/dev/null && AL="${AL:+$AL ; }ventilateur à ${RPM} tr/min"
+  [ $HOT -gt 0 ] && AL="${AL:+$AL ; }$(tx "surchauffe ${T}C" "Überhitzung ${T}C" "overheating ${T}C")"
+  [ "$RPM" -lt 300 ] 2>/dev/null && AL="${AL:+$AL ; }$(tx "ventilateur à ${RPM} tr/min" "Lüfter bei ${RPM} U/min" "fan at ${RPM} rpm")"
   if [ "$AL" != "$(cat /var/run/alert.last 2>/dev/null)" ]; then
     echo "$AL" > /var/run/alert.last
-    if [ -n "$AL" ]; then log "ALERTE : $AL"; /sbin/diet-notify "ALERTE : $AL" >/dev/null 2>&1 &
-    else log "Retour à la normale"; /sbin/diet-notify "Retour à la normale" >/dev/null 2>&1 & fi
+    if [ -n "$AL" ]; then log "$(tx "ALERTE : $AL" "ALARM: $AL" "ALERT: $AL")"; /sbin/diet-notify "$(tx "ALERTE : $AL" "ALARM: $AL" "ALERT: $AL")" >/dev/null 2>&1 &
+    else log "$(tx "Retour à la normale" "Wieder normal" "Back to normal")"; /sbin/diet-notify "$(tx "Retour à la normale" "Wieder normal" "Back to normal")" >/dev/null 2>&1 & fi
   fi
   # Status fuer Web-Oberflaeche
   echo "temp=$T fan=$RPM pwm=$P disks=\"$DTXT\" uptime=$(cut -d' ' -f1 /proc/uptime)" > $ST

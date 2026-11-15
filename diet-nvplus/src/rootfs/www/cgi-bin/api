@@ -280,20 +280,22 @@ sys_get() {
   CGW=$(route -n 2>/dev/null | awk '$1=="0.0.0.0" { print $2; exit }')
   CDNS=$(awk '$1=="nameserver" { printf "%s%s", s, $2; s=" " }' /etc/resolv.conf 2>/dev/null)
   hdr application/json
-  printf '{"host":"%s","tz":"%s","net":"%s","ip":"%s","mask":"%s","gw":"%s","dns":"%s","tgset":%d,"tgchat":"%s"}\n' \
-    "$(cat $ETC/hostname 2>/dev/null | esc)" "$(cat $ETC/TZ 2>/dev/null | esc)" "$NET" "${IPADDR:-$CIP}" "${NETMASK:-$CMASK}" \
+  SL=$(cat $ETC/diet-lang 2>/dev/null); case "$SL" in fr|de|en) ;; *) SL=en ;; esac
+  printf '{"host":"%s","lang":"%s","tz":"%s","net":"%s","ip":"%s","mask":"%s","gw":"%s","dns":"%s","tgset":%d,"tgchat":"%s"}\n' \
+    "$(cat $ETC/hostname 2>/dev/null | esc)" "$SL" "$(cat $ETC/TZ 2>/dev/null | esc)" "$NET" "${IPADDR:-$CIP}" "${NETMASK:-$CMASK}" \
     "${GATEWAY:-$CGW}" "${DNS:-$CDNS}" "$([ -n "$TG_TOKEN" ] && echo 1 || echo 0)" "$TG_CHAT"
 }
 
 sys_set() {
   set -f
-  host=""; tz=""; net=""; ip=""; mask=""; gw=""; dns=""; tgtoken=""; tgchat=""
+  host=""; lang=""; tz=""; net=""; ip=""; mask=""; gw=""; dns=""; tgtoken=""; tgchat=""
   for kv in $(echo "$BODY" | tr '&' ' '); do
     k=${kv%%=*}
-    case "$k" in host|tz|net|ip|mask|gw|dns|tgtoken|tgchat) v=$(httpd -d "${kv#*=}"); eval "$k=\$v";; esac
+    case "$k" in host|lang|tz|net|ip|mask|gw|dns|tgtoken|tgchat) v=$(httpd -d "${kv#*=}"); eval "$k=\$v";; esac
   done
   case "$host" in ''|-*|*[!a-z0-9-]*) fail "400 Bad Request" "$(tx "Nom du NAS invalide : minuscules, chiffres et tirets" "Ungültiger NAS-Name: Kleinbuchstaben, Ziffern und Bindestriche" "Invalid NAS name: lowercase letters, digits and dashes")";; esac
   [ ${#host} -le 15 ] || fail "400 Bad Request" "$(tx "Nom du NAS trop long (15 caractères au plus)" "NAS-Name zu lang (höchstens 15 Zeichen)" "NAS name too long (15 characters max.)")"
+  case "$lang" in ''|fr|de|en) ;; *) fail "400 Bad Request" "$(tx "Langue du système invalide" "Ungültige Systemsprache" "Invalid system language")";; esac
   case "$tz" in ''|*[!A-Za-z0-9,./+:\<\>-]*) fail "400 Bad Request" "$(tx "Fuseau horaire invalide" "Ungültige Zeitzone" "Invalid time zone")";; esac
   [ ${#tz} -le 60 ] || fail "400 Bad Request" "$(tx "Fuseau horaire invalide" "Ungültige Zeitzone" "Invalid time zone")"
   case "$net" in
@@ -326,6 +328,11 @@ sys_set() {
     printf 'NET=dhcp\nFALLBACK_IP=%s\nNETMASK=%s\n' "$FALLBACK_IP" "${NETMASK:-255.255.255.0}" > $ETC/diet-net.conf
   fi
   echo "$tz" > $ETC/TZ
+  # Systemsprache: gilt sofort fuer neue Meldungen; die Ueberwachung liest sie beim Start
+  if [ -n "$lang" ] && [ "$lang" != "$(cat $ETC/diet-lang 2>/dev/null)" ]; then
+    echo "$lang" > $ETC/diet-lang
+    [ -n "$DIET_ETC" ] || { killall diet-hwmon 2>/dev/null; bg /sbin/diet-hwmon; }
+  fi
   OLD=$(cat $ETC/hostname 2>/dev/null)
   if [ "$host" != "$OLD" ]; then
     echo "$host" > $ETC/hostname

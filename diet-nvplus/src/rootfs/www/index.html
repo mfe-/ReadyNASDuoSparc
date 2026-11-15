@@ -195,6 +195,7 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
         <div class="sec">Général</div>
         <label>Nom du NAS<small>minuscules, chiffres et tirets, 15 au plus</small></label><input name="host" maxlength="15" pattern="[a-z0-9][a-z0-9-]*" required>
         <label>Fuseau horaire<small>appliqué au prochain redémarrage</small></label><select name="tz"></select>
+        <label>Langue du système<small>journaux, notifications Telegram et commandes</small></label><select name="lang"><option value="fr">Français</option><option value="de">Deutsch</option><option value="en">English</option></select>
         <div class="sec">Réseau <small style="font-weight:400;color:var(--mute)">(appliqué au prochain redémarrage)</small></div>
         <label>Mode</label><select name="net"><option value="dhcp">Automatique (DHCP)</option><option value="static">Adresse fixe</option></select>
         <label class="st">Adresse IP</label><input class="st" name="ip" inputmode="decimal">
@@ -338,6 +339,8 @@ const I18N = {
   "Recharger": ["Neu laden", "Reload"],
   "Rapport SMART (réveille le disque) :": ["SMART-Bericht (weckt die Platte):", "SMART report (wakes the disk):"],
   "Langue": ["Sprache", "Language"],
+  "Langue du système": ["Systemsprache", "System language"],
+  "journaux, notifications Telegram et commandes": ["Protokolle, Telegram-Meldungen und Befehle", "logs, Telegram notifications and commands"],
   "To": ["TB", "TB"],
   "Go": ["GB", "GB"],
   "Mo": ["MB", "MB"],
@@ -491,7 +494,7 @@ function render(s){
   const bays = devs.map((dev,i)=>{
     const d = s.disks.find(x=>x.dev===dev);
     if(!d) return `<div class="bay"><span><span class="led"></span><b>${t('Baie {0}', i+1)}</b></span><span class="m">${t('vide')}</span></div>`;
-    const sleeping = /veille|schlaeft/.test(d.temp), bad = (s.alarm && s.alarm.indexOf('disk'+(i+1))===0) || (d.raid && d.raid!=='online');
+    const sleeping = /standby|veille|schlaeft/.test(d.temp), bad = (s.alarm && s.alarm.indexOf('disk'+(i+1))===0) || (d.raid && d.raid!=='online');
     const led = bad?'bad':sleeping?'sleep':'on';
     const tt = sleeping ? t('en veille') : (d.temp || '–');
     const sp = smartProblems(d.smart); if(sp.length) smartAl.push(t('baie {0}', i+1)+' ('+sp.join(', ')+')');
@@ -621,7 +624,7 @@ async function loadSys(){
     const c = await get('sys');
     const z = TZS.some(o=>o[1]===c.tz) ? TZS : TZS.concat([[t('Actuel : {0}', c.tz), c.tz]]);
     sysField('tz').innerHTML = z.map(o=>`<option value="${esc(o[1])}">${esc(t(o[0]))}</option>`).join('');
-    for(const k of ['host','tz','net','ip','mask','gw','dns','tgchat']) sysField(k).value = c[k] ?? '';
+    for(const k of ['host','lang','tz','net','ip','mask','gw','dns','tgchat']) sysField(k).value = c[k] ?? '';
     sysField('tgtoken').value = '';
     $('#tgs').textContent = c.tgset ? t('un jeton est enregistré ; laisser vide pour le garder') : t('donné par @BotFather');
     sysMode();
@@ -631,7 +634,7 @@ $('#sys').onchange = ev=>{ if(ev.target.name==='net') sysMode(); };
 $('#sys').onsubmit = async ev=>{
   ev.preventDefault();
   if(sysField('net').value==='static' && !confirm(t('Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.'))) return;
-  const body = ['host','tz','net','ip','mask','gw','dns','tgtoken','tgchat'].map(k=>k+'='+encodeURIComponent(sysField(k).value.trim())).join('&');
+  const body = ['host','lang','tz','net','ip','mask','gw','dns','tgtoken','tgchat'].map(k=>k+'='+encodeURIComponent(sysField(k).value.trim())).join('&');
   try{ const r = await post('sys_set', body); toast(r.msg); loadSys(); }catch(e){ toast(t('Non enregistré : {0}', e.message)); }
 };
 $('#tgtest').onclick = async ev=>{

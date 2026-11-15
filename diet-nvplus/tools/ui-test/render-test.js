@@ -68,7 +68,7 @@ for (const f of process.argv.slice(3)) {
   const body = html.split('<body>')[1].split('<script>')[0];
   for (const m of body.matchAll(/>([^<>]+)</g)) { const k = m[1].trim().replace(/\s+/g, ' '); if (/[a-zà-ÿ]{3}/i.test(k)) keys.add(k); }
   for (const m of body.matchAll(/(?:placeholder|title|data-q)="([^"]+)"/g)) keys.add(m[1]);
-  const same = new Set(['NAS', 'CPU', 'Samba smbd', 'Samba nmbd', 'SMART OK']);
+  const same = new Set(['NAS', 'CPU', 'Samba smbd', 'Samba nmbd', 'SMART OK', 'Français', 'Deutsch', 'English']);
   const missing = [...keys].filter(k => !same.has(k) && !I18N[k]);
   const bad2 = Object.entries(I18N).filter(([k, v]) => v.length !== 2 || v.some(x => !x) ||
     v.some(x => (x.match(/\{\d\}/g) || []).sort().join() !== (k.match(/\{\d\}/g) || []).sort().join()));

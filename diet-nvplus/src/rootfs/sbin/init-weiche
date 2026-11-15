@@ -6,24 +6,27 @@
 #   - eine Add-on-Installation wartet (/tmp/addons/*/install.sh, einmal pro Paketstand), oder
 #   - /diet/sbin/init fehlt.
 if [ $$ -eq 1 ]; then
+  # Sprache der Meldungen in /diet-boot.log: wie DIET (/diet/etc/diet-lang), sonst Englisch
+  L=`cat /diet/etc/diet-lang 2>/dev/null`
+  tx() { case "$L" in fr) echo "$1" ;; de) echo "$2" ;; *) echo "$3" ;; esac; }
   MODE=diet; R=""
-  if [ -f /.raidiator_once ]; then rm -f /.raidiator_once; MODE=raidiator; R="angefordert"; fi
-  if [ -f /.diet_pending ]; then rm -f /.diet_pending; MODE=raidiator; R="letzter DIET-Start unvollstaendig"; fi
+  if [ -f /.raidiator_once ]; then rm -f /.raidiator_once; MODE=raidiator; R=`tx "demandé" "angefordert" "requested"`; fi
+  if [ -f /.diet_pending ]; then rm -f /.diet_pending; MODE=raidiator; R=`tx "dernier démarrage de DIET incomplet" "letzter DIET-Start unvollstaendig" "last DIET boot incomplete"`; fi
   # wartende Add-on-Installation (RAIDiator installiert sie beim Start in rc3) -> einmal RAIDiator
   P=`ls -l /tmp/addons/*/install.sh 2>/dev/null | tr -s ' \n' ' '`
   if [ -n "$P" ] && [ "$P" != "`cat /.diet_addons_seen 2>/dev/null`" ]; then
-    echo "$P" > /.diet_addons_seen; MODE=raidiator; R="Add-on wartet: `ls /tmp/addons | tr '\n' ' '`"
+    echo "$P" > /.diet_addons_seen; MODE=raidiator; R="`tx "module en attente :" "Add-on wartet:" "add-on waiting:"` `ls /tmp/addons | tr '\n' ' '`"
   fi
   [ -n "$P" ] || rm -f /.diet_addons_seen
-  [ -x /diet/sbin/init ] || { MODE=raidiator; R="/diet fehlt"; }
+  [ -x /diet/sbin/init ] || { MODE=raidiator; R=`tx "/diet absent" "/diet fehlt" "/diet missing"`; }
   if [ "$MODE" = "diet" ]; then
-    echo "`date` starte DIET" >> /diet-boot.log
+    echo "`date` `tx "démarrage de DIET" "starte DIET" "starting DIET"`" >> /diet-boot.log
     : > /.diet_pending
     umount /initrd 2>/dev/null && [ -x /sbin/blockdev ] && /sbin/blockdev --flushbufs /dev/ram0
     mount --bind /dev /diet/dev
     mkdir -p /diet/mnt/root && mount --bind / /diet/mnt/root
     exec /usr/sbin/chroot /diet /sbin/init
   fi
-  echo "`date` starte RAIDiator ($R)" >> /diet-boot.log
+  echo "`date` `tx "démarrage de RAIDiator" "starte RAIDiator" "starting RAIDiator"` ($R)" >> /diet-boot.log
 fi
 exec /sbin/init.real "$@"

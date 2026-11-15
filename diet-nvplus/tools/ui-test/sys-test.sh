@@ -25,7 +25,7 @@ check() { if echo "$out" | grep -qE -- "$2"; then ok "$1"; else ko "$1" "$out"; 
 TZP='CET-1CEST%2CM3.5.0%2CM10.5.0%2F3'
 BASE="host=nas-test&tz=$TZP&net=dhcp&ip=&mask=&gw=&dns=&tgtoken=&tgchat="
 
-out=$(get); check "lecture des réglages" '"host":"nas-test","tz":"PST8PDT,M3.2.0,M11.1.0","net":"dhcp"'
+out=$(get); check "lecture des réglages" '"host":"nas-test","lang":"en","tz":"PST8PDT,M3.2.0,M11.1.0","net":"dhcp"'
 echo "$out" | python3 -I -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null && ok "lecture : JSON valide" || ko "JSON" "$out"
             check "lecture : le jeton n'est jamais renvoyé" '"tgset":0,"tgchat":""'
 out=$(post sys_set "$BASE");                         check "enregistrement du fuseau" 'Enregistré'
@@ -62,4 +62,11 @@ out=$(post notify_test "");                                        check "échec
                                                                    check "raison lisible" '401 Unauthorized'
 out=$(post sys_set "host=mon-nas&tz=$TZP&net=dhcp&tgtoken=&tgchat=");          check "désactivation" 'Enregistré'
 [ ! -e "$T/etc/diet-notify.conf" ] && ok "identifiant vide = notifications désactivées" || ko "conf restante" "-"
+out=$(post sys_set "host=mon-nas&lang=de&tz=$TZP&net=dhcp&tgchat=");           check "langue du système enregistrée" 'Enregistré'
+[ "$(cat "$T/etc/diet-lang")" = de ] && ok "fichier de langue écrit" || ko "diet-lang" "$(cat "$T/etc/diet-lang" 2>&1)"
+out=$(get);                                                        check "langue du système relue" '"lang":"de"'
+out=$(post sys_set "host=mon-nas&tz=$TZP&net=dhcp&tgchat=");                   check "sans langue indiquée, la langue reste" 'Enregistré'
+[ "$(cat "$T/etc/diet-lang")" = de ] && ok "langue inchangée" || ko "diet-lang" "$(cat "$T/etc/diet-lang")"
+out=$(post sys_set "host=mon-nas&lang=it&tz=$TZP&net=dhcp&tgchat=");           check "langue inconnue refusée" '^HTTP/1.1 400'
+out=$(post sys_set "host=mon-nas&lang=de%3Breboot&tz=$TZP&net=dhcp&tgchat="); check "injection dans la langue refusée" '^HTTP/1.1 400'
 [ "$fails" = 0 ] && echo "Tout passe." || { echo "$fails échec(s)"; exit 1; }
