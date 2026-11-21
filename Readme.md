@@ -5,6 +5,12 @@ This repository contains information, binaries, scripts regarding the readynas d
 
 Qemu image of readynas <https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841> (dev version)
 
+## Licence
+
+Original project code and documentation are available under the [MIT License](LICENSE).
+Bundled third-party binaries, headers, source code, and quoted or copied material
+retain their respective owners' licences and are not relicensed by this file.
+
 ## DIET for the ReadyNAS NV+ v1 (own userland as RAIDiator add-on)
 
 A small modern userland (busybox, dropbear, Samba 3.6 with SMB2, rsync 3.4, fan/LCD/power-button control,
