@@ -3,11 +3,12 @@
 # Hilfsprogramme (portmap, mountd, statd, exportfs) aus dem RAIDiator-System unter /mnt/root.
 # Aufruf: diet-nfs start | stop | status
 R=/mnt/root
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
 case "$1" in
   start)
-    [ -s /etc/exports ] || { echo "/etc/exports fehlt"; exit 1; }
-    [ -x $R/usr/sbin/rpc.nfsd ] || { echo "NFS-Programme von RAIDiator fehlen"; exit 1; }
-    grep -q " $R " /proc/mounts || { echo "$R nicht eingehaengt"; exit 1; }
+    [ -s /etc/exports ] || { echo "$(tx "/etc/exports manquant" "/etc/exports fehlt" "/etc/exports missing")"; exit 1; }
+    [ -x $R/usr/sbin/rpc.nfsd ] || { echo "$(tx "programmes NFS de RAIDiator manquants" "NFS-Programme von RAIDiator fehlen" "RAIDiator NFS programs missing")"; exit 1; }
+    grep -q " $R " /proc/mounts || { echo "$(tx "$R non monté" "$R nicht eingehängt" "$R not mounted")"; exit 1; }
     grep -q " $R/proc " /proc/mounts || mount -t proc proc $R/proc
     grep -q " $R/c " /proc/mounts || mount --bind /c $R/c
     mkdir -p $R/var/lib/nfs
@@ -18,16 +19,16 @@ case "$1" in
     pidof rpc.statd >/dev/null || chroot $R /sbin/rpc.statd -p 32765 -o 32766
     chroot $R /usr/sbin/rpc.nfsd 4
     pidof rpc.mountd >/dev/null || chroot $R /usr/sbin/rpc.mountd -p 32767
-    echo "NFS laeuft:"; chroot $R /usr/sbin/exportfs -v ;;
+    echo "$(tx "NFS actif :" "NFS läuft:" "NFS running:")"; chroot $R /usr/sbin/exportfs -v ;;
   stop)
     chroot $R /usr/sbin/rpc.nfsd 0 2>/dev/null
     killall rpc.mountd rpc.statd portmap 2>/dev/null
     chroot $R /usr/sbin/exportfs -ua 2>/dev/null
     sleep 1
     umount $R/proc/fs/nfsd 2>/dev/null; umount $R/c 2>/dev/null; umount $R/proc 2>/dev/null
-    echo "NFS gestoppt" ;;
+    echo "$(tx "NFS arrêté" "NFS gestoppt" "NFS stopped")" ;;
   status)
-    for p in portmap rpc.statd rpc.mountd nfsd; do printf "%-11s " $p; pidof $p >/dev/null && echo laeuft || echo aus; done
+    for p in portmap rpc.statd rpc.mountd nfsd; do printf "%-11s " $p; pidof $p >/dev/null && echo "$(tx "actif" "läuft" "running")" || echo "$(tx "arrêté" "aus" "stopped")"; done
     chroot $R /usr/sbin/exportfs -v 2>/dev/null ;;
-  *) echo "Aufruf: diet-nfs start|stop|status"; exit 1 ;;
+  *) echo "$(tx "Usage : diet-nfs start|stop|status" "Aufruf: diet-nfs start|stop|status" "Usage: diet-nfs start|stop|status")"; exit 1 ;;
 esac

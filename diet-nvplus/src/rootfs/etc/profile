@@ -1,3 +1,5 @@
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PS1='[diet] \h:\w\$ '
 alias ll='ls -la'
+# Zeitzone auch in SSH-Sitzungen (rcS setzt sie nur fuer die Dienste)
+[ -r /etc/TZ ] && export TZ=$(cat /etc/TZ)

@@ -1,7 +1,8 @@
 #!/bin/sh
 # DIET Web-API (CGI fuer busybox httpd)
-#   GET  ?a=status | config | log&f=boot|hotplug|dmesg|smbd|nmbd | smart&d=hdc
-#   POST ?a=lcd|spindown|samba|reboot|poweroff|raidiator|config  (nur mit Header X-Diet: 1)
+#   GET  ?a=status | config | hist | log&f=boot|hotplug|dmesg|smbd|nmbd | smart&d=hdc
+#   GET  ?a=shares | users | sys
+#   POST ?a=lcd|spindown|samba|reboot|poweroff|raidiator|config|share_add|share_del|share_set|user_set|user_del|sys_set|notify_test  (nur mit Header X-Diet: 1)
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 CONF=/etc/diet.conf
 KEYS="SPINDOWN_MIN FAN_PWM_MIN FAN_PWM_MAX TEMP_LOW TEMP_HIGH TEMP_CRIT DISK_HIGH DISK_CRIT LCD_TIMEOUT"
@@ -11,6 +12,9 @@ hdr() { printf 'Content-Type: %s\r\nCache-Control: no-store\r\nX-Content-Type-Op
 fail() { printf 'HTTP/1.1 %s\r\n' "$1"; hdr 'text/plain; charset=utf-8'; echo "$2"; exit 0; }
 ok() { hdr application/json; echo "{\"ok\":true,\"msg\":\"$1\"}"; }
 qp() { echo "&$QUERY_STRING&" | sed -n "s/.*&$1=\([A-Za-z0-9_]*\)&.*/\1/p"; }
+# Sprache der Meldungen: ?l=fr|de|en (setzt die Oberflaeche), sonst Englisch. tx "fr" "de" "en"
+case "$(echo "&$QUERY_STRING&" | sed -n 's/.*&l=\([a-z]*\)&.*/\1/p')" in fr) L=fr;; de) L=de;; *) L=en;; esac
+tx() { case $L in fr) printf '%s' "$1";; de) printf '%s' "$2";; *) printf '%s' "$3";; esac; }
 esc() { sed 's/\\/\\\\/g; s/"/\\"/g'; }
 bg() { setsid sh -c "$1" </dev/null >/dev/null 2>&1 & }
 
@@ -21,7 +25,11 @@ status() {
   read VER < /etc/diet-version 2>/dev/null
   temp=; fan=; pwm=; disks=
   [ -r /var/run/hwmon.status ] && . /var/run/hwmon.status
-  BL=0; [ -r /proc/sys/dev/lcd/backlight ] && read BL < /proc/sys/dev/lcd/backlight
+  BL=0; HASLCD=0; [ -r /proc/sys/dev/lcd/backlight ] && { HASLCD=1; read BL < /proc/sys/dev/lcd/backlight; }
+  # Modell und Zahl der Schaechte aus den Boot-Infos (Duo v1: 2, NV+: 4)
+  MODEL=$(awk '$1=="model:"{sub(/^[^ \t]+[ \t]+/,""); print}' /proc/sys/dev/boot/info 2>/dev/null | esc)
+  BAYS=$(awk '$1=="max_chan:"{print $2}' /proc/sys/dev/boot/info 2>/dev/null | tr -cd 0-9); BAYS=${BAYS:-4}
+  XR=""; [ -r /proc/xraid/configuration ] && XR=/proc/xraid/configuration
   IP=$(ifconfig eth0 2>/dev/null | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
   ALARM=""; [ -s /var/run/disk_alarm ] && ALARM=$(tail -1 /var/run/disk_alarm | esc)
   SVC=""
@@ -34,19 +42,32 @@ status() {
   for d in $DISKS; do
     read M < /proc/ide/$d/model; read C < /proc/ide/$d/capacity
     t=$(echo " $disks " | sed -n "s/.* $d:\([^ ]*\).*/\1/p")
-    DSK="$DSK{\"dev\":\"$d\",\"model\":\"$(echo $M | esc)\",\"gb\":$((C / 1953125)),\"temp\":\"$t\"},"
+    x=""; [ -n "$XR" ] && x=$(sed -n "s/^PHYSICAL_DRIVE:.*device=$d,.*state=\([^,]*\),.*/\1/p" $XR)
+    SM=null; health=""; realloc=0; pending=0; uncorr=0; hours=0
+    if [ -r /var/run/smart.$d ]; then . /var/run/smart.$d
+      SM="{\"health\":\"$health\",\"realloc\":$realloc,\"pending\":$pending,\"uncorr\":$uncorr,\"hours\":$hours}"; fi
+    DSK="$DSK{\"dev\":\"$d\",\"model\":\"$(echo $M | esc)\",\"gb\":$((C / 1953125)),\"temp\":\"$t\",\"raid\":\"$x\",\"smart\":$SM},"
   done
   hdr application/json
-  printf '{"host":"%s","ver":"%s","ip":"%s","uptime":%s,"load":[%s,%s,%s],' "$H" "$VER" "$IP" "${UP%.*}" "$L1" "$L5" "$L15"
+  printf '{"host":"%s","ver":"%s","model":"%s","bays":%s,"haslcd":%s,"ip":"%s","uptime":%s,"load":[%s,%s,%s],' "$H" "$VER" "$MODEL" "$BAYS" "$HASLCD" "$IP" "${UP%.*}" "$L1" "$L5" "$L15"
   printf '"temp":%s,"fan":%s,"pwm":%s,"lcd":%s,"alarm":"%s","svc":{%s},"disks":[%s],' \
     "${temp:-null}" "${fan:-null}" "${pwm:-null}" "$BL" "$ALARM" "$SVC" "${DSK%,}"
   # RAM, /c, RAID, Zaehler (CPU, Netz, md2) in einem awk-Lauf
   df -P -k /c 2>/dev/null | tail -1 > /tmp/.df.$$
   awk '
+    function kv(s, k) { return match(s, "[:,]" k "=[^,]*") ? substr(s, RSTART+length(k)+2, RLENGTH-length(k)-2) : "" }
     FILENAME=="/proc/meminfo" { m[$1]=$2; next }
     FILENAME=="/proc/stat" && $1=="cpu" { busy=$2+$3+$4+$7+$8; tot=busy+$5+$6; next }
     FILENAME=="/proc/net/dev" && /eth0:/ { sub(/.*eth0:/,""); rx=$1; tx=$9; next }
     FILENAME=="/proc/diskstats" && $3=="md2" { rd=$6; wr=$10; next }
+    FILENAME=="/proc/diskstats" && $3=="dm-0" { rd0=$6; wr0=$10; next }
+    FILENAME ~ /xraid/ {
+      split($0, a, ":")
+      if (a[1]=="PHYSICAL_DRIVE") pst[a[2]+0]=kv($0, "state")
+      else if (a[1]=="LOGICAL_DRIVE") { xn++; xid[xn]=a[2]+0; xst[xn]=kv($0, "status"); xlv[xn]=kv($0, "raid_level"); xdm[xn]=kv($0, "dmap")+0 }
+      else if (a[1]=="RAID_REBUILD") { xsync=kv($0, "sync")+0; xlog=kv($0, "logical")+0; xsec=kv($0, "sectors")+0; xtot=kv($0, "total")+0 }
+      next
+    }
     FILENAME=="/proc/mdstat" {
       if ($0 ~ /^md[0-9]+ :/) { n++; name[n]=$1; st[n]=$3; lvl[n]=$4; next }
       if (n && match($0, /\[[U_]+\]/)) { map[n]=substr($0, RSTART+1, RLENGTH-2); next }
@@ -57,11 +78,19 @@ status() {
     END {
       printf "\"mem\":{\"total\":%d,\"free\":%d,\"buf\":%d,\"cache\":%d,\"swap\":%d},", m["MemTotal:"], m["MemFree:"], m["Buffers:"], m["Cached:"], m["SwapTotal:"]-m["SwapFree:"]
       printf "\"c\":{\"size\":%.0f,\"used\":%.0f,\"free\":%.0f},", csize, cused, cfree
+      if (rd+wr==0) { rd=rd0; wr=wr0 }   # X-RAID: md2 existiert, bleibt aber leer -> LVM-Volume
       printf "\"cnt\":{\"busy\":%.0f,\"tot\":%.0f,\"rx\":%.0f,\"tx\":%.0f,\"rd\":%.0f,\"wr\":%.0f},", busy, tot, rx, tx, rd, wr
       printf "\"md\":["
       for (i=1; i<=n; i++) printf "%s{\"name\":\"%s\",\"state\":\"%s\",\"level\":\"%s\",\"map\":\"%s\",\"sync\":\"%s\"}", (i>1?",":""), name[i], st[i], lvl[i], map[i], sy[i]
+      # X-RAID (Duo v1): logische Laufwerke im selben Format wie md; map = Zustand der beteiligten Platten
+      sep = n ? "," : ""
+      for (i=1; i<=xn; i++) {
+        xm=""; for (b=0; b<8; b++) if (int(xdm[i]/(2^b))%2) xm = xm (pst[b]=="online" ? "U" : "_")
+        xsy=""; if (xsync && xlog==xid[i]) xsy = (xtot>0 && xtot<4294967295) ? sprintf("%.1f %%", 100*xsec/xtot) : "?"
+        printf "%s{\"name\":\"xraid%d\",\"state\":\"%s\",\"level\":\"raid%s\",\"map\":\"%s\",\"sync\":\"%s\"}", sep, xid[i], xst[i], xlv[i], xm, xsy; sep=","
+      }
       printf "]}\n"
-    }' /proc/meminfo /proc/stat /proc/net/dev /proc/diskstats /proc/mdstat /tmp/.df.$$
+    }' /proc/meminfo /proc/stat /proc/net/dev /proc/diskstats /proc/mdstat $XR /tmp/.df.$$
   rm -f /tmp/.df.$$
 }
 
@@ -77,17 +106,17 @@ config_set() {
   for kv in $(echo "$BODY" | tr '&' ' '); do
     k=${kv%%=*}; v=${kv#*=}
     case " $KEYS " in *" $k "*) ;; *) continue;; esac
-    case "$v" in ''|*[!0-9]*) fail "400 Bad Request" "$k: keine ganze Zahl";; esac
-    [ ${#v} -le 5 ] || fail "400 Bad Request" "$k: zu gross"
+    case "$v" in ''|*[!0-9]*) fail "400 Bad Request" "$(tx "$k : pas un nombre entier" "$k: keine ganze Zahl" "$k: not a whole number")";; esac
+    [ ${#v} -le 5 ] || fail "400 Bad Request" "$(tx "$k : trop grand" "$k: zu groß" "$k: too large")"
     eval "$k=$v"; GOT=$((GOT + 1))
   done
-  [ $GOT -gt 0 ] || fail "400 Bad Request" "keine Werte erhalten"
-  [ $FAN_PWM_MIN -le $FAN_PWM_MAX ] && [ $FAN_PWM_MAX -le 255 ] || fail "400 Bad Request" "Luefter: 0 <= Min <= Max <= 255"
-  [ $FAN_PWM_MIN -ge 20 ] || fail "400 Bad Request" "Luefter-Minimum unter 20 ist zu riskant"
-  [ $TEMP_LOW -ge 20 ] && [ $TEMP_LOW -lt $TEMP_HIGH ] && [ $TEMP_HIGH -lt $TEMP_CRIT ] && [ $TEMP_CRIT -le 75 ] || fail "400 Bad Request" "Board: 20 <= Ruhig < Voll < Notaus <= 75"
-  [ $DISK_HIGH -ge 30 ] && [ $DISK_HIGH -lt $DISK_CRIT ] && [ $DISK_CRIT -le 70 ] || fail "400 Bad Request" "Platten: 30 <= Voll < Notaus <= 70"
-  [ $SPINDOWN_MIN -le 330 ] || fail "400 Bad Request" "Standby: 0..330 Minuten"
-  [ $LCD_TIMEOUT -le 86400 ] || fail "400 Bad Request" "Display: 0..86400 Sekunden"
+  [ $GOT -gt 0 ] || fail "400 Bad Request" "$(tx "aucune valeur reçue" "keine Werte erhalten" "no values received")"
+  [ $FAN_PWM_MIN -le $FAN_PWM_MAX ] && [ $FAN_PWM_MAX -le 255 ] || fail "400 Bad Request" "$(tx "Ventilateur : 0 <= min <= max <= 255" "Lüfter: 0 <= Min <= Max <= 255" "Fan: 0 <= min <= max <= 255")"
+  [ $FAN_PWM_MIN -ge 20 ] || fail "400 Bad Request" "$(tx "Un minimum de ventilateur sous 20 est trop risqué" "Lüfter-Minimum unter 20 ist zu riskant" "A fan minimum below 20 is too risky")"
+  [ $TEMP_LOW -ge 20 ] && [ $TEMP_LOW -lt $TEMP_HIGH ] && [ $TEMP_HIGH -lt $TEMP_CRIT ] && [ $TEMP_CRIT -le 75 ] || fail "400 Bad Request" "$(tx "Carte : 20 <= minimal < pleine vitesse < arrêt d’urgence <= 75" "Board: 20 <= Ruhig < Voll < Notaus <= 75" "Board: 20 <= minimum < full speed < emergency shutdown <= 75")"
+  [ $DISK_HIGH -ge 30 ] && [ $DISK_HIGH -lt $DISK_CRIT ] && [ $DISK_CRIT -le 70 ] || fail "400 Bad Request" "$(tx "Disques : 30 <= pleine vitesse < arrêt d’urgence <= 70" "Platten: 30 <= Voll < Notaus <= 70" "Disks: 30 <= full speed < emergency shutdown <= 70")"
+  [ $SPINDOWN_MIN -le 330 ] || fail "400 Bad Request" "$(tx "Veille : 0..330 minutes" "Standby: 0..330 Minuten" "Spin-down: 0..330 minutes")"
+  [ $LCD_TIMEOUT -le 86400 ] || fail "400 Bad Request" "$(tx "Écran : 0..86400 secondes" "Display: 0..86400 Sekunden" "Display: 0..86400 seconds")"
   cp $CONF $CONF.tmp
   for k in $KEYS; do eval "v=\$$k"; sed -i "s/^$k=[0-9]*/$k=$v/" $CONF.tmp; done
   mv $CONF.tmp $CONF
@@ -96,34 +125,263 @@ config_set() {
   for d in $DISKS; do hdparm -S $S /dev/$d >/dev/null 2>&1; done
   killall diet-hwmon 2>/dev/null
   bg /sbin/diet-hwmon
-  echo "[$(cut -d' ' -f1 /proc/uptime)] Einstellungen ueber Web geaendert ($REMOTE_ADDR)" >> /var/log/boot.log
-  ok "Gespeichert und angewendet"
+  echo "[$(cut -d' ' -f1 /proc/uptime)] Réglages modifiés depuis l’interface web ($REMOTE_ADDR)" >> /var/log/boot.log
+  ok "$(tx "Enregistré et appliqué" "Gespeichert und angewendet" "Saved and applied")"
+}
+
+# --- Freigaben (Samba) -------------------------------------------------------
+# DIET_SHARES / DIET_DATA nur fuer Tests ausserhalb des NAS (httpd setzt sie nie).
+SHARES=${DIET_SHARES:-/etc/samba/shares.conf}
+DATA=${DIET_DATA:-/c}
+shdr() { awk -v n="[$1]" '{ l=tolower($0); sub(/[ \t]+$/, "", l) } l==n { print 1; exit }' $SHARES 2>/dev/null; }
+
+shares_get() {
+  hdr application/json
+  # Samba: ohne Angabe ist eine Freigabe schreibgeschuetzt und nur mit Anmeldung erreichbar
+  awk '
+    function yes(v) { return tolower(v) ~ /^(1|yes|true)$/ }
+    function flush() { if (name != "") print name "|" path "|" ro "|" guest }
+    /^[ \t]*[#;]/ { next }
+    /^\[/ { flush(); name=substr($0, 2, index($0, "]")-2); path=""; ro=1; guest=0; next }
+    index($0, "=") {
+      k=tolower(substr($0, 1, index($0, "=")-1)); gsub(/^[ \t]+|[ \t]+$/, "", k)
+      v=substr($0, index($0, "=")+1); gsub(/^[ \t"]+|[ \t"]+$/, "", v)
+      if (k=="path") path=v
+      else if (k=="writeable" || k=="writable" || k=="write ok") ro=!yes(v)
+      else if (k=="read only") ro=yes(v)
+      else if (k=="guest ok" || k=="public") guest=yes(v)
+    }
+    END { flush() }' $SHARES 2>/dev/null | {
+    printf '['; sep=""
+    while IFS='|' read -r n p r g; do
+      [ -d "$p" ] && e=1 || e=0
+      printf '%s{"name":"%s","path":"%s","ro":%d,"guest":%d,"exists":%d}' "$sep" "$(echo "$n" | esc)" "$(echo "$p" | esc)" "$r" "$g" "$e"; sep=","
+    done
+    echo ']'
+  }
+}
+
+shares_change() {
+  name=""; ro=""; guest=""
+  for kv in $(echo "$BODY" | tr '&' ' '); do
+    k=${kv%%=*}; v=${kv#*=}
+    case "$k" in name|ro|guest) ;; *) continue;; esac
+    case "$v" in ''|*[!A-Za-z0-9_-]*) fail "400 Bad Request" "$(tx "Valeur invalide : lettres, chiffres, - et _ uniquement" "Ungültiger Wert: nur Buchstaben, Ziffern, - und _" "Invalid value: letters, digits, - and _ only")";; esac
+    eval "$k=\$v"
+  done
+  case "$name" in ''|-*) fail "400 Bad Request" "$(tx "Nom de partage invalide" "Ungültiger Freigabename" "Invalid share name")";; esac
+  [ ${#name} -le 32 ] || fail "400 Bad Request" "$(tx "Nom de partage trop long (32 caractères au plus)" "Freigabename zu lang (höchstens 32 Zeichen)" "Share name too long (32 characters max.)")"
+  lname=$(echo "$name" | tr 'A-Z' 'a-z')
+  case "$lname" in global|homes|printers|home|lost-found|aquota*) fail "400 Bad Request" "$(tx "Ce nom est réservé" "Dieser Name ist reserviert" "This name is reserved")";; esac
+  [ -f $SHARES ] || : > $SHARES
+  have=$(shdr "$lname")
+  case "$1" in
+    share_add)
+      [ -z "$have" ] || fail "409 Conflict" "$(tx "Le partage $name existe déjà" "Die Freigabe $name gibt es schon" "The share $name already exists")"
+      [ -n "$DIET_DATA" ] || grep -q " $DATA " /proc/mounts || fail "500 Internal Server Error" "$(tx "Le volume de données n’est pas monté" "Das Datenvolume ist nicht eingehängt" "The data volume is not mounted")"
+      if [ ! -d "$DATA/$name" ]; then
+        mkdir "$DATA/$name" || fail "500 Internal Server Error" "$(tx "Impossible de créer $DATA/$name" "$DATA/$name kann nicht angelegt werden" "Cannot create $DATA/$name")"
+        chown nobody:nogroup "$DATA/$name" 2>/dev/null; chmod 1777 "$DATA/$name"
+      fi
+      cp $SHARES $SHARES.bak
+      printf '\n[%s]\n  path = %s\n  force create mode = 0666\n  create mask = 0666\n  force directory mode = 1777\n  directory mask = 1777\n  writeable = 1\n  guest ok = 1\n' "$name" "$DATA/$name" >> $SHARES
+      MSG="$(tx "Partage $name créé" "Freigabe $name angelegt" "Share $name created")" ;;
+    share_del)
+      [ -n "$have" ] || fail "404 Not Found" "$(tx "Partage $name introuvable" "Freigabe $name nicht gefunden" "Share $name not found")"
+      awk -v n="[$lname]" '/^\[/ { l=tolower($0); sub(/[ \t]+$/, "", l); skip=(l==n) } !skip' $SHARES > $SHARES.tmp || fail "500 Internal Server Error" "$(tx "Écriture impossible" "Schreiben nicht möglich" "Cannot write")"
+      cp $SHARES $SHARES.bak; mv $SHARES.tmp $SHARES
+      MSG="$(tx "Partage $name retiré (le dossier et son contenu sont conservés)" "Freigabe $name entfernt (Ordner und Inhalt bleiben erhalten)" "Share $name removed (the folder and its contents are kept)")" ;;
+    share_set)
+      [ -n "$have" ] || fail "404 Not Found" "$(tx "Partage $name introuvable" "Freigabe $name nicht gefunden" "Share $name not found")"
+      case "$ro$guest" in 00|01|10|11) ;; *) fail "400 Bad Request" "$(tx "Réglage invalide" "Ungültige Einstellung" "Invalid setting")";; esac
+      awk -v n="[$lname]" -v w=$((1 - ro)) -v g="$guest" '
+        /^\[/ { l=tolower($0); sub(/[ \t]+$/, "", l); insec=(l==n); print; if (insec) { print "  writeable = " w; print "  guest ok = " g } next }
+        insec { k=tolower(substr($0, 1, index($0, "=")-1)); gsub(/^[ \t]+|[ \t]+$/, "", k)
+                if (k=="writeable" || k=="writable" || k=="write ok" || k=="read only" || k=="guest ok" || k=="public") next }
+        { print }' $SHARES > $SHARES.tmp || fail "500 Internal Server Error" "$(tx "Écriture impossible" "Schreiben nicht möglich" "Cannot write")"
+      cp $SHARES $SHARES.bak; mv $SHARES.tmp $SHARES
+      MSG="$(tx "Partage $name mis à jour" "Freigabe $name geändert" "Share $name updated")" ;;
+  esac
+  [ -n "$DIET_SHARES" ] || killall -HUP smbd 2>/dev/null   # Samba liest die Konfiguration neu ein
+  note "$MSG"; ok "$MSG"
+}
+
+# --- Benutzer (Samba) --------------------------------------------------------
+# DIET_PASSWD / DIET_SMBPW / DIET_SMBPASSWD nur fuer Tests ausserhalb des NAS.
+PASSWD=${DIET_PASSWD:-/etc/passwd}
+SMBPW=${DIET_SMBPW:-/etc/samba/smbpasswd}
+SMBPASSWD=${DIET_SMBPASSWD:-smbpasswd}
+note() { [ -n "$DIET_SHARES$DIET_PASSWD" ] || echo "[$(cut -d' ' -f1 /proc/uptime)] $1 ($REMOTE_ADDR)" >> /var/log/boot.log; }
+
+users_get() {
+  hdr application/json
+  # Benutzer von RAIDiator/DIET: uid 98 (admin) und 1000..65533; smb=1, wenn ein Samba-Passwort existiert
+  awk -F: 'FILENAME==ARGV[1] { if ($1 !~ /^#/ && $1 != "") smb[$1]=1; next }
+    ($3==98 || ($3>=1000 && $3<65534)) { printf "%s{\"name\":\"%s\",\"uid\":%d,\"smb\":%d}", sep, $1, $3, ($1 in smb); sep="," }
+    BEGIN { printf "[" } END { print "]" }' $SMBPW $PASSWD 2>/dev/null
+}
+
+users_change() {
+  set -f   # Passwoerter duerfen * ? [ enthalten
+  name=""; pw=""
+  for kv in $(echo "$BODY" | tr '&' ' '); do
+    k=${kv%%=*}; v=${kv#*=}
+    case "$k" in
+      name) case "$v" in ''|-*|*[!A-Za-z0-9_-]*) fail "400 Bad Request" "$(tx "Nom d’utilisateur invalide : lettres, chiffres, - et _ uniquement" "Ungültiger Benutzername: nur Buchstaben, Ziffern, - und _" "Invalid user name: letters, digits, - and _ only")";; esac; name=$v ;;
+      pw)   pw=$(httpd -d "$v") ;;
+    esac
+  done
+  [ -n "$name" ] && [ ${#name} -le 31 ] || fail "400 Bad Request" "$(tx "Nom d’utilisateur invalide" "Ungültiger Benutzername" "Invalid user name")"
+  uid=$(awk -F: -v n="$name" '$1==n { print $3; exit }' $PASSWD)
+  case "$1" in
+    user_set)
+      [ ${#pw} -ge 6 ] || fail "400 Bad Request" "$(tx "Mot de passe trop court (6 caractères au moins)" "Passwort zu kurz (mindestens 6 Zeichen)" "Password too short (6 characters min.)")"
+      [ "$(printf '%s' "$pw" | wc -l)" -eq 0 ] || fail "400 Bad Request" "$(tx "Mot de passe invalide" "Ungültiges Passwort" "Invalid password")"
+      if [ -z "$uid" ]; then
+        case "$name" in [a-z]*) ;; *) fail "400 Bad Request" "$(tx "Un nouveau nom doit commencer par une minuscule" "Ein neuer Name muss mit einem Kleinbuchstaben beginnen" "A new name must start with a lowercase letter")";; esac
+        case "$name" in *[A-Z]*) fail "400 Bad Request" "$(tx "Un nouveau nom ne doit pas contenir de majuscules" "Ein neuer Name darf keine Großbuchstaben enthalten" "A new name must not contain uppercase letters")";; esac
+        uid=$(awk -F: '$3>=1000 && $3<65534 && $3>m { m=$3 } END { print (m ? m+1 : 1000) }' $PASSWD)
+        gid=$(awk -F: '$1=="users" { print $3; exit }' ${PASSWD%passwd}group 2>/dev/null); gid=${gid:-65534}
+        cp $PASSWD $PASSWD.bak
+        echo "$name:x:$uid:$gid::$DATA/home/$name:/bin/false" >> $PASSWD
+        NEW=1
+      elif [ "$uid" != 98 ] && { [ "$uid" -lt 1000 ] || [ "$uid" -ge 65534 ]; }; then
+        fail "403 Forbidden" "$(tx "$name est un compte système" "$name ist ein Systemkonto" "$name is a system account")"
+      fi
+      if ! printf '%s\n%s\n' "$pw" "$pw" | $SMBPASSWD -s -a "$name" >/dev/null 2>&1; then
+        [ -n "$NEW" ] && cp $PASSWD.bak $PASSWD
+        fail "500 Internal Server Error" "$(tx "smbpasswd a refusé le mot de passe de $name" "smbpasswd hat das Passwort von $name abgelehnt" "smbpasswd refused the password of $name")"
+      fi
+      [ -n "$NEW" ] && MSG="$(tx "Utilisateur $name créé" "Benutzer $name angelegt" "User $name created")" || MSG="$(tx "Mot de passe de $name modifié" "Passwort von $name geändert" "Password of $name changed")" ;;
+    user_del)
+      [ -n "$uid" ] || fail "404 Not Found" "$(tx "Utilisateur $name introuvable" "Benutzer $name nicht gefunden" "User $name not found")"
+      [ "$uid" -ge 1000 ] && [ "$uid" -lt 65534 ] || fail "403 Forbidden" "$(tx "$name est un compte système" "$name ist ein Systemkonto" "$name is a system account")"
+      $SMBPASSWD -x "$name" >/dev/null 2>&1
+      awk -F: -v n="$name" '$1 != n' $PASSWD > $PASSWD.tmp || fail "500 Internal Server Error" "$(tx "Écriture impossible" "Schreiben nicht möglich" "Cannot write")"
+      cp $PASSWD $PASSWD.bak; cat $PASSWD.tmp > $PASSWD; rm -f $PASSWD.tmp
+      MSG="$(tx "Utilisateur $name supprimé (ses fichiers sont conservés)" "Benutzer $name gelöscht (seine Dateien bleiben erhalten)" "User $name deleted (their files are kept)")" ;;
+  esac
+  note "$MSG"; ok "$MSG"
+}
+
+# --- Systemeinstellungen (Name, Zeitzone, Netz, Telegram) -----------------------
+# DIET_ETC / DIET_NOTIFY nur fuer Tests ausserhalb des NAS.
+ETC=${DIET_ETC:-/etc}
+NOTIFY=${DIET_NOTIFY:-/sbin/diet-notify}
+isip() { echo "$1" | awk -F. 'NF!=4 { exit 1 } { for (i=1; i<=4; i++) if ($i !~ /^[0-9]+$/ || $i > 255) exit 1 }'; }
+
+sys_get() {
+  NET=dhcp; IPADDR=""; NETMASK=""; GATEWAY=""; DNS=""; TG_TOKEN=""; TG_CHAT=""
+  [ -r $ETC/diet-net.conf ] && . $ETC/diet-net.conf
+  [ -r $ETC/diet-notify.conf ] && . $ETC/diet-notify.conf
+  # aktuelle Werte als Vorschlag, wenn (noch) nichts fest eingestellt ist
+  CIP=$(ifconfig eth0 2>/dev/null | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
+  CMASK=$(ifconfig eth0 2>/dev/null | sed -n 's/.*Mask:\([0-9.]*\).*/\1/p')
+  CGW=$(route -n 2>/dev/null | awk '$1=="0.0.0.0" { print $2; exit }')
+  CDNS=$(awk '$1=="nameserver" { printf "%s%s", s, $2; s=" " }' /etc/resolv.conf 2>/dev/null)
+  hdr application/json
+  SL=$(cat $ETC/diet-lang 2>/dev/null); case "$SL" in fr|de|en) ;; *) SL=en ;; esac
+  printf '{"host":"%s","lang":"%s","tz":"%s","net":"%s","ip":"%s","mask":"%s","gw":"%s","dns":"%s","tgset":%d,"tgchat":"%s"}\n' \
+    "$(cat $ETC/hostname 2>/dev/null | esc)" "$SL" "$(cat $ETC/TZ 2>/dev/null | esc)" "$NET" "${IPADDR:-$CIP}" "${NETMASK:-$CMASK}" \
+    "${GATEWAY:-$CGW}" "${DNS:-$CDNS}" "$([ -n "$TG_TOKEN" ] && echo 1 || echo 0)" "$TG_CHAT"
+}
+
+sys_set() {
+  set -f
+  host=""; lang=""; tz=""; net=""; ip=""; mask=""; gw=""; dns=""; tgtoken=""; tgchat=""
+  for kv in $(echo "$BODY" | tr '&' ' '); do
+    k=${kv%%=*}
+    case "$k" in host|lang|tz|net|ip|mask|gw|dns|tgtoken|tgchat) v=$(httpd -d "${kv#*=}"); eval "$k=\$v";; esac
+  done
+  case "$host" in ''|-*|*[!a-z0-9-]*) fail "400 Bad Request" "$(tx "Nom du NAS invalide : minuscules, chiffres et tirets" "Ungültiger NAS-Name: Kleinbuchstaben, Ziffern und Bindestriche" "Invalid NAS name: lowercase letters, digits and dashes")";; esac
+  [ ${#host} -le 15 ] || fail "400 Bad Request" "$(tx "Nom du NAS trop long (15 caractères au plus)" "NAS-Name zu lang (höchstens 15 Zeichen)" "NAS name too long (15 characters max.)")"
+  case "$lang" in ''|fr|de|en) ;; *) fail "400 Bad Request" "$(tx "Langue du système invalide" "Ungültige Systemsprache" "Invalid system language")";; esac
+  case "$tz" in ''|*[!A-Za-z0-9,./+:\<\>-]*) fail "400 Bad Request" "$(tx "Fuseau horaire invalide" "Ungültige Zeitzone" "Invalid time zone")";; esac
+  [ ${#tz} -le 60 ] || fail "400 Bad Request" "$(tx "Fuseau horaire invalide" "Ungültige Zeitzone" "Invalid time zone")"
+  case "$net" in
+    dhcp) ;;
+    static)
+      isip "$ip" || fail "400 Bad Request" "$(tx "Adresse IP invalide" "Ungültige IP-Adresse" "Invalid IP address")"
+      isip "$mask" || fail "400 Bad Request" "$(tx "Masque de sous-réseau invalide" "Ungültige Netzmaske" "Invalid netmask")"
+      [ -z "$gw" ] || isip "$gw" || fail "400 Bad Request" "$(tx "Passerelle invalide" "Ungültiges Gateway" "Invalid gateway")"
+      n=0; for d in $dns; do isip "$d" || fail "400 Bad Request" "$(tx "Serveur DNS invalide : $d" "Ungültiger DNS-Server: $d" "Invalid DNS server: $d")"; n=$((n + 1)); done
+      [ $n -le 3 ] || fail "400 Bad Request" "$(tx "Trois serveurs DNS au plus" "Höchstens drei DNS-Server" "Three DNS servers max.")" ;;
+    *) fail "400 Bad Request" "$(tx "Mode réseau invalide" "Ungültiger Netzwerkmodus" "Invalid network mode")" ;;
+  esac
+  case "$tgtoken" in '') ;; *[!A-Za-z0-9:_-]*|*:*:*) fail "400 Bad Request" "$(tx "Jeton Telegram invalide" "Ungültiges Telegram-Token" "Invalid Telegram token")";; [0-9]*:?*) ;; *) fail "400 Bad Request" "$(tx "Jeton Telegram invalide" "Ungültiges Telegram-Token" "Invalid Telegram token")";; esac
+  case "$tgchat" in '') ;; -) fail "400 Bad Request" "$(tx "Identifiant de discussion Telegram invalide" "Ungültige Telegram-Chat-ID" "Invalid Telegram chat ID")";; -*[!0-9]*|[!0-9-]*|[0-9]*[!0-9]*) fail "400 Bad Request" "$(tx "Identifiant de discussion Telegram invalide" "Ungültige Telegram-Chat-ID" "Invalid Telegram chat ID")";; esac
+
+  # Telegram: leere Chat-ID schaltet ab; leeres Token behaelt das gespeicherte
+  if [ -z "$tgchat" ]; then rm -f $ETC/diet-notify.conf
+  else
+    TG_TOKEN=""; [ -r $ETC/diet-notify.conf ] && . $ETC/diet-notify.conf
+    [ -n "$tgtoken" ] && TG_TOKEN=$tgtoken
+    [ -n "$TG_TOKEN" ] || fail "400 Bad Request" "$(tx "Jeton Telegram manquant" "Telegram-Token fehlt" "Telegram token missing")"
+    ( umask 077; printf 'TG_TOKEN=%s\nTG_CHAT=%s\n' "$TG_TOKEN" "$tgchat" > $ETC/diet-notify.conf )
+  fi
+  # Netz: gilt ab dem naechsten Start
+  if [ "$net" = static ]; then
+    printf 'NET=static\nIPADDR=%s\nNETMASK=%s\nGATEWAY=%s\nDNS="%s"\n' "$ip" "$mask" "$gw" "$dns" > $ETC/diet-net.conf
+  else
+    FALLBACK_IP=""; NETMASK=""; [ -r $ETC/diet-net.conf ] && . $ETC/diet-net.conf
+    [ -n "$FALLBACK_IP" ] || FALLBACK_IP=$(ifconfig eth0 2>/dev/null | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')
+    printf 'NET=dhcp\nFALLBACK_IP=%s\nNETMASK=%s\n' "$FALLBACK_IP" "${NETMASK:-255.255.255.0}" > $ETC/diet-net.conf
+  fi
+  echo "$tz" > $ETC/TZ
+  # Systemsprache: gilt sofort fuer neue Meldungen; die Ueberwachung liest sie beim Start
+  if [ -n "$lang" ] && [ "$lang" != "$(cat $ETC/diet-lang 2>/dev/null)" ]; then
+    echo "$lang" > $ETC/diet-lang
+    [ -n "$DIET_ETC" ] || { killall diet-hwmon 2>/dev/null; bg /sbin/diet-hwmon; }
+  fi
+  OLD=$(cat $ETC/hostname 2>/dev/null)
+  if [ "$host" != "$OLD" ]; then
+    echo "$host" > $ETC/hostname
+    sed -i "s/^\([ \t]*netbios name[ \t]*=\).*/\1 $(echo "$host" | tr 'a-z' 'A-Z')/" $ETC/samba/smb.conf 2>/dev/null
+    if [ -z "$DIET_ETC" ]; then   # Name sofort uebernehmen; Samba meldet sich unter dem neuen Namen
+      hostname -F /etc/hostname
+      killall smbd nmbd 2>/dev/null; sleep 1; nmbd -D </dev/null >/dev/null 2>&1; smbd -D </dev/null >/dev/null 2>&1
+    fi
+  fi
+  note "$(tx "Réglages système modifiés" "Systemeinstellungen geändert" "System settings changed")"
+  ok "$(tx "Enregistré. Le nom est appliqué tout de suite ; le fuseau horaire et le réseau au prochain redémarrage." "Gespeichert. Der Name gilt sofort, Zeitzone und Netzwerk ab dem nächsten Neustart." "Saved. The name applies now; the time zone and network at the next reboot.")"
+}
+
+notify_test() {
+  out=$($NOTIFY "message de test envoyé depuis l’interface web" 2>&1); rc=$?
+  [ $rc -eq 0 ] && { ok "$(tx "Notification envoyée" "Nachricht gesendet" "Notification sent")"; return; }
+  [ $rc -eq 2 ] && fail "400 Bad Request" "$(tx "Telegram n’est pas configuré : enregistrer d’abord le jeton et l’identifiant" "Telegram ist nicht eingerichtet: zuerst Token und Chat-ID speichern" "Telegram is not set up: save the token and chat ID first")"
+  fail "502 Bad Gateway" "$(tx "Échec de l’envoi" "Senden fehlgeschlagen" "Sending failed") : $(echo "$out" | tr -d '\r' | cut -c1-200)"
 }
 
 A=$(qp a)
 if [ "$REQUEST_METHOD" = "POST" ]; then
-  [ "$HTTP_X_DIET" = "1" ] || fail "403 Forbidden" "Aktion nur ueber die Oberflaeche"
+  [ "$HTTP_X_DIET" = "1" ] || fail "403 Forbidden" "$(tx "Action réservée à l’interface" "Aktion nur über die Oberfläche" "Action only through the web interface")"
   BODY=""; CL=${CONTENT_LENGTH:-0}
   case "$CL" in *[!0-9]*) CL=0;; esac
-  [ "$CL" -lt 4096 ] || fail "413 Request Entity Too Large" "zu viele Daten"
+  [ "$CL" -lt 4096 ] || fail "413 Request Entity Too Large" "$(tx "trop de données" "zu viele Daten" "too much data")"
   [ "$CL" -gt 0 ] && BODY=$(head -c "$CL")
-  [ ${#BODY} -eq "$CL" ] || fail "500 Internal Server Error" "Daten unvollstaendig angekommen, bitte nochmal"
+  [ ${#BODY} -eq "$CL" ] || fail "500 Internal Server Error" "$(tx "Données reçues incomplètes, réessayez" "Daten unvollständig angekommen, bitte nochmal" "Incomplete data received, please retry")"
   case "$A" in
     lcd)
+      [ -r /proc/sys/dev/lcd/backlight ] || fail "404 Not Found" "$(tx "Pas d’écran sur ce modèle" "Dieses Modell hat kein Display" "This model has no display")"
       read BL < /proc/sys/dev/lcd/backlight
-      if [ "$BL" = "1" ]; then echo 0 > /proc/sys/dev/lcd/backlight; ok "Display aus"
-      else echo 1 > /proc/sys/dev/lcd/backlight; cut -d. -f1 /proc/uptime > /var/run/lcd_on; ok "Display an"; fi ;;
+      if [ "$BL" = "1" ]; then echo 0 > /proc/sys/dev/lcd/backlight; ok "$(tx "Écran éteint" "Display aus" "Display off")"
+      else echo 1 > /proc/sys/dev/lcd/backlight; cut -d. -f1 /proc/uptime > /var/run/lcd_on; ok "$(tx "Écran allumé" "Display an" "Display on")"; fi ;;
     spindown)
-      for d in $DISKS; do hdparm -y /dev/$d >/dev/null 2>&1; done; ok "Platten schlafen" ;;
+      for d in $DISKS; do hdparm -y /dev/$d >/dev/null 2>&1; done; ok "$(tx "Disques en veille" "Platten schlafen" "Disks spun down")" ;;
     samba)
       killall smbd nmbd 2>/dev/null; sleep 1
       nmbd -D </dev/null >/dev/null 2>&1; smbd -D </dev/null >/dev/null 2>&1
-      sleep 1; pidof smbd >/dev/null && ok "Samba neu gestartet" || fail "500 Internal Server Error" "smbd startet nicht" ;;
-    reboot)    ok "Neustart";            bg "sleep 2; reboot" ;;
-    poweroff)  ok "Ausschalten";         bg ": > /var/run/poweroff; sleep 2; poweroff" ;;
-    raidiator) ok "Neustart in RAIDiator"; bg "sleep 2; /sbin/zu-raidiator" ;;
+      sleep 1; pidof smbd >/dev/null && ok "$(tx "Samba redémarré" "Samba neu gestartet" "Samba restarted")" || fail "500 Internal Server Error" "$(tx "smbd ne démarre pas" "smbd startet nicht" "smbd does not start")" ;;
+    reboot)    ok "$(tx "Redémarrage" "Neustart" "Restarting")";          bg "sleep 2; reboot" ;;
+    poweroff)  ok "$(tx "Extinction" "Ausschalten" "Powering off")";       bg ": > /var/run/poweroff; sleep 2; poweroff" ;;
+    raidiator) ok "$(tx "Redémarrage sous RAIDiator" "Neustart in RAIDiator" "Restarting into RAIDiator")"; bg "sleep 2; /sbin/zu-raidiator" ;;
     config)    config_set ;;
-    *) fail "400 Bad Request" "unbekannte Aktion" ;;
+    share_add|share_del|share_set) shares_change "$A" ;;
+    user_set|user_del) users_change "$A" ;;
+    sys_set) sys_set ;;
+    notify_test) notify_test ;;
+    *) fail "400 Bad Request" "$(tx "action inconnue" "unbekannte Aktion" "unknown action")" ;;
   esac
   exit 0
 fi
@@ -131,6 +389,10 @@ fi
 case "$A" in
   status|"") status ;;
   config) config_get ;;
+  shares) shares_get ;;
+  users) users_get ;;
+  sys) sys_get ;;
+  hist) hdr 'text/plain; charset=utf-8'; cat /var/run/hwmon.hist 2>/dev/null ;;
   log)
     hdr 'text/plain; charset=utf-8'
     case "$(qp f)" in
@@ -139,12 +401,12 @@ case "$A" in
       dmesg)   dmesg | tail -n 300 ;;
       smbd)    tail -n 300 /var/log/samba/log.smbd 2>/dev/null ;;
       nmbd)    tail -n 300 /var/log/samba/log.nmbd 2>/dev/null ;;
-      *) echo "unbekanntes Protokoll" ;;
+      *) echo "$(tx "journal inconnu" "unbekanntes Protokoll" "unknown log")" ;;
     esac ;;
   smart)
     d=$(qp d)
-    case " $DISKS " in *" $d "*) ;; *) fail "400 Bad Request" "unbekannte Platte";; esac
+    case " $DISKS " in *" $d "*) ;; *) fail "400 Bad Request" "$(tx "disque inconnu" "unbekannte Platte" "unknown disk")";; esac
     hdr 'text/plain; charset=utf-8'
     smartctl -H -i -A /dev/$d 2>&1 ;;
-  *) fail "400 Bad Request" "unbekannt" ;;
+  *) fail "400 Bad Request" "$(tx "inconnu" "unbekannt" "unknown")" ;;
 esac

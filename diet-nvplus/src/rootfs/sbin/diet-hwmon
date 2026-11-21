@@ -1,12 +1,14 @@
 #!/bin/sh
 # Temperatur-/Luefterregelung, Plattenueberwachung, Display (laeuft im DIET-System)
 . /etc/diet.conf
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
 LOG=/var/log/boot.log
 ST=/var/run/hwmon.status
 H=/proc/sys/dev/hwmon
 DISKS=""; for d in hdc hde hdg hdi; do [ -d /proc/ide/$d ] && DISKS="$DISKS $d"; done
 log() { echo "[$(cut -d' ' -f1 /proc/uptime)] hwmon: $*" >> $LOG; }
 lcd() { [ -e /proc/sys/dev/lcd/cmd ] || return; echo $1 > /proc/sys/dev/lcd/cmd; printf "%-16s" "$2" > /dev/lcd; }
+bl() { [ -e /proc/sys/dev/lcd/backlight ] && echo $1 > /proc/sys/dev/lcd/backlight; }
 LASTPWM=-1; N=0; DTMAX=0; DTXT=""; HOT=0; LCDON=$(cut -d. -f1 /proc/uptime)
 while true; do
   T=$(cut -d. -f1 $H/temp_0 2>/dev/null); T=${T:-0}
@@ -15,13 +17,19 @@ while true; do
   if [ $((N % 5)) -eq 0 ]; then
     DTMAX=0; DTXT=""
     for d in $DISKS; do
-      out=$(smartctl -n standby -A /dev/$d 2>/dev/null)
-      if echo "$out" | grep -q "STANDBY"; then DTXT="$DTXT $d:schlaeft"; continue; fi
+      out=$(smartctl -n standby -H -A /dev/$d 2>/dev/null)
+      if echo "$out" | grep -q "STANDBY"; then DTXT="$DTXT $d:standby"; continue; fi
       dt=$(echo "$out" | awk '$1==194 || $1==190 {print $10; exit}')
+      # SMART-Kurzfassung fuer die Web-Oberflaeche (bleibt stehen, solange die Platte schlaeft)
+      sh=$(echo "$out" | sed -n 's/.*self-assessment test result: //p' | tr -cd 'A-Za-z')
+      echo "$out" | awk -v h="$sh" '$1==5{r=$10} $1==9{p=$10} $1==197{c=$10} $1==198{u=$10}
+        END{printf "health=%s realloc=%d pending=%d uncorr=%d hours=%d\n", h, r, c, u, p}' > /var/run/smart.$d
       [ -n "$dt" ] || continue
       DTXT="$DTXT $d:${dt}C"; [ "$dt" -gt "$DTMAX" ] && DTMAX=$dt
     done
   fi
+  # kein Board-Sensor (Duo v1: temp_0 immer 0) -> die waermste Platte regelt den Luefter
+  [ $T -eq 0 ] && T=$DTMAX
   # Luefterstufe: linear zwischen TEMP_LOW und TEMP_HIGH, Platten koennen hochziehen
   if [ $T -le $TEMP_LOW ]; then P=$FAN_PWM_MIN
   elif [ $T -ge $TEMP_HIGH ]; then P=$FAN_PWM_MAX
@@ -29,11 +37,23 @@ while true; do
   [ $DTMAX -ge $DISK_HIGH ] && P=$FAN_PWM_MAX
   if [ $P -ne $LASTPWM ]; then echo $P > $H/fan0_speed_control; LASTPWM=$P; fi
   # Alarm / Notabschaltung (2 Messungen in Folge)
-  if [ $T -ge $TEMP_CRIT -o $DTMAX -ge $DISK_CRIT ]; then HOT=$((HOT+1)); log "UEBERTEMPERATUR Board=${T}C Platten=${DTMAX}C ($HOT)"
-    echo 1 > /proc/sys/dev/lcd/backlight; lcd 2 "UEBERTEMP ${T}C"
-    if [ $HOT -ge 2 ]; then log "Notabschaltung!"; : > /var/run/poweroff; poweroff; fi
+  if [ $T -ge $TEMP_CRIT -o $DTMAX -ge $DISK_CRIT ]; then HOT=$((HOT+1)); log "$(tx "SURCHAUFFE carte=${T}C disques=${DTMAX}C ($HOT)" "ÜBERTEMPERATUR Board=${T}C Platten=${DTMAX}C ($HOT)" "OVERHEATING board=${T}C disks=${DTMAX}C ($HOT)")"
+    bl 1; lcd 2 "$(tx "SURCHAUFFE ${T}C" "UEBERTEMP ${T}C" "OVERHEAT ${T}C")"
+    if [ $HOT -ge 2 ]; then log "$(tx "Arrêt d’urgence !" "Notabschaltung!" "Emergency shutdown!")"; /sbin/diet-notify "$(tx "ARRÊT D’URGENCE : surchauffe ${T}C" "NOTABSCHALTUNG: Überhitzung ${T}C" "EMERGENCY SHUTDOWN: overheating ${T}C")" >/dev/null 2>&1; : > /var/run/poweroff; poweroff; fi
   else HOT=0; fi
-  [ "$RPM" -lt 300 ] 2>/dev/null && log "WARNUNG: Luefter ${RPM} U/min"
+  [ "$RPM" -lt 300 ] 2>/dev/null && log "$(tx "ATTENTION : ventilateur à ${RPM} tr/min" "WARNUNG: Lüfter ${RPM} U/min" "WARNING: fan at ${RPM} rpm")"
+  # Verlauf fuer die Web-Oberflaeche: Zeit, Temperatur (- = unbekannt), Drehzahl, Stufe; etwa 12 Stunden
+  echo "$(date +%s) $([ $T -gt 0 ] && echo $T || echo -) ${RPM:-0} $P" >> /var/run/hwmon.hist
+  [ $((N % 60)) -eq 59 ] && tail -n 720 /var/run/hwmon.hist > /var/run/hwmon.hist.tmp && mv /var/run/hwmon.hist.tmp /var/run/hwmon.hist
+  # Benachrichtigung (Telegram, wenn eingerichtet) nur bei Zustandswechsel
+  AL=$(/sbin/diet-alerts 2>/dev/null)
+  [ $HOT -gt 0 ] && AL="${AL:+$AL ; }$(tx "surchauffe ${T}C" "Überhitzung ${T}C" "overheating ${T}C")"
+  [ "$RPM" -lt 300 ] 2>/dev/null && AL="${AL:+$AL ; }$(tx "ventilateur à ${RPM} tr/min" "Lüfter bei ${RPM} U/min" "fan at ${RPM} rpm")"
+  if [ "$AL" != "$(cat /var/run/alert.last 2>/dev/null)" ]; then
+    echo "$AL" > /var/run/alert.last
+    if [ -n "$AL" ]; then log "$(tx "ALERTE : $AL" "ALARM: $AL" "ALERT: $AL")"; /sbin/diet-notify "$(tx "ALERTE : $AL" "ALARM: $AL" "ALERT: $AL")" >/dev/null 2>&1 &
+    else log "$(tx "Retour à la normale" "Wieder normal" "Back to normal")"; /sbin/diet-notify "$(tx "Retour à la normale" "Wieder normal" "Back to normal")" >/dev/null 2>&1 & fi
+  fi
   # Status fuer Web-Oberflaeche
   echo "temp=$T fan=$RPM pwm=$P disks=\"$DTXT\" uptime=$(cut -d' ' -f1 /proc/uptime)" > $ST
   # Display: Zeile 1 Name+Temp, Zeile 2 IP bzw. Alarm
@@ -42,6 +62,6 @@ while true; do
   if [ -s /var/run/disk_alarm ]; then lcd 192 "$(tail -1 /var/run/disk_alarm)"; else lcd 192 "$IP"; fi
   [ -s /var/run/lcd_on ] && LCDON=$(cat /var/run/lcd_on) && rm -f /var/run/lcd_on
   NOW=$(cut -d. -f1 /proc/uptime)
-  if [ $LCD_TIMEOUT -gt 0 ] && [ $((NOW - LCDON)) -ge $LCD_TIMEOUT ] && [ $HOT -eq 0 ] && [ ! -s /var/run/disk_alarm ]; then echo 0 > /proc/sys/dev/lcd/backlight; fi
+  if [ $LCD_TIMEOUT -gt 0 ] && [ $((NOW - LCDON)) -ge $LCD_TIMEOUT ] && [ $HOT -eq 0 ] && [ ! -s /var/run/disk_alarm ]; then bl 0; fi
   N=$((N+1)); sleep 60
 done

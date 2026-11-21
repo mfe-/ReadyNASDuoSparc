@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,7 +37,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-ap
 nav{display:flex;gap:4px;margin:14px 0}
 nav button{background:none;border:0;padding:8px 14px;border-radius:8px;color:var(--mute);font:inherit;cursor:pointer}
 nav button.act{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px #0002}
-.alarm{background:var(--bad);color:#fff;border-radius:10px;padding:10px 14px;margin-top:12px;display:none;font-weight:600}
+.alarm{background:var(--bad);color:#fff;border-radius:10px;padding:10px 14px;margin-top:12px;display:none;font-weight:600;align-items:center;justify-content:space-between;gap:12px}
+.alarm button{font:inherit;font-weight:400;background:#0003;color:#fff;border:1px solid #fff6;border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap}
 /* Karten */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
@@ -67,6 +68,7 @@ button.b:disabled{opacity:.5;cursor:wait}
 /* Formular */
 form.cfg{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center}
 form.cfg label{color:var(--ink)} form.cfg label small{display:block;color:var(--mute)}
+form.cfg.sys input,form.cfg.sys select{width:230px;text-align:left}
 form.cfg input{width:96px;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);text-align:right}
 .sec{grid-column:1/-1;font-weight:650;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
 .sec:first-child{border-top:0;padding-top:0;margin-top:0}
@@ -78,84 +80,136 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
 .card.wide{grid-column:1/-1}
 .sp{flex:1}
 .page{display:none}.page.act{display:block}
+.nolcd .lcdonly{display:none!important}.nolcd .front{grid-template-columns:1fr}
 @media (max-width:720px){.front{grid-template-columns:1fr}.bays{grid-template-columns:repeat(2,1fr)}.lcd{min-width:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
-    <div><h1 id="title">NAS</h1><div class="sub" id="sub">verbinde …</div></div>
-    <div class="sub" id="upd"></div>
+    <div><h1 id="title">NAS</h1><div class="sub" id="sub">connexion…</div></div>
+    <div class="sub" style="display:flex;gap:10px;align-items:center"><span id="upd"></span><select id="lang" title="Langue" style="padding:3px 6px"><option value="fr">FR</option><option value="de">DE</option><option value="en">EN</option></select></div>
   </div>
 
   <div class="front">
-    <div class="lcd" id="lcd">
+    <div class="lcd lcdonly" id="lcd">
                 </div>
     <div class="bays" id="bays"></div>
   </div>
-  <div class="alarm" id="alarm"></div>
+  <div class="alarm" id="alarm"><span id="alarmt"></span><button id="alarmx" title="Masquer cet avertissement jusqu’à ce qu’il change">Masquer</button></div>
 
   <nav>
-    <button data-p="home" class="act">Übersicht</button>
-    <button data-p="cfg">Einstellungen</button>
-    <button data-p="log">Protokolle</button>
+    <button data-p="home" class="act">Vue d’ensemble</button>
+    <button data-p="shares">Partages</button>
+    <button data-p="cfg">Réglages</button>
+    <button data-p="log">Journaux</button>
   </nav>
 
   <section class="page act" id="p-home">
     <div class="grid">
-      <div class="card"><h2>System</h2>
+      <div class="card"><h2>Système</h2>
         <div class="row"><div><div class="big" id="cpu">–</div><div class="small">CPU</div></div>
-          <div><div class="big" id="tmp">–</div><div class="small">Board</div></div>
-          <div><div class="big" id="fan">–</div><div class="small">Lüfter</div></div></div>
-        <div class="row small" style="margin-top:12px"><span>Arbeitsspeicher</span><span id="memt" title=""></span></div>
+          <div><div class="big" id="tmp">–</div><div class="small">Température</div></div>
+          <div><div class="big" id="fan">–</div><div class="small">Ventilateur</div></div></div>
+        <div class="row small" style="margin-top:12px"><span>Mémoire</span><span id="memt" title=""></span></div>
         <div class="bar"><i id="memb"></i></div>
-        <dl class="kv small" style="margin-top:10px"><dt>Last</dt><dd id="load"></dd><dt>Laufzeit</dt><dd id="up"></dd><dt>Swap belegt</dt><dd id="swap"></dd></dl>
+        <dl class="kv small" style="margin-top:10px"><dt>Charge</dt><dd id="load"></dd><dt>En marche depuis</dt><dd id="up"></dd><dt>Swap utilisé</dt><dd id="swap"></dd></dl>
+        <div class="small" id="hist" style="margin-top:10px"></div>
       </div>
-      <div class="card"><h2>Speicher /c</h2>
-        <div class="big" id="cfree">–</div><div class="small" id="cfreet">frei</div>
+      <div class="card"><h2>Stockage /c</h2>
+        <div class="big" id="cfree">–</div><div class="small" id="cfreet">libre</div>
         <div class="bar" id="cbarw"><i id="cbar"></i></div>
         <div id="md"></div>
-        <div class="row small" style="margin-top:8px"><span>Lesen <b id="rd">–</b></span><span>Schreiben <b id="wr">–</b></span></div>
+        <div class="row small" style="margin-top:8px"><span>Lecture <b id="rd">–</b></span><span>Écriture <b id="wr">–</b></span></div>
       </div>
-      <div class="card"><h2>Netzwerk &amp; Dienste</h2>
-        <dl class="kv"><dt>Adresse</dt><dd id="ip"></dd><dt>Empfangen</dt><dd id="rx">–</dd><dt>Gesendet</dt><dd id="tx">–</dd></dl>
+      <div class="card"><h2>Réseau et services</h2>
+        <dl class="kv"><dt>Adresse</dt><dd id="ip"></dd><dt>Reçu</dt><dd id="rx">–</dd><dt>Envoyé</dt><dd id="tx">–</dd></dl>
         <div class="chips" id="svc" style="margin-top:12px"></div>
       </div>
-      <div class="card wide"><h2>Aktionen</h2>
+      <div class="card wide"><h2>Actions</h2>
         <div class="btns">
-          <button class="b" data-a="lcd">Display an/aus</button>
-          <button class="b" data-a="spindown">Platten schlafen legen</button>
-          <button class="b" data-a="samba">Samba neu starten</button>
+          <button class="b lcdonly" data-a="lcd">Écran allumé/éteint</button>
+          <button class="b" data-a="spindown">Mettre les disques en veille</button>
+          <button class="b" data-a="samba">Redémarrer Samba</button>
           <span class="sp"></span>
-          <button class="b danger" data-a="reboot" data-q="Jetzt neu starten?">Neustart</button>
-          <button class="b danger" data-a="poweroff" data-q="Wirklich ausschalten? Einschalten geht dann nur am Gerät.">Ausschalten</button>
-          <button class="b danger" data-a="raidiator" data-q="Einmalig RAIDiator (Netgear) starten? Danach startet wieder DIET.">RAIDiator starten</button>
+          <button class="b danger" data-a="reboot" data-q="Redémarrer maintenant ?">Redémarrer</button>
+          <button class="b danger" data-a="poweroff" data-q="Vraiment éteindre ? Le rallumage ne se fait qu’avec le bouton de l’appareil.">Éteindre</button>
+          <button class="b danger" data-a="raidiator" data-q="Démarrer une fois RAIDiator (Netgear) ? DIET reprendra au démarrage suivant.">Démarrer RAIDiator</button>
         </div>
-        <p class="small" style="margin-bottom:0">Power-Knopf am Gerät: kurz = Display an/aus, 3 s halten = ausschalten.</p>
+        <p class="small" style="margin-bottom:0">Bouton d’alimentation de l’appareil : <span class="lcdonly">appui court = écran allumé/éteint, </span>maintenu 3 s = extinction.</p>
       </div>
+    </div>
+  </section>
+
+  <section class="page" id="p-shares">
+    <div class="card" style="max-width:760px">
+      <h2>Partages réseau (Samba)</h2>
+      <div id="shl"></div>
+      <form id="shadd" class="btns" style="margin-top:14px;align-items:center">
+        <input name="name" placeholder="nom du nouveau partage" maxlength="32" pattern="[A-Za-z0-9_][A-Za-z0-9_-]*" required
+          style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:230px">
+        <button class="b pri" type="submit">Créer</button>
+      </form>
+      <p class="small" style="margin-bottom:0">Un partage correspond au dossier /c/nom ; un nouveau partage est créé accessible en écriture, sans mot de passe.
+        « Retirer » enlève le partage du réseau sans effacer le dossier ni son contenu.</p>
+    </div>
+    <div class="card" style="max-width:760px;margin-top:12px">
+      <h2>Utilisateurs des partages</h2>
+      <div id="usl"></div>
+      <form id="usadd" class="btns" style="margin-top:14px;align-items:center">
+        <input name="name" placeholder="nom d’utilisateur" maxlength="31" pattern="[A-Za-z0-9_][A-Za-z0-9_-]*" required autocomplete="off"
+          style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:170px">
+        <input name="pw" type="password" placeholder="mot de passe (6 caractères min.)" minlength="6" required autocomplete="new-password"
+          style="font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:230px">
+        <button class="b pri" type="submit">Créer ou changer le mot de passe</button>
+      </form>
+      <p class="small" style="margin-bottom:0">Ces comptes servent à ouvrir les partages qui ne sont pas « sans mot de passe ».
+        Saisir un nom existant change son mot de passe. Supprimer un compte ne touche pas à ses fichiers.</p>
     </div>
   </section>
 
   <section class="page" id="p-cfg">
     <div class="card" style="max-width:620px">
-      <h2>Hardware-Einstellungen</h2>
+      <h2>Réglages matériels</h2>
       <form class="cfg" id="cfg">
-        <div class="sec">Platten</div>
-        <label>Standby nach Minuten<small>0 = nie schlafen</small></label><input name="SPINDOWN_MIN" type="number" min="0" max="330">
-        <div class="sec">Lüfter (0–255)</div>
-        <label>Grundstufe<small>bis zur Ruhetemperatur</small></label><input name="FAN_PWM_MIN" type="number" min="20" max="255">
-        <label>Höchststufe</label><input name="FAN_PWM_MAX" type="number" min="20" max="255">
-        <div class="sec">Board-Temperatur °C</div>
-        <label>Ruhig bis</label><input name="TEMP_LOW" type="number" min="20" max="75">
-        <label>Volle Drehzahl ab</label><input name="TEMP_HIGH" type="number" min="20" max="75">
-        <label>Notabschaltung ab<small>zwei Messungen in Folge</small></label><input name="TEMP_CRIT" type="number" min="20" max="75">
-        <div class="sec">Platten-Temperatur °C</div>
-        <label>Volle Drehzahl ab</label><input name="DISK_HIGH" type="number" min="30" max="70">
-        <label>Notabschaltung ab</label><input name="DISK_CRIT" type="number" min="30" max="70">
-        <div class="sec">Display</div>
-        <label>Beleuchtung aus nach Sekunden<small>0 = immer an</small></label><input name="LCD_TIMEOUT" type="number" min="0" max="86400">
-        <div style="grid-column:1/-1;margin-top:8px"><button class="b pri" type="submit">Speichern</button></div>
+        <div class="sec">Disques</div>
+        <label>Mise en veille après (minutes)<small>0 = jamais</small></label><input name="SPINDOWN_MIN" type="number" min="0" max="330">
+        <div class="sec">Ventilateur (0–255)</div>
+        <label>Niveau minimal<small>jusqu’à la température de repos</small></label><input name="FAN_PWM_MIN" type="number" min="20" max="255">
+        <label>Niveau maximal</label><input name="FAN_PWM_MAX" type="number" min="20" max="255">
+        <div class="sec">Température de la carte (°C), ou du disque le plus chaud sans sonde</div>
+        <label>Niveau minimal jusqu’à</label><input name="TEMP_LOW" type="number" min="20" max="75">
+        <label>Pleine vitesse à partir de</label><input name="TEMP_HIGH" type="number" min="20" max="75">
+        <label>Arrêt d’urgence à partir de<small>deux mesures consécutives</small></label><input name="TEMP_CRIT" type="number" min="20" max="75">
+        <div class="sec">Température des disques (°C)</div>
+        <label>Pleine vitesse à partir de</label><input name="DISK_HIGH" type="number" min="30" max="70">
+        <label>Arrêt d’urgence à partir de</label><input name="DISK_CRIT" type="number" min="30" max="70">
+        <div class="sec lcdonly">Écran</div>
+        <label class="lcdonly">Extinction du rétroéclairage après (secondes)<small>0 = toujours allumé</small></label><input class="lcdonly" name="LCD_TIMEOUT" type="number" min="0" max="86400">
+        <div style="grid-column:1/-1;margin-top:8px"><button class="b pri" type="submit">Enregistrer</button></div>
       </form>
+    </div>
+    <div class="card" style="max-width:620px;margin-top:12px">
+      <h2>Réglages système</h2>
+      <form class="cfg sys" id="sys">
+        <div class="sec">Général</div>
+        <label>Nom du NAS<small>minuscules, chiffres et tirets, 15 au plus</small></label><input name="host" maxlength="15" pattern="[a-z0-9][a-z0-9-]*" required>
+        <label>Fuseau horaire<small>appliqué au prochain redémarrage</small></label><select name="tz"></select>
+        <label>Langue du système<small>journaux, notifications Telegram et commandes</small></label><select name="lang"><option value="fr">Français</option><option value="de">Deutsch</option><option value="en">English</option></select>
+        <div class="sec">Réseau <small style="font-weight:400;color:var(--mute)">(appliqué au prochain redémarrage)</small></div>
+        <label>Mode</label><select name="net"><option value="dhcp">Automatique (DHCP)</option><option value="static">Adresse fixe</option></select>
+        <label class="st">Adresse IP</label><input class="st" name="ip" inputmode="decimal">
+        <label class="st">Masque</label><input class="st" name="mask" inputmode="decimal">
+        <label class="st">Passerelle</label><input class="st" name="gw" inputmode="decimal">
+        <label class="st">Serveurs DNS<small>séparés par un espace</small></label><input class="st" name="dns">
+        <div class="sec">Notifications Telegram</div>
+        <label>Jeton du bot<small id="tgs">donné par @BotFather</small></label><input name="tgtoken" type="password" autocomplete="off" placeholder="inchangé">
+        <label>Identifiant de discussion<small>vide = notifications désactivées</small></label><input name="tgchat" inputmode="numeric">
+        <div style="grid-column:1/-1;margin-top:8px" class="btns"><button class="b pri" type="submit">Enregistrer</button>
+          <button class="b" type="button" id="tgtest">Envoyer une notification de test</button></div>
+      </form>
+      <p class="small" style="margin-bottom:0">Une alerte est envoyée quand le RAID se dégrade, qu’un disque sort du RAID ou présente des secteurs défectueux,
+        en cas de surchauffe ou de ventilateur arrêté, puis au retour à la normale.</p>
     </div>
   </section>
 
@@ -163,14 +217,14 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
     <div class="card">
       <div class="btns" style="align-items:center">
         <select id="logf">
-          <option value="boot">Startprotokoll</option>
-          <option value="hotplug">Hardware-Ereignisse</option>
-          <option value="dmesg">Kernel (dmesg)</option>
+          <option value="boot">Journal de démarrage</option>
+          <option value="hotplug">Événements matériels</option>
+          <option value="dmesg">Noyau (dmesg)</option>
           <option value="smbd">Samba smbd</option>
           <option value="nmbd">Samba nmbd</option>
         </select>
-        <button class="b" id="logr">Neu laden</button>
-        <span class="small" style="margin-left:auto">SMART-Bericht (weckt die Platte):</span>
+        <button class="b" id="logr">Recharger</button>
+        <span class="small" style="margin-left:auto">Rapport SMART (réveille le disque) :</span>
         <span class="btns" id="smartb"></span>
       </div>
       <pre id="logo">…</pre>
@@ -183,21 +237,241 @@ select{font:inherit;padding:7px 9px;border-radius:8px;border:1px solid var(--lin
 <script>
 const $ = s => document.querySelector(s);
 const API = '/cgi-bin/api';
-let prev = null, last = null, timer = null;
+// Langue : choix mémorisé dans ce navigateur, sinon langue du navigateur (fr, de), sinon anglais.
+// Les textes sont écrits en français dans la page ; I18N donne pour chacun [allemand, anglais].
+const LANGS = ['fr', 'de', 'en'];
+let LANG = (()=>{
+  try{ const s = localStorage.getItem('dietLang'); if(LANGS.includes(s)) return s; }catch(e){}
+  const nav = typeof navigator === 'undefined' ? [] : (navigator.languages || [navigator.language || '']);
+  for(const l of nav){ const c = String(l).slice(0, 2).toLowerCase(); if(LANGS.includes(c)) return c; }
+  return 'en';
+})();
+const I18N = {
+  "connexion…": ["Verbinde …", "connecting…"],
+  "Masquer cet avertissement jusqu’à ce qu’il change": ["Diese Warnung ausblenden, bis sie sich ändert", "Hide this warning until it changes"],
+  "Masquer": ["Ausblenden", "Hide"],
+  "Vue d’ensemble": ["Übersicht", "Overview"],
+  "Partages": ["Freigaben", "Shares"],
+  "Réglages": ["Einstellungen", "Settings"],
+  "Journaux": ["Protokolle", "Logs"],
+  "Système": ["System", "System"],
+  "Température": ["Temperatur", "Temperature"],
+  "Ventilateur": ["Lüfter", "Fan"],
+  "Mémoire": ["Arbeitsspeicher", "Memory"],
+  "Charge": ["Last", "Load"],
+  "En marche depuis": ["Laufzeit", "Uptime"],
+  "Swap utilisé": ["Swap belegt", "Swap used"],
+  "Stockage /c": ["Speicher /c", "Storage /c"],
+  "libre": ["frei", "free"],
+  "Lecture": ["Lesen", "Read"],
+  "Écriture": ["Schreiben", "Write"],
+  "Réseau et services": ["Netzwerk & Dienste", "Network & services"],
+  "Adresse": ["Adresse", "Address"],
+  "Reçu": ["Empfangen", "Received"],
+  "Envoyé": ["Gesendet", "Sent"],
+  "Actions": ["Aktionen", "Actions"],
+  "Écran allumé/éteint": ["Display an/aus", "Display on/off"],
+  "Mettre les disques en veille": ["Platten schlafen legen", "Spin down disks"],
+  "Redémarrer Samba": ["Samba neu starten", "Restart Samba"],
+  "Redémarrer maintenant ?": ["Jetzt neu starten?", "Restart now?"],
+  "Redémarrer": ["Neustart", "Restart"],
+  "Vraiment éteindre ? Le rallumage ne se fait qu’avec le bouton de l’appareil.": ["Wirklich ausschalten? Einschalten geht dann nur am Gerät.", "Really power off? It can only be switched on again with the button on the device."],
+  "Éteindre": ["Ausschalten", "Power off"],
+  "Démarrer une fois RAIDiator (Netgear) ? DIET reprendra au démarrage suivant.": ["Einmalig RAIDiator (Netgear) starten? Danach startet wieder DIET.", "Boot RAIDiator (Netgear) once? DIET comes back on the next boot."],
+  "Démarrer RAIDiator": ["RAIDiator starten", "Boot RAIDiator"],
+  "Bouton d’alimentation de l’appareil :": ["Power-Knopf am Gerät:", "Power button on the device:"],
+  "appui court = écran allumé/éteint,": ["kurz = Display an/aus,", "short press = display on/off,"],
+  "maintenu 3 s = extinction.": ["3 s halten = ausschalten.", "hold 3 s = power off."],
+  "Partages réseau (Samba)": ["Netzwerkfreigaben (Samba)", "Network shares (Samba)"],
+  "nom du nouveau partage": ["Name der neuen Freigabe", "new share name"],
+  "Créer": ["Anlegen", "Create"],
+  "Un partage correspond au dossier /c/nom ; un nouveau partage est créé accessible en écriture, sans mot de passe. « Retirer » enlève le partage du réseau sans effacer le dossier ni son contenu.": ["Eine Freigabe entspricht dem Ordner /c/name; eine neue Freigabe ist beschreibbar und ohne Passwort. „Entfernen“ nimmt die Freigabe aus dem Netz, ohne den Ordner oder seinen Inhalt zu löschen.", "A share is the folder /c/name; a new share is writable and needs no password. “Remove” takes the share off the network without deleting the folder or its contents."],
+  "Utilisateurs des partages": ["Benutzer der Freigaben", "Share users"],
+  "nom d’utilisateur": ["Benutzername", "user name"],
+  "mot de passe (6 caractères min.)": ["Passwort (mind. 6 Zeichen)", "password (6 characters min.)"],
+  "Créer ou changer le mot de passe": ["Anlegen oder Passwort ändern", "Create or change password"],
+  "Ces comptes servent à ouvrir les partages qui ne sont pas « sans mot de passe ». Saisir un nom existant change son mot de passe. Supprimer un compte ne touche pas à ses fichiers.": ["Mit diesen Konten öffnet man Freigaben, die nicht „ohne Passwort“ sind. Ein vorhandener Name ändert dessen Passwort. Das Löschen eines Kontos lässt seine Dateien unberührt.", "These accounts open the shares that are not “no password”. Entering an existing name changes its password. Deleting an account leaves its files untouched."],
+  "Réglages matériels": ["Hardware-Einstellungen", "Hardware settings"],
+  "Disques": ["Platten", "Disks"],
+  "Mise en veille après (minutes)": ["Standby nach (Minuten)", "Spin down after (minutes)"],
+  "0 = jamais": ["0 = nie", "0 = never"],
+  "Ventilateur (0–255)": ["Lüfter (0–255)", "Fan (0–255)"],
+  "Niveau minimal": ["Grundstufe", "Minimum level"],
+  "jusqu’à la température de repos": ["bis zur Ruhetemperatur", "up to the idle temperature"],
+  "Niveau maximal": ["Höchststufe", "Maximum level"],
+  "Température de la carte (°C), ou du disque le plus chaud sans sonde": ["Board-Temperatur (°C), ohne Sensor die der wärmsten Platte", "Board temperature (°C), or the warmest disk without a sensor"],
+  "Niveau minimal jusqu’à": ["Grundstufe bis", "Minimum level up to"],
+  "Pleine vitesse à partir de": ["Volle Drehzahl ab", "Full speed from"],
+  "Arrêt d’urgence à partir de": ["Notabschaltung ab", "Emergency shutdown from"],
+  "deux mesures consécutives": ["zwei Messungen in Folge", "two readings in a row"],
+  "Température des disques (°C)": ["Platten-Temperatur (°C)", "Disk temperature (°C)"],
+  "Écran": ["Display", "Display"],
+  "Extinction du rétroéclairage après (secondes)": ["Beleuchtung aus nach (Sekunden)", "Backlight off after (seconds)"],
+  "0 = toujours allumé": ["0 = immer an", "0 = always on"],
+  "Enregistrer": ["Speichern", "Save"],
+  "Réglages système": ["Systemeinstellungen", "System settings"],
+  "Général": ["Allgemein", "General"],
+  "Nom du NAS": ["Name des NAS", "NAS name"],
+  "minuscules, chiffres et tirets, 15 au plus": ["Kleinbuchstaben, Ziffern und Bindestriche, höchstens 15", "lowercase letters, digits and dashes, 15 max."],
+  "Fuseau horaire": ["Zeitzone", "Time zone"],
+  "appliqué au prochain redémarrage": ["gilt ab dem nächsten Neustart", "applied at the next reboot"],
+  "Réseau": ["Netzwerk", "Network"],
+  "(appliqué au prochain redémarrage)": ["(gilt ab dem nächsten Neustart)", "(applied at the next reboot)"],
+  "Mode": ["Modus", "Mode"],
+  "Automatique (DHCP)": ["Automatisch (DHCP)", "Automatic (DHCP)"],
+  "Adresse fixe": ["Feste Adresse", "Static address"],
+  "Adresse IP": ["IP-Adresse", "IP address"],
+  "Masque": ["Netzmaske", "Netmask"],
+  "Passerelle": ["Gateway", "Gateway"],
+  "Serveurs DNS": ["DNS-Server", "DNS servers"],
+  "séparés par un espace": ["durch Leerzeichen getrennt", "separated by spaces"],
+  "Notifications Telegram": ["Telegram-Benachrichtigungen", "Telegram notifications"],
+  "Jeton du bot": ["Bot-Token", "Bot token"],
+  "donné par @BotFather": ["von @BotFather", "from @BotFather"],
+  "inchangé": ["unverändert", "unchanged"],
+  "Identifiant de discussion": ["Chat-ID", "Chat ID"],
+  "vide = notifications désactivées": ["leer = Benachrichtigungen aus", "empty = notifications off"],
+  "Envoyer une notification de test": ["Testnachricht senden", "Send a test notification"],
+  "Une alerte est envoyée quand le RAID se dégrade, qu’un disque sort du RAID ou présente des secteurs défectueux, en cas de surchauffe ou de ventilateur arrêté, puis au retour à la normale.": ["Eine Meldung wird gesendet, wenn das RAID beeinträchtigt ist, eine Platte das RAID verlässt oder defekte Sektoren meldet, bei Überhitzung oder stehendem Lüfter und wieder, wenn alles normal ist.", "An alert is sent when the RAID degrades, a disk leaves the RAID or reports bad sectors, on overheating or a stopped fan, and again on recovery."],
+  "Journal de démarrage": ["Startprotokoll", "Boot log"],
+  "Événements matériels": ["Hardware-Ereignisse", "Hardware events"],
+  "Noyau (dmesg)": ["Kernel (dmesg)", "Kernel (dmesg)"],
+  "Recharger": ["Neu laden", "Reload"],
+  "Rapport SMART (réveille le disque) :": ["SMART-Bericht (weckt die Platte):", "SMART report (wakes the disk):"],
+  "Langue": ["Sprache", "Language"],
+  "Langue du système": ["Systemsprache", "System language"],
+  "journaux, notifications Telegram et commandes": ["Protokolle, Telegram-Meldungen und Befehle", "logs, Telegram notifications and commands"],
+  "To": ["TB", "TB"],
+  "Go": ["GB", "GB"],
+  "Mo": ["MB", "MB"],
+  "ko": ["kB", "kB"],
+  "Mo/s": ["MB/s", "MB/s"],
+  "ko/s": ["kB/s", "kB/s"],
+  "o/s": ["B/s", "B/s"],
+  "j": ["T", "d"],
+  "Données": ["Daten", "Data"],
+  "volume {0}": ["Volume {0}", "volume {0}"],
+  "{0} ans de marche": ["{0} Jahre Laufzeit", "{0} years powered on"],
+  "{0} h de marche": ["{0} h Laufzeit", "{0} h powered on"],
+  "{0} secteurs réalloués": ["{0} Sektoren umgelagert", "{0} reallocated sectors"],
+  "{0} secteurs en attente": ["{0} Sektoren ausstehend", "{0} pending sectors"],
+  "{0} secteurs illisibles": ["{0} Sektoren unlesbar", "{0} unreadable sectors"],
+  "Température sur {0}": ["Temperatur über {0}", "Temperature over {0}"],
+  "tr/min": ["U/min", "rpm"],
+  "Baie {0}": ["Schacht {0}", "Bay {0}"],
+  "baie {0}": ["Schacht {0}", "bay {0}"],
+  "vide": ["leer", "empty"],
+  "en veille": ["schläft", "asleep"],
+  "Alarme disque : {0}": ["Plattenalarm: {0}", "Disk alarm: {0}"],
+  "RAID dégradé : {0}": ["RAID beeinträchtigt: {0}", "RAID degraded: {0}"],
+  "Disque à surveiller : {0}": ["Platte beobachten: {0}", "Disk to watch: {0}"],
+  "tr/min, niveau {0}/255": ["U/min, Stufe {0}/255", "rpm, level {0}/255"],
+  "cache disque compris": ["inklusive Plattencache", "disk cache included"],
+  "libres sur {0} · {1} % utilisés": ["frei von {0} · {1} % belegt", "free of {0} · {1} % used"],
+  "non monté": ["nicht eingehängt", "not mounted"],
+  "en bon état": ["in Ordnung", "healthy"],
+  "DÉGRADÉ": ["BEEINTRÄCHTIGT", "DEGRADED"],
+  "Synchronisation : {0}": ["Synchronisation: {0}", "Resync: {0}"],
+  "Nom réseau": ["Netzwerkname", "Network name"],
+  "Heure": ["Zeit", "Time"],
+  "Surveillance": ["Überwachung", "Monitoring"],
+  "Mis à jour à {0}": ["Stand {0}", "Updated {0}"],
+  "pas de connexion": ["keine Verbindung", "no connection"],
+  "Le NAS ne répond pas.<br><small>Vérifier en SSH ou recharger la page plus tard.</small>": ["Das NAS meldet sich nicht.<br><small>Mit SSH nachsehen oder Seite später neu laden.</small>", "The NAS does not answer.<br><small>Check over SSH or reload the page later.</small>"],
+  "fait": ["erledigt", "done"],
+  "Redémarrage en cours…<br><small>La page se rechargera toute seule.</small>": ["Neustart läuft …<br><small>Seite lädt automatisch neu.</small>", "Restarting…<br><small>The page will reload by itself.</small>"],
+  "Démarrage de RAIDiator…<br><small>Interface Netgear : https://{0}/admin</small>": ["Startet RAIDiator …<br><small>Netgear-Oberfläche: https://{0}/admin</small>", "Booting RAIDiator…<br><small>Netgear interface: https://{0}/admin</small>"],
+  "Extinction en cours.<br><small>Rallumer avec le bouton de l’appareil.</small>": ["Wird ausgeschaltet.<br><small>Einschalten mit dem Knopf am Gerät.</small>", "Powering off.<br><small>Switch on again with the button on the device.</small>"],
+  "Erreur : {0}": ["Fehler: {0}", "Error: {0}"],
+  "Non enregistré : {0}": ["Nicht gespeichert: {0}", "Not saved: {0}"],
+  "Paris, Bruxelles, Berlin, Madrid": ["Paris, Brüssel, Berlin, Madrid", "Paris, Brussels, Berlin, Madrid"],
+  "Londres, Lisbonne": ["London, Lissabon", "London, Lisbon"],
+  "Helsinki, Athènes, Kiev": ["Helsinki, Athen, Kiew", "Helsinki, Athens, Kyiv"],
+  "Montréal, New York": ["Montreal, New York", "Montreal, New York"],
+  "Actuel : {0}": ["Aktuell: {0}", "Current: {0}"],
+  "un jeton est enregistré ; laisser vide pour le garder": ["ein Token ist gespeichert; leer lassen, um es zu behalten", "a token is saved; leave empty to keep it"],
+  "Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.": ["Auf feste Adresse umstellen? Eine falsche Adresse macht das NAS nach dem Neustart unerreichbar.", "Switch to a static address? A wrong address would make the NAS unreachable after the reboot."],
+  "dossier absent": ["Ordner fehlt", "folder missing"],
+  "lecture seule": ["schreibgeschützt", "read-only"],
+  "sans mot de passe": ["ohne Passwort", "no password"],
+  "Retirer": ["Entfernen", "Remove"],
+  "Aucun partage.": ["Keine Freigaben.", "No shares."],
+  "Retirer le partage « {0} » du réseau ? Le dossier et son contenu sont conservés.": ["Freigabe „{0}“ aus dem Netz nehmen? Ordner und Inhalt bleiben erhalten.", "Remove the share “{0}” from the network? The folder and its contents are kept."],
+  "pas de mot de passe Samba": ["kein Samba-Passwort", "no Samba password"],
+  "Supprimer": ["Löschen", "Delete"],
+  "compte système": ["Systemkonto", "system account"],
+  "Aucun utilisateur.": ["Keine Benutzer.", "No users."],
+  "Supprimer l’utilisateur « {0} » ? Ses fichiers sont conservés.": ["Benutzer „{0}“ löschen? Seine Dateien bleiben erhalten.", "Delete the user “{0}”? Their files are kept."],
+  "chargement…": ["lade …", "loading…"],
+  "(vide)": ["(leer)", "(empty)"],
+  "lecture SMART de la baie {0}…": ["lese SMART von Schacht {0} …", "reading SMART of bay {0}…"]
+};
+function t(s, ...a){
+  const r = LANG === 'fr' ? s : ((I18N[s] || [])[LANG === 'de' ? 0 : 1] ?? s);
+  return r.replace(/\{(\d)\}/g, (m, i) => a[i]);
+}
+function translatePage(){
+  document.documentElement.lang = LANG;
+  const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for(let n; (n = w.nextNode()); ){
+    const m = n.nodeValue.match(/^(\s*)([\s\S]*?)(\s*)$/), k = m[2].replace(/\s+/g, ' ');
+    if(I18N[k]) n.nodeValue = m[1] + t(k) + m[3];
+  }
+  document.querySelectorAll('[placeholder],[title],[data-q]').forEach(e=>{
+    for(const a of ['placeholder', 'title', 'data-q']){ const v = e.getAttribute(a); if(v && I18N[v]) e.setAttribute(a, t(v)); }
+  });
+}
+let prev = null, last = null, timer = null, polls = 0, critText = '', warnText = '';
+// Bandeau : les alertes graves (RAID, disque en panne) restent toujours visibles ; l'avertissement SMART peut être masqué
+// dans ce navigateur, et revient dès que son texte change (par exemple si le nombre de secteurs augmente).
+function banner(){
+  let hidden = ''; try{ hidden = localStorage.getItem('dietWarnHidden') || ''; }catch(e){}
+  const showWarn = !!warnText && hidden !== warnText;
+  const parts = [critText, showWarn ? warnText : ''].filter(Boolean);
+  $('#alarm').style.display = parts.length ? 'flex' : 'none';
+  $('#alarmt').textContent = parts.join(' — ');
+  $('#alarmx').style.display = showWarn ? '' : 'none';
+}
 
 function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('show'); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove('show'),3200); }
-function kb(k){ k=+k; if(k>=1073741824) return (k/1073741824).toFixed(2)+' TB'; if(k>=1048576) return (k/1048576).toFixed(1)+' GB'; if(k>=1024) return (k/1024).toFixed(0)+' MB'; return k+' kB'; }
-function rate(b){ if(b<0||!isFinite(b)) return '–'; if(b>=1048576) return (b/1048576).toFixed(1)+' MB/s'; if(b>=1024) return (b/1024).toFixed(0)+' kB/s'; return b.toFixed(0)+' B/s'; }
-function dur(s){ s=+s; const d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60); return (d?d+' T ':'')+(d||h?h+' h ':'')+m+' min'; }
+// nombres avec la virgule ou le point décimal de la langue
+function num(x, d){ return (+x).toLocaleString(LANG, {minimumFractionDigits:d, maximumFractionDigits:d}); }
+function kb(k){ k=+k; if(k>=1073741824) return num(k/1073741824,2)+' '+t('To'); if(k>=1048576) return num(k/1048576,1)+' '+t('Go'); if(k>=1024) return num(k/1024,0)+' '+t('Mo'); return k+' '+t('ko'); }
+function rate(b){ if(b<0||!isFinite(b)) return '–'; if(b>=1048576) return num(b/1048576,1)+' '+t('Mo/s'); if(b>=1024) return num(b/1024,0)+' '+t('ko/s'); return num(b,0)+' '+t('o/s'); }
+function dur(s){ s=+s; const d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60); return (d?d+' '+t('j')+' ':'')+(d||h?h+' h ':'')+m+' min'; }
+function mdOk(m){ return !!m.map && !m.map.includes('_') && (!m.name.startsWith('xraid') || m.state==='redundant'); }
+function mdLabel(m){ const x=m.name.match(/^xraid(\d+)$/); if(x) return 'X-RAID · '+(x[1]==='0'?t('Système'):x[1]==='1'?t('Données'):t('volume {0}', x[1]));
+  return (m.name==='md2'?t('Données'):m.name==='md1'?'Swap':m.name==='md0'?t('Système'):m.name)+' · '+m.name; }
+function age(h){ return h>=8766 ? t('{0} ans de marche', (h/8766).toLocaleString(LANG, {maximumFractionDigits:1})) : t('{0} h de marche', h); }
+function smartProblems(sm){ const p=[]; if(!sm) return p;
+  if(sm.health && sm.health!=='PASSED') p.push('SMART '+sm.health);
+  if(sm.realloc>0) p.push(t('{0} secteurs réalloués', sm.realloc)); if(sm.pending>0) p.push(t('{0} secteurs en attente', sm.pending)); if(sm.uncorr>0) p.push(t('{0} secteurs illisibles', sm.uncorr));
+  return p; }
+function spark(vals, color){
+  const v = vals.filter(x=>x!=null); if(v.length<2) return '';
+  const lo=Math.min(...v), hi=Math.max(...v), span=(hi-lo)||1, n=vals.length; let d='', pen=false;
+  vals.forEach((y,i)=>{ if(y==null){ pen=false; return; } d += (pen?'L':'M')+(100*i/(n-1)).toFixed(2)+' '+(22-20*(y-lo)/span).toFixed(2); pen=true; });
+  return `<svg viewBox="0 0 100 24" preserveAspectRatio="none" style="width:100%;height:28px;display:block"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>`;
+}
+async function loadHist(){
+  try{
+    const rows = (await get('hist', true)).trim().split('\n').map(l=>l.split(' ')).filter(r=>r.length>=3);
+    if(rows.length<2){ $('#hist').innerHTML=''; return; }
+    const temps = rows.map(r=>r[1]==='-'?null:+r[1]), f = rows.map(r=>+r[2]);
+    const rng = a=>{ const v=a.filter(x=>x!=null); return v.length ? Math.min(...v)+'–'+Math.max(...v) : '–'; };
+    $('#hist').innerHTML = `<div class="row"><span>${t('Température sur {0}', dur(rows[rows.length-1][0]-rows[0][0]))}</span><span>${rng(temps)} °C</span></div>${spark(temps,'var(--accent)')}`+
+      `<div class="row" style="margin-top:6px"><span>${t('Ventilateur')}</span><span>${rng(f)} ${t('tr/min')}</span></div>${spark(f,'var(--mute)')}`;
+  }catch(e){}
+}
 function esc(t){ return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 async function get(a, text){
-  const r = await fetch(API+'?a='+a, {cache:'no-store'});
+  const r = await fetch(API+'?a='+a+'&l='+LANG, {cache:'no-store'});
   if(!r.ok) throw new Error(await r.text());
   return text ? r.text() : r.json();
 }
 async function post(a, body){
-  const r = await fetch(API+'?a='+a, {method:'POST', headers:{'X-Diet':'1','Content-Type':'application/x-www-form-urlencoded'}, body: body||''});
+  const r = await fetch(API+'?a='+a+'&l='+LANG, {method:'POST', headers:{'X-Diet':'1','Content-Type':'application/x-www-form-urlencoded'}, body: body||''});
   const t = await r.text();
   if(!r.ok) throw new Error(t.trim());
   try { return JSON.parse(t); } catch(e){ return {msg:t}; }
@@ -206,23 +480,32 @@ async function post(a, body){
 function render(s){
   document.title = s.host.toUpperCase();
   $('#title').textContent = s.host.toUpperCase();
-  $('#sub').textContent = 'DIET ' + s.ver + ' · ReadyNAS NV+';
+  $('#sub').textContent = 'DIET ' + s.ver + ' · ' + (s.model || 'ReadyNAS');
+  document.body.classList.toggle('nolcd', s.haslcd === 0);
   const l1 = (s.host.slice(0,10)+' '+(s.temp??'?')+'C').padEnd(16).slice(0,16);
   const l2 = (s.alarm || s.ip).padEnd(16).slice(0,16);
   $('#lcd').textContent = l1+'\n'+l2;
   $('#lcd').classList.toggle('off', s.lcd != 1);
 
-  const al = $('#alarm'); al.style.display = s.alarm ? 'block' : 'none'; al.textContent = s.alarm ? 'Plattenalarm: '+s.alarm : '';
 
-  const bays = ['hdc','hde','hdg','hdi'].map((dev,i)=>{
+  const devs = ['hdc','hde','hdg','hdi'].slice(0, s.bays || 4);
+  if(devs.length < 4) $('#bays').style.gridTemplateColumns = 'repeat('+devs.length+',1fr)';
+  const smartAl = [];
+  const bays = devs.map((dev,i)=>{
     const d = s.disks.find(x=>x.dev===dev);
-    if(!d) return `<div class="bay"><span><span class="led"></span><b>Schacht ${i+1}</b></span><span class="m">leer</span></div>`;
-    const sleeping = /schlaeft/.test(d.temp), bad = s.alarm && s.alarm.indexOf('disk'+(i+1))===0;
+    if(!d) return `<div class="bay"><span><span class="led"></span><b>${t('Baie {0}', i+1)}</b></span><span class="m">${t('vide')}</span></div>`;
+    const sleeping = /standby|veille|schlaeft/.test(d.temp), bad = (s.alarm && s.alarm.indexOf('disk'+(i+1))===0) || (d.raid && d.raid!=='online');
     const led = bad?'bad':sleeping?'sleep':'on';
-    const t = sleeping ? 'schläft' : (d.temp || '–');
-    return `<div class="bay"><span><span class="led ${led}"></span><b>Schacht ${i+1}</b></span><span class="m" title="${esc(d.model)}">${esc(d.model)}</span><span>${d.gb} GB · ${esc(t)}</span></div>`;
+    const tt = sleeping ? t('en veille') : (d.temp || '–');
+    const sp = smartProblems(d.smart); if(sp.length) smartAl.push(t('baie {0}', i+1)+' ('+sp.join(', ')+')');
+    const sm = !d.smart ? '' : sp.length ? `<span style="color:#ff8a8a">${esc(sp.join(', '))}</span>` : `<span>SMART OK · ${esc(age(d.smart.hours))}</span>`;
+    return `<div class="bay"><span><span class="led ${led}"></span><b>${t('Baie {0}', i+1)}</b></span><span class="m" title="${esc(d.model)}">${esc(d.model)}</span><span>${d.gb} ${t('Go')} · ${esc(tt)}${d.raid && d.raid!=='online' ? ' · '+esc(d.raid) : ''}</span>${sm}</div>`;
   }).join('');
   $('#bays').innerHTML = bays;
+  const degraded = s.md.filter(m=>!mdOk(m)).map(m=>mdLabel(m)+(m.state?' ('+m.state+')':''));
+  critText = [s.alarm ? t('Alarme disque : {0}', s.alarm) : '', degraded.length ? t('RAID dégradé : {0}', degraded.join(', ')) : ''].filter(Boolean).join(' — ');
+  warnText = smartAl.length ? t('Disque à surveiller : {0}', smartAl.join(', ')) : '';
+  banner();
 
   // Raten aus Zaehlern
   const now = performance.now();
@@ -237,10 +520,11 @@ function render(s){
 
   $('#tmp').textContent = (s.temp??'–')+' °C';
   $('#fan').textContent = s.fan!=null ? s.fan : '–';
-  $('#fan').title = 'U/min, Stufe '+s.pwm+'/255';
-  const used = s.mem.total - s.mem.free - s.mem.buf - s.mem.cache;
+  $('#fan').title = t('tr/min, niveau {0}/255', s.pwm);
+  // Le noyau de ce NAS annonce libre + cache > total : on compte donc simplement total - libre (cache compris), jamais négatif.
+  const used = Math.max(0, s.mem.total - s.mem.free);
   $('#memt').textContent = kb(used)+' / '+kb(s.mem.total);
-  $('#memt').title = 'zusätzlich '+kb(s.mem.buf+s.mem.cache)+' als Cache';
+  $('#memt').title = t('cache disque compris');
   $('#memb').style.width = (100*used/s.mem.total).toFixed(1)+'%';
   $('#load').textContent = s.load.map(x=>(+x).toFixed(2)).join(' · ');
   $('#up').textContent = dur(s.uptime);
@@ -249,24 +533,23 @@ function render(s){
   if(s.c.size){
     const pct = 100*s.c.used/s.c.size;
     $('#cfree').textContent = kb(s.c.free);
-    $('#cfreet').textContent = 'frei von '+kb(s.c.size)+' · '+pct.toFixed(0)+' % belegt';
+    $('#cfreet').textContent = t('libres sur {0} · {1} % utilisés', kb(s.c.size), pct.toFixed(0));
     $('#cbar').style.width = pct.toFixed(1)+'%';
     $('#cbarw').className = 'bar'+(pct>95?' b':pct>85?' w':'');
-  } else { $('#cfree').textContent = 'nicht eingehängt'; $('#cfreet').textContent=''; }
+  } else { $('#cfree').textContent = t('non monté'); $('#cfreet').textContent=''; }
 
   $('#md').innerHTML = s.md.map(m=>{
-    const lab = m.name==='md2'?'Daten':m.name==='md1'?'Swap':m.name==='md0'?'System':m.name;
     const slots = [...(m.map||'')].map((c,i)=>`<span class="${c==='U'?'u':'f'}">${i+1}</span>`).join('');
-    const ok = m.map && !m.map.includes('_');
-    return `<div class="row small" style="margin-top:8px"><span>${lab} · ${m.name} · ${m.level}</span><span style="color:var(--${ok?'ok':'bad'})">${ok?'in Ordnung':'BEEINTRÄCHTIGT'}</span></div>
-      <div class="raid">${slots}</div>${m.sync?`<div class="small">${esc(m.sync)}</div>`:''}`;
+    const ok = mdOk(m);
+    return `<div class="row small" style="margin-top:8px"><span>${esc(mdLabel(m))} · ${esc(m.level)}</span><span style="color:var(--${ok?'ok':'bad'})">${ok?t('en bon état'):t('DÉGRADÉ')}</span></div>
+      <div class="raid">${slots}</div>${m.sync?`<div class="small">${esc(t('Synchronisation : {0}', m.sync))}</div>`:''}`;
   }).join('');
 
   $('#ip').textContent = s.ip || '–';
-  const names = {nfs:'NFS',smbd:'Samba',nmbd:'Netzwerkname',rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:'Zeit',hwmon:'Überwachung'};
+  const names = {nfs:'NFS',smbd:'Samba',nmbd:t('Nom réseau'),rsync:'rsync',httpd:'Web',dropbear:'SSH',ntpd:t('Heure'),hwmon:t('Surveillance')};
   $('#svc').innerHTML = Object.entries(s.svc).filter(([k,v])=>v||k!=='ntpd')
     .map(([k,v])=>`<span class="chip"><span class="led ${v?'on':'dn'}"></span>${names[k]||k}</span>`).join('');
-  $('#upd').textContent = 'Stand ' + new Date().toLocaleTimeString('de-AT');
+  $('#upd').textContent = t('Mis à jour à {0}', new Date().toLocaleTimeString(LANG));
 
   if(!$('#smartb').children.length)
     $('#smartb').innerHTML = s.disks.map((d,i)=>`<button class="b" data-smart="${d.dev}">${i+1}</button>`).join('');
@@ -274,17 +557,20 @@ function render(s){
 
 async function poll(){
   clearTimeout(timer);
-  try { last = await get('status'); render(last); }
-  catch(e){ $('#upd').textContent = 'keine Verbindung'; }
+  try { last = await get('status'); render(last); if(polls++ % 12 === 0) loadHist(); }
+  catch(e){ $('#upd').textContent = t('pas de connexion'); }
   if(document.visibilityState==='visible') timer = setTimeout(poll, 5000);
 }
 document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') poll(); });
+
+$('#alarmx').onclick = ()=>{ try{ localStorage.setItem('dietWarnHidden', warnText); }catch(e){} banner(); };
 
 // Seitenwechsel
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('act',x===b));
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('act',p.id==='p-'+b.dataset.p));
-  if(b.dataset.p==='cfg') loadCfg();
+  if(b.dataset.p==='cfg'){ loadCfg(); loadSys(); }
+  if(b.dataset.p==='shares'){ loadShares(); loadUsers(); }
   if(b.dataset.p==='log') loadLog();
 });
 
@@ -297,48 +583,132 @@ async function waitBack(text, expectOff){
     try { await get('status'); location.reload(); return; } catch(e){}
     await new Promise(r=>setTimeout(r, 5000));
   }
-  $('#ovt').innerHTML = 'Das NAS meldet sich nicht.<br><small>Mit SSH nachsehen oder Seite später neu laden.</small>';
+  $('#ovt').innerHTML = t('Le NAS ne répond pas.<br><small>Vérifier en SSH ou recharger la page plus tard.</small>');
 }
 document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
   if(b.dataset.q && !confirm(b.dataset.q)) return;
   b.disabled = true;
   try{
     const r = await post(b.dataset.a);
-    toast(r.msg || 'erledigt');
-    if(b.dataset.a==='reboot') waitBack('Neustart läuft …<br><small>Seite lädt automatisch neu.</small>');
-    else if(b.dataset.a==='raidiator') waitBack('Startet RAIDiator …<br><small>Netgear-Oberfläche: https://'+(last?last.ip:'')+'/admin</small>', true);
-    else if(b.dataset.a==='poweroff') waitBack('Wird ausgeschaltet.<br><small>Einschalten mit dem Knopf am Gerät.</small>', true);
+    toast(r.msg || t('fait'));
+    if(b.dataset.a==='reboot') waitBack(t('Redémarrage en cours…<br><small>La page se rechargera toute seule.</small>'));
+    else if(b.dataset.a==='raidiator') waitBack(t('Démarrage de RAIDiator…<br><small>Interface Netgear : https://{0}/admin</small>', esc(last?last.ip:'')), true);
+    else if(b.dataset.a==='poweroff') waitBack(t('Extinction en cours.<br><small>Rallumer avec le bouton de l’appareil.</small>'), true);
     else poll();
-  }catch(e){ toast('Fehler: '+e.message); }
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
   b.disabled = false;
 });
 
 // Einstellungen
 async function loadCfg(){
   try{ const c = await get('config'); for(const [k,v] of Object.entries(c)){ const i=$(`#cfg [name=${k}]`); if(i) i.value=v; } }
-  catch(e){ toast('Fehler: '+e.message); }
+  catch(e){ toast(t('Erreur : {0}', e.message)); }
 }
 $('#cfg').onsubmit = async ev=>{
   ev.preventDefault();
   const btn = ev.target.querySelector('button'); btn.disabled = true;
   try{ const r = await post('config', new URLSearchParams(new FormData(ev.target)).toString()); toast(r.msg); }
-  catch(e){ toast('Nicht gespeichert: '+e.message); }
+  catch(e){ toast(t('Non enregistré : {0}', e.message)); }
   btn.disabled = false;
+};
+
+// Réglages système
+const TZS = [['Paris, Bruxelles, Berlin, Madrid','CET-1CEST,M3.5.0,M10.5.0/3'],['Londres, Lisbonne','GMT0BST,M3.5.0/1,M10.5.0'],
+  ['Helsinki, Athènes, Kiev','EET-2EEST,M3.5.0/3,M10.5.0/4'],['UTC','UTC0'],['Montréal, New York','EST5EDT,M3.2.0,M11.1.0'],
+  ['Chicago','CST6CDT,M3.2.0,M11.1.0'],['Denver','MST7MDT,M3.2.0,M11.1.0'],['Los Angeles, Vancouver','PST8PDT,M3.2.0,M11.1.0'],
+  ['Tokyo','JST-9'],['Sydney','AEST-10AEDT,M10.1.0,M4.1.0/3']];
+function sysField(n){ return $('#sys [name='+n+']'); }
+function sysMode(){ const st = sysField('net').value==='static'; document.querySelectorAll('#sys .st').forEach(e=>e.style.display = st ? '' : 'none'); }
+async function loadSys(){
+  try{
+    const c = await get('sys');
+    const z = TZS.some(o=>o[1]===c.tz) ? TZS : TZS.concat([[t('Actuel : {0}', c.tz), c.tz]]);
+    sysField('tz').innerHTML = z.map(o=>`<option value="${esc(o[1])}">${esc(t(o[0]))}</option>`).join('');
+    for(const k of ['host','lang','tz','net','ip','mask','gw','dns','tgchat']) sysField(k).value = c[k] ?? '';
+    sysField('tgtoken').value = '';
+    $('#tgs').textContent = c.tgset ? t('un jeton est enregistré ; laisser vide pour le garder') : t('donné par @BotFather');
+    sysMode();
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
+}
+$('#sys').onchange = ev=>{ if(ev.target.name==='net') sysMode(); };
+$('#sys').onsubmit = async ev=>{
+  ev.preventDefault();
+  if(sysField('net').value==='static' && !confirm(t('Passer en adresse fixe ? Une adresse erronée rendrait le NAS injoignable après le redémarrage.'))) return;
+  const body = ['host','lang','tz','net','ip','mask','gw','dns','tgtoken','tgchat'].map(k=>k+'='+encodeURIComponent(sysField(k).value.trim())).join('&');
+  try{ const r = await post('sys_set', body); toast(r.msg); loadSys(); }catch(e){ toast(t('Non enregistré : {0}', e.message)); }
+};
+$('#tgtest').onclick = async ev=>{
+  ev.target.disabled = true;
+  try{ const r = await post('notify_test'); toast(r.msg); }catch(e){ toast(e.message); }
+  ev.target.disabled = false;
+};
+
+// Partages
+async function loadShares(){
+  try{
+    const l = await get('shares');
+    $('#shl').innerHTML = l.length ? l.map(s=>`<div class="row shrow" data-name="${esc(s.name)}" style="align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
+      <span><b>${esc(s.name)}</b><br><span class="small">${esc(s.path)}${s.exists ? '' : ' · '+t('dossier absent')}</span></span>
+      <span class="btns" style="align-items:center">
+        <label class="small"><input type="checkbox" data-k="ro" ${s.ro?'checked':''}> ${t('lecture seule')}</label>
+        <label class="small"><input type="checkbox" data-k="guest" ${s.guest?'checked':''}> ${t('sans mot de passe')}</label>
+        <button class="b danger" data-del="1">${t('Retirer')}</button></span></div>`).join('') : '<p class="small">'+t('Aucun partage.')+'</p>';
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
+}
+async function shareDo(a, body){
+  try{ const r = await post(a, body); toast(r.msg || t('fait')); }catch(e){ toast(t('Erreur : {0}', e.message)); }
+  loadShares();
+}
+$('#shl').onchange = ev=>{
+  const r = ev.target.closest('.shrow'); if(!r) return;
+  shareDo('share_set', 'name='+encodeURIComponent(r.dataset.name)+'&ro='+(r.querySelector('[data-k=ro]').checked?1:0)+'&guest='+(r.querySelector('[data-k=guest]').checked?1:0));
+};
+$('#shl').onclick = ev=>{
+  if(!ev.target.dataset.del) return;
+  const n = ev.target.closest('.shrow').dataset.name;
+  if(confirm(t('Retirer le partage « {0} » du réseau ? Le dossier et son contenu sont conservés.', n))) shareDo('share_del', 'name='+encodeURIComponent(n));
+};
+$('#shadd').onsubmit = ev=>{ ev.preventDefault(); const i = ev.target.querySelector('input'); shareDo('share_add', 'name='+encodeURIComponent(i.value.trim())); i.value=''; };
+
+// Utilisateurs
+async function loadUsers(){
+  try{
+    const l = await get('users');
+    $('#usl').innerHTML = l.length ? l.map(u=>`<div class="row usrow" data-name="${esc(u.name)}" style="align-items:center;padding:6px 0;border-bottom:1px solid var(--line)">
+      <span><b>${esc(u.name)}</b>${u.smb ? '' : ' <span class="small">· '+t('pas de mot de passe Samba')+'</span>'}</span>
+      <span class="btns">${u.uid >= 1000 ? '<button class="b danger" data-del="1">'+t('Supprimer')+'</button>' : '<span class="small">'+t('compte système')+'</span>'}</span></div>`).join('') : '<p class="small">'+t('Aucun utilisateur.')+'</p>';
+  }catch(e){ toast(t('Erreur : {0}', e.message)); }
+}
+async function userDo(a, body){
+  try{ const r = await post(a, body); toast(r.msg || t('fait')); }catch(e){ toast(t('Erreur : {0}', e.message)); }
+  loadUsers();
+}
+$('#usl').onclick = ev=>{
+  if(!ev.target.dataset.del) return;
+  const n = ev.target.closest('.usrow').dataset.name;
+  if(confirm(t('Supprimer l’utilisateur « {0} » ? Ses fichiers sont conservés.', n))) userDo('user_del', 'name='+encodeURIComponent(n));
+};
+$('#usadd').onsubmit = ev=>{
+  ev.preventDefault(); const f = ev.target;
+  userDo('user_set', 'name='+encodeURIComponent(f.querySelector('[name=name]').value.trim())+'&pw='+encodeURIComponent(f.querySelector('[name=pw]').value)); f.reset();
 };
 
 // Protokolle
 async function loadLog(){
-  $('#logo').textContent = 'lade …';
-  try{ const t = await get('log&f='+$('#logf').value, true); $('#logo').textContent = t || '(leer)'; $('#logo').scrollTop = 1e9; }
-  catch(e){ $('#logo').textContent = 'Fehler: '+e.message; }
+  $('#logo').textContent = t('chargement…');
+  try{ const t2 = await get('log&f='+$('#logf').value, true); $('#logo').textContent = t2 || t('(vide)'); $('#logo').scrollTop = 1e9; }
+  catch(e){ $('#logo').textContent = t('Erreur : {0}', e.message); }
 }
 $('#logf').onchange = loadLog; $('#logr').onclick = loadLog;
 $('#smartb').onclick = async ev=>{
   const d = ev.target.dataset.smart; if(!d) return;
-  $('#logo').textContent = 'lese SMART von Schacht '+ev.target.textContent+' …';
-  try{ $('#logo').textContent = await get('smart&d='+d, true); }catch(e){ $('#logo').textContent='Fehler: '+e.message; }
+  $('#logo').textContent = t('lecture SMART de la baie {0}…', ev.target.textContent);
+  try{ $('#logo').textContent = await get('smart&d='+d, true); }catch(e){ $('#logo').textContent=t('Erreur : {0}', e.message); }
 };
 
+if(LANG !== 'fr') translatePage();
+$('#lang').value = LANG;
+$('#lang').onchange = ev=>{ try{ localStorage.setItem('dietLang', ev.target.value); }catch(e){} location.reload(); };
 poll();
 </script>
 </body>
