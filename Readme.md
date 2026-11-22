@@ -12,10 +12,13 @@ the split image in `.github/ci-images/`, boots a disposable QEMU guest, copies t
 selected repository directory into `/root/ci-build`, runs the requested shell commands
 there, and uploads the selected outputs. No guest changes persist between runs.
 
-The caller `.github/workflows/build.yml` is a working example: it compiles
-`diet-nvplus/tools/sdiv-test.c` and downloads the resulting SPARC binary in a second
-job. To build something else, change that caller's `with` values and the downstream
-file checks. For example, a caller job can use:
+The caller `.github/workflows/build.yml` is a working example: it prints the guest
+architecture and GCC version, compiles `diet-nvplus/tools/sdiv-test.c`, and runs
+`./sdiv-test 0` to check that the resulting binary starts. The downstream job downloads
+it and prints its ELF headers and checksum. The full `sdiv-test` is not a meaningful
+QEMU test because the emulator miscomputes some `sdiv` cases (see the source file).
+To build something else, change the caller's `with` values and downstream file checks.
+For example, a caller job can use:
 
 ```yaml
 jobs:

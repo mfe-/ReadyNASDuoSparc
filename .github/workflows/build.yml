@@ -16,7 +16,12 @@ jobs:
     uses: ./.github/workflows/sparc-build.yml
     with:
       source_directory: diet-nvplus/tools
-      build_command: gcc -O2 -mcpu=v7 -o sdiv-test sdiv-test.c
+      build_command: |
+        uname -m
+        gcc --version
+        gcc -O2 -mcpu=v7 -o sdiv-test sdiv-test.c
+        ls -lh sdiv-test
+        ./sdiv-test 0
       artifact_paths: sdiv-test
 
   consume:
@@ -36,4 +41,6 @@ jobs:
           set -euo pipefail
           test -s build-output/sdiv-test
           file build-output/sdiv-test
+          readelf -h build-output/sdiv-test
+          sha256sum build-output/sdiv-test
           readelf -h build-output/sdiv-test | grep -Eiq 'Machine:.*sparc'
