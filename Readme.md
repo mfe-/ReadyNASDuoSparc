@@ -59,8 +59,8 @@ jobs:
   The fixed artifact name is `readynas-sparc-build`, so use only one SPARC build call
   per workflow run unless the reusable workflow is extended with an artifact-name input.
 
-Pushes to `master` and pull requests targeting `master` run the example caller. The
-reusable workflow also accepts manual inputs from the repository's default branch. It
+Pushes to `master` or `main`, and pull requests targeting either branch, run the example
+caller. The reusable workflow also accepts manual inputs from the default branch. It
 uses the image's published root password `a` only for the ephemeral localhost-forwarded
 guest. Keep its runner on Ubuntu 22.04 unless a newer QEMU version is tested: the
 guest's old kernel could not mount its disk on the Ubuntu 24.04 runner.
