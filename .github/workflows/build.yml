@@ -3,7 +3,10 @@ name: Build SPARC binaries
 on:
   push:
     branches:
-      - test/sparc-build-workflow
+      - master
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
