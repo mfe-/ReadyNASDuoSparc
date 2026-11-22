@@ -1,0 +1,118 @@
+name: Build in ReadyNAS SPARC guest
+
+on:
+  push:
+    branches:
+      - test/sparc-build-workflow
+  workflow_dispatch:
+    inputs:
+      source_directory:
+        description: Repository directory to copy into the guest (for example, zlib-1.2.11)
+        required: true
+        type: string
+      build_command:
+        description: Shell commands to run from /root/ci-build inside the guest
+        required: true
+        type: string
+      artifact_path:
+        description: File or directory to retrieve, relative to /root/ci-build
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      SOURCE_DIR: ${{ inputs.source_directory || 'diet-nvplus/toolchain' }}
+      BUILD_COMMAND: ${{ inputs.build_command || 'uname -m > sparc-architecture.txt' }}
+      ARTIFACT_PATH: ${{ inputs.artifact_path || 'sparc-architecture.txt' }}
+      SSHPASS: a
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SPARC emulator and SSH client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-sparc qemu-utils sshpass
+
+      - name: Verify and decompress guest image
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/ci-images/readynas_compile_environment.qcow.gz.part[0-9][0-9] > readynas_compile_environment.qcow.gz
+          sha256sum -c .github/ci-images/readynas_compile_environment.qcow.gz.sha256
+          gzip -t readynas_compile_environment.qcow.gz
+          gzip -dc readynas_compile_environment.qcow.gz > "$RUNNER_TEMP/readynas_compile_environment.qcow"
+          qemu-img info "$RUNNER_TEMP/readynas_compile_environment.qcow"
+
+      - name: Boot guest and build over SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in "$SOURCE_DIR" "$ARTIFACT_PATH"; do
+            if [[ ! "$path" =~ ^[a-zA-Z0-9_./-]+$ || "$path" == /* || "$path" == *..* ]]; then
+              printf 'Invalid source or artifact path: %s\n' "$path" >&2
+              exit 1
+            fi
+          done
+          test -d "$SOURCE_DIR"
+          mkdir -p "$RUNNER_TEMP/build-output"
+
+          qemu-system-sparc -hda "$RUNNER_TEMP/readynas_compile_environment.qcow" \
+            -nographic -monitor none -snapshot \
+            -net nic -net user,hostfwd=tcp:127.0.0.1:2222-:22 \
+            </dev/null >"$RUNNER_TEMP/qemu.log" 2>&1 &
+          qemu_pid=$!
+          trap 'status=$?; if (( status != 0 )); then tail -n 100 "$RUNNER_TEMP/qemu.log"; fi; kill "$qemu_pid" 2>/dev/null || true' EXIT
+
+          ssh_options=(
+            -p 2222
+            -o StrictHostKeyChecking=no
+            -o UserKnownHostsFile=/dev/null
+            -o LogLevel=ERROR
+            -o ConnectTimeout=5
+            -o NumberOfPasswordPrompts=1
+            -o PubkeyAuthentication=no
+            -o HostKeyAlgorithms=+ssh-rsa
+            -o KexAlgorithms=+diffie-hellman-group1-sha1
+            -o Ciphers=+aes128-cbc,3des-cbc
+          )
+          deadline=$((SECONDS + 120))
+          ssh_ready=false
+          while (( SECONDS < deadline )); do
+            if ! kill -0 "$qemu_pid" 2>/dev/null; then
+              printf 'QEMU exited before SSH was available\n' >&2
+              exit 1
+            fi
+            remaining=$((deadline - SECONDS))
+            if timeout "$((remaining < 5 ? remaining : 5))" \
+              sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 true 2>/dev/null; then
+              ssh_ready=true
+              break
+            fi
+            remaining=$((deadline - SECONDS))
+            if (( remaining > 0 )); then
+              sleep "$((remaining < 5 ? remaining : 5))"
+            fi
+          done
+          if [[ "$ssh_ready" != true ]]; then
+            printf 'Guest SSH did not become available in 2 minutes\n' >&2
+            exit 1
+          fi
+
+          tar -C "$SOURCE_DIR" -cf - . | sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            'mkdir -p /root/ci-build && tar -xf - -C /root/ci-build'
+          printf '%s\n' "$BUILD_COMMAND" | sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            'cd /root/ci-build && sh -se'
+          sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            "tar -C /root/ci-build -cf - '$ARTIFACT_PATH'" | tar -C "$RUNNER_TEMP/build-output" -xf -
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: readynas-sparc-build
+          path: ${{ runner.temp }}/build-output/
+          if-no-files-found: error
