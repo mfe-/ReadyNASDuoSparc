@@ -11,16 +11,19 @@ The workflow-only QEMU image is stored in `.github/ci-images/` as numbered parts
 GitHub's 100 MB per-file limit. The workflow verifies their checksum, decompresses the
 image, and boots a disposable copy of it. The full archive is ignored locally.
 
-Run **Build in ReadyNAS SPARC guest** from the Actions tab with:
+The main pipeline in `.github/workflows/build.yml` calls the reusable SPARC job,
+compiles `diet-nvplus/tools/sdiv-test.c`, then downloads and checks the resulting
+SPARC binary in a separate job. To build another project, change the caller's inputs:
 
-- `source_directory`: repository directory to copy into `/root/ci-build` in the VM.
+- `source_directory`: repository directory to copy into `/root/ci-build` in the VM;
+  use `.` for the repository root (this transfers much more data).
 - `build_command`: shell command to run there, such as `make`.
-- `artifact_path`: build output path relative to `/root/ci-build` to upload as an artifact.
+- `artifact_paths`: newline-separated files or directories relative to `/root/ci-build`.
+  Use `.` to retrieve the entire guest working directory, including copied sources.
 
-Pushes to `test/sparc-build-workflow` run a smoke test that writes `uname -m` to an
-artifact; manual runs accept the inputs above. There is no specific package build
-command configured yet. The VM uses its published default root password `a` over a
-localhost-only forwarded SSH port.
+Pushes to `test/sparc-build-workflow` test the main pipeline; the SPARC workflow can
+also run manually with the same inputs. The VM uses its published default root
+password `a` over a localhost-only forwarded SSH port.
 SSH access and booting with the current QEMU package must be tested on a runner before
 relying on this workflow for releases.
 

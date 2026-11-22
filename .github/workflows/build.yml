@@ -1,0 +1,35 @@
+name: Build SPARC binaries
+
+on:
+  push:
+    branches:
+      - test/sparc-build-workflow
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sparc:
+    uses: ./.github/workflows/sparc-build.yml
+    with:
+      source_directory: diet-nvplus/tools
+      build_command: gcc -O2 -mcpu=v7 -o sdiv-test sdiv-test.c
+      artifact_paths: sdiv-test
+
+  consume:
+    needs: sparc
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Retrieve SPARC build output
+        uses: actions/download-artifact@v4
+        with:
+          name: readynas-sparc-build
+          path: build-output
+
+      - name: Verify returned binary
+        run: |
+          set -euo pipefail
+          test -s build-output/sdiv-test
+          file build-output/sdiv-test
+          readelf -h build-output/sdiv-test | grep -Eiq 'Machine:.*sparc'
