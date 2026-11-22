@@ -5,6 +5,66 @@ This repository contains information, binaries, scripts regarding the readynas d
 
 Qemu image of readynas <https://community.netgear.com/t5/Community-Add-ons/Sparc-platform-development-envrionment-using-Qemu/td-p/720841> (dev version)
 
+## Build in the SPARC guest with GitHub Actions
+
+`.github/workflows/sparc-build.yml` is a reusable workflow. It reconstructs and checks
+the split image in `.github/ci-images/`, boots a disposable QEMU guest, copies the
+selected repository directory into `/root/ci-build`, runs the requested shell commands
+there, and uploads the selected outputs. No guest changes persist between runs.
+
+The caller `.github/workflows/build.yml` is a working example: it prints the guest
+architecture and GCC version, compiles `diet-nvplus/tools/sdiv-test.c`, and runs
+`./sdiv-test 0` to check that the resulting binary starts. The downstream job downloads
+it and prints its ELF headers and checksum. The full `sdiv-test` is not a meaningful
+QEMU test because the emulator miscomputes some `sdiv` cases (see the source file).
+To build something else, change the caller's `with` values and downstream file checks.
+For example, a caller job can use:
+
+```yaml
+jobs:
+  sparc:
+    uses: ./.github/workflows/sparc-build.yml
+    with:
+      source_directory: path/to/project
+      build_command: |
+        gcc -O2 -o program test.c
+        uname -m > architecture.txt
+      artifact_paths: |
+        program
+        architecture.txt
+
+  consume:
+    needs: sparc
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: readynas-sparc-build
+          path: build-output
+      - run: test -s build-output/program
+```
+
+- `source_directory` is relative to the repository checkout; `.` means the repository
+  root. Prefer a small subdirectory: copying the root transfers far more data. The
+  workflow excludes `.git`, `.github/ci-images`, and the reconstructed image.
+- `build_command` runs under `sh -se` in `/root/ci-build` as root. Commands can span
+  multiple lines; a failing command stops the job. Use paths relative to this guest
+  directory for source files and outputs.
+- `artifact_paths` lists existing files or directories relative to `/root/ci-build`,
+  one per line. Missing outputs fail the job. `.` opts into returning the entire guest
+  working directory, including the copied source files. Prefer explicit outputs to
+  avoid large artifacts or unintended files.
+- Source and artifact paths cannot be absolute, contain `..`, spaces, or glob patterns.
+  Output directory structure is retained under the downstream `build-output/` path.
+  The fixed artifact name is `readynas-sparc-build`, so use only one SPARC build call
+  per workflow run unless the reusable workflow is extended with an artifact-name input.
+
+Pushes to `test/sparc-build-workflow` run the example caller. The reusable workflow
+also accepts manual inputs after it exists on the repository's default branch. It
+uses the image's published root password `a` only for the ephemeral localhost-forwarded
+guest. Keep its runner on Ubuntu 22.04 unless a newer QEMU version is tested: the
+guest's old kernel could not mount its disk on the Ubuntu 24.04 runner.
+
 ## Licence
 
 Original project code and documentation are available under the [MIT License](LICENSE).

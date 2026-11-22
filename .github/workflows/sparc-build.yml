@@ -1,0 +1,173 @@
+name: Build in ReadyNAS SPARC guest
+
+on:
+  workflow_call:
+    inputs:
+      source_directory:
+        description: Repository directory to copy into the guest; use . for the repository root
+        required: true
+        type: string
+      build_command:
+        description: Shell commands to run from /root/ci-build inside the guest
+        required: true
+        type: string
+      artifact_paths:
+        description: Newline-separated files or directories to retrieve, relative to /root/ci-build
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      source_directory:
+        description: Repository directory to copy into the guest; use . for the repository root
+        required: true
+        type: string
+      build_command:
+        description: Shell commands to run from /root/ci-build inside the guest
+        required: true
+        type: string
+      artifact_paths:
+        description: Newline-separated files or directories to retrieve, relative to /root/ci-build
+        required: true
+        type: string
+
+jobs:
+  build:
+    # Ubuntu 24.04's QEMU offlines the old guest's SCSI disk during boot.
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+    env:
+      SOURCE_DIR: ${{ inputs.source_directory }}
+      BUILD_COMMAND: ${{ inputs.build_command }}
+      ARTIFACT_PATHS: ${{ inputs.artifact_paths }}
+      SSHPASS: a
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SPARC emulator and SSH client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-sparc qemu-utils sshpass expect socat
+
+      - name: Verify and decompress guest image
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/ci-images/readynas_compile_environment.qcow.gz.part[0-9][0-9] > readynas_compile_environment.qcow.gz
+          sha256sum -c .github/ci-images/readynas_compile_environment.qcow.gz.sha256
+          gzip -t readynas_compile_environment.qcow.gz
+          gzip -dc readynas_compile_environment.qcow.gz > "$RUNNER_TEMP/readynas_compile_environment.qcow"
+          qemu-img info "$RUNNER_TEMP/readynas_compile_environment.qcow"
+
+      - name: Boot guest and build over SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$SOURCE_DIR" =~ ^[a-zA-Z0-9_./-]+$ || "$SOURCE_DIR" == /* || "$SOURCE_DIR" == *..* ]]; then
+            printf 'Invalid source directory: %s\n' "$SOURCE_DIR" >&2
+            exit 1
+          fi
+          test -d "$SOURCE_DIR"
+          # Only explicit, relative paths can become arguments to the guest tar command.
+          artifact_args=()
+          while IFS= read -r path; do
+            [[ -n "$path" ]] || continue
+            if [[ ! "$path" =~ ^[a-zA-Z0-9_./-]+$ || "$path" == /* || "$path" == *..* ]]; then
+              printf 'Invalid artifact path: %s\n' "$path" >&2
+              exit 1
+            fi
+            artifact_args+=("'$path'")
+          done <<< "$ARTIFACT_PATHS"
+          (( ${#artifact_args[@]} > 0 )) || { printf 'No artifact paths specified\n' >&2; exit 1; }
+          mkdir -p "$RUNNER_TEMP/build-output"
+
+          qemu-system-sparc -hda "$RUNNER_TEMP/readynas_compile_environment.qcow" \
+            -nographic -monitor none -snapshot \
+            -serial "unix:$RUNNER_TEMP/guest.serial,server=on,wait=off" \
+            -net nic -net user,hostfwd=tcp:127.0.0.1:2222-:22 \
+            </dev/null >"$RUNNER_TEMP/qemu.log" 2>&1 &
+          qemu_pid=$!
+          trap 'status=$?; if (( status != 0 )); then tail -n 100 "$RUNNER_TEMP/qemu.log"; fi; kill "$qemu_pid" 2>/dev/null || true' EXIT
+
+          export GUEST_SERIAL="$RUNNER_TEMP/guest.serial"
+          for attempt in {1..20}; do
+            test -S "$GUEST_SERIAL" && break
+            sleep 1
+          done
+          # The guest boots without network configuration or sshd running.
+          # Use its serial login once to bring up SSH on the loopback-forwarded port.
+          expect <<'EXPECT'
+          set timeout 120
+          spawn socat - "UNIX-CONNECT:$env(GUEST_SERIAL)"
+          expect {
+            -re {login: ?$} {}
+            timeout { puts stderr "Guest did not reach login prompt"; exit 1 }
+            eof { puts stderr "Guest serial connection closed"; exit 1 }
+          }
+          send -- "root\r"
+          expect -re {Password: ?$}
+          log_user 0
+          send -- "a\r"
+          expect -re {debian-sparc:~# ?$}
+          log_user 1
+          send -- "/sbin/ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up; /sbin/route add default gw 10.0.2.2 2>/dev/null; if test -x /usr/sbin/sshd; then /usr/sbin/sshd && echo CI_SSH_''READY || echo CI_SSH_''FAILED; else echo CI_NO_''SSHD; fi\r"
+          expect {
+            -re {CI_SSH_READY} {}
+            -re {CI_NO_SSHD|CI_SSH_FAILED} { puts stderr "Unable to start guest SSH daemon"; exit 1 }
+            timeout { puts stderr "Guest SSH initialization timed out"; exit 1 }
+            eof { puts stderr "Guest serial connection closed"; exit 1 }
+          }
+          EXPECT
+
+          ssh_options=(
+            -p 2222
+            -o StrictHostKeyChecking=no
+            -o UserKnownHostsFile=/dev/null
+            -o LogLevel=ERROR
+            -o ConnectTimeout=5
+            -o NumberOfPasswordPrompts=1
+            -o PubkeyAuthentication=no
+            -o HostKeyAlgorithms=+ssh-rsa
+            -o KexAlgorithms=+diffie-hellman-group1-sha1
+            -o Ciphers=+aes128-cbc,3des-cbc
+          )
+          deadline=$((SECONDS + 120))
+          ssh_ready=false
+          while (( SECONDS < deadline )); do
+            if ! kill -0 "$qemu_pid" 2>/dev/null; then
+              printf 'QEMU exited before SSH was available\n' >&2
+              exit 1
+            fi
+            remaining=$((deadline - SECONDS))
+            if timeout "$((remaining < 5 ? remaining : 5))" \
+              sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 true 2>/dev/null; then
+              ssh_ready=true
+              break
+            fi
+            remaining=$((deadline - SECONDS))
+            if (( remaining > 0 )); then
+              sleep "$((remaining < 5 ? remaining : 5))"
+            fi
+          done
+          if [[ "$ssh_ready" != true ]]; then
+            printf 'Guest SSH did not become available in 2 minutes\n' >&2
+            exit 1
+          fi
+
+          # A root-directory build must not copy Git history or the 400 MB CI image.
+          tar -C "$SOURCE_DIR" --exclude='./.git' --exclude='./.github/ci-images' \
+            --exclude='./readynas_compile_environment.qcow.gz' -cf - . | \
+            sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            'mkdir -p /root/ci-build && tar -xf - -C /root/ci-build'
+          printf '%s\n' "$BUILD_COMMAND" | sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            'cd /root/ci-build && sh -se'
+          sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
+            "tar -C /root/ci-build -cf - ${artifact_args[*]}" | tar -C "$RUNNER_TEMP/build-output" -xf -
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: readynas-sparc-build
+          path: ${{ runner.temp }}/build-output/
+          if-no-files-found: error
