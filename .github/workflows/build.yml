@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   sparc:
+    # Change these three inputs for another project. '.' copies the repo root;
+    # artifact_paths selects outputs relative to /root/ci-build in the guest.
     uses: ./.github/workflows/sparc-build.yml
     with:
       source_directory: diet-nvplus/tools
@@ -21,6 +23,8 @@ jobs:
     needs: sparc
     runs-on: ubuntu-22.04
     steps:
+      # The reusable job uploads this named artifact in the same workflow run.
+      # Download it before using generated files; this job has its own filesystem.
       - name: Retrieve SPARC build output
         uses: actions/download-artifact@v4
         with:

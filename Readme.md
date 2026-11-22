@@ -7,25 +7,60 @@ Qemu image of readynas <https://community.netgear.com/t5/Community-Add-ons/Sparc
 
 ## Build in the SPARC guest with GitHub Actions
 
-The workflow-only QEMU image is stored in `.github/ci-images/` as numbered parts under
-GitHub's 100 MB per-file limit. The workflow verifies their checksum, decompresses the
-image, and boots a disposable copy of it. The full archive is ignored locally.
+`.github/workflows/sparc-build.yml` is a reusable workflow. It reconstructs and checks
+the split image in `.github/ci-images/`, boots a disposable QEMU guest, copies the
+selected repository directory into `/root/ci-build`, runs the requested shell commands
+there, and uploads the selected outputs. No guest changes persist between runs.
 
-The main pipeline in `.github/workflows/build.yml` calls the reusable SPARC job,
-compiles `diet-nvplus/tools/sdiv-test.c`, then downloads and checks the resulting
-SPARC binary in a separate job. To build another project, change the caller's inputs:
+The caller `.github/workflows/build.yml` is a working example: it compiles
+`diet-nvplus/tools/sdiv-test.c` and downloads the resulting SPARC binary in a second
+job. To build something else, change that caller's `with` values and the downstream
+file checks. For example, a caller job can use:
 
-- `source_directory`: repository directory to copy into `/root/ci-build` in the VM;
-  use `.` for the repository root (this transfers much more data).
-- `build_command`: shell command to run there, such as `make`.
-- `artifact_paths`: newline-separated files or directories relative to `/root/ci-build`.
-  Use `.` to retrieve the entire guest working directory, including copied sources.
+```yaml
+jobs:
+  sparc:
+    uses: ./.github/workflows/sparc-build.yml
+    with:
+      source_directory: path/to/project
+      build_command: |
+        gcc -O2 -o program test.c
+        uname -m > architecture.txt
+      artifact_paths: |
+        program
+        architecture.txt
 
-Pushes to `test/sparc-build-workflow` test the main pipeline; the SPARC workflow can
-also run manually with the same inputs. The VM uses its published default root
-password `a` over a localhost-only forwarded SSH port.
-SSH access and booting with the current QEMU package must be tested on a runner before
-relying on this workflow for releases.
+  consume:
+    needs: sparc
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: readynas-sparc-build
+          path: build-output
+      - run: test -s build-output/program
+```
+
+- `source_directory` is relative to the repository checkout; `.` means the repository
+  root. Prefer a small subdirectory: copying the root transfers far more data. The
+  workflow excludes `.git`, `.github/ci-images`, and the reconstructed image.
+- `build_command` runs under `sh -se` in `/root/ci-build` as root. Commands can span
+  multiple lines; a failing command stops the job. Use paths relative to this guest
+  directory for source files and outputs.
+- `artifact_paths` lists existing files or directories relative to `/root/ci-build`,
+  one per line. Missing outputs fail the job. `.` opts into returning the entire guest
+  working directory, including the copied source files. Prefer explicit outputs to
+  avoid large artifacts or unintended files.
+- Source and artifact paths cannot be absolute, contain `..`, spaces, or glob patterns.
+  Output directory structure is retained under the downstream `build-output/` path.
+  The fixed artifact name is `readynas-sparc-build`, so use only one SPARC build call
+  per workflow run unless the reusable workflow is extended with an artifact-name input.
+
+Pushes to `test/sparc-build-workflow` run the example caller. The reusable workflow
+also accepts manual inputs after it exists on the repository's default branch. It
+uses the image's published root password `a` only for the ephemeral localhost-forwarded
+guest. Keep its runner on Ubuntu 22.04 unless a newer QEMU version is tested: the
+guest's old kernel could not mount its disk on the Ubuntu 24.04 runner.
 
 ## Licence
 

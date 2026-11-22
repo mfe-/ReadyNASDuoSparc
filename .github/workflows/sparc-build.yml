@@ -32,6 +32,7 @@ on:
 
 jobs:
   build:
+    # Ubuntu 24.04's QEMU offlines the old guest's SCSI disk during boot.
     runs-on: ubuntu-22.04
     timeout-minutes: 120
     permissions:
@@ -68,6 +69,7 @@ jobs:
             exit 1
           fi
           test -d "$SOURCE_DIR"
+          # Only explicit, relative paths can become arguments to the guest tar command.
           artifact_args=()
           while IFS= read -r path; do
             [[ -n "$path" ]] || continue
@@ -93,6 +95,8 @@ jobs:
             test -S "$GUEST_SERIAL" && break
             sleep 1
           done
+          # The guest boots without network configuration or sshd running.
+          # Use its serial login once to bring up SSH on the loopback-forwarded port.
           expect <<'EXPECT'
           set timeout 120
           spawn socat - "UNIX-CONNECT:$env(GUEST_SERIAL)"
@@ -151,6 +155,7 @@ jobs:
             exit 1
           fi
 
+          # A root-directory build must not copy Git history or the 400 MB CI image.
           tar -C "$SOURCE_DIR" --exclude='./.git' --exclude='./.github/ci-images' \
             --exclude='./readynas_compile_environment.qcow.gz' -cf - . | \
             sshpass -e ssh "${ssh_options[@]}" root@127.0.0.1 \
