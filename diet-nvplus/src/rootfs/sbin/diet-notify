@@ -1,0 +1,14 @@
+#!/bin/sh
+# Envoie une notification Telegram : diet-notify "texte"
+# Réglages dans /etc/diet-notify.conf (TG_TOKEN, TG_CHAT), écrits par l'interface web.
+# Codes de retour : 0 envoyé, 1 échec (raison affichée), 2 non configuré. DIET_ETC et DIET_WGET ne servent qu'aux tests.
+# ponytail: le wget de busybox ne vérifie pas le certificat TLS ; un vrai contrôle demanderait un autre client.
+CONF=${DIET_ETC:-/etc}/diet-notify.conf
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
+[ -r "$CONF" ] && . "$CONF"
+[ -n "$TG_TOKEN" ] && [ -n "$TG_CHAT" ] || { echo "$(tx "Telegram non configuré" "Telegram nicht eingerichtet" "Telegram not set up")"; exit 2; }
+enc=$(printf '%s' "$(hostname) : $1" | od -An -tx1 | tr -d ' \n' | sed 's/\(..\)/%\1/g')
+out=$(${DIET_WGET:-wget} -T 20 -q -O - --post-data "chat_id=$TG_CHAT&text=$enc" "https://api.telegram.org/bot$TG_TOKEN/sendMessage" 2>&1)
+case "$out" in *'"ok":true'*) exit 0 ;; esac
+echo "$out" | grep -v 'certificate validation' | tail -1
+exit 1

@@ -1,12 +1,13 @@
 #!/bin/sh
 # Passwort fuer die Web-Oberflaeche setzen (Benutzer: $1, Standard admin)
 U=${1:-admin}
-case "$U" in *[!a-zA-Z0-9_-]*|"") echo "Ungueltiger Benutzername"; exit 1;; esac
-printf "Neues Web-Passwort fuer %s: " "$U"; stty -echo; read -r P; stty echo; echo
-printf "Nochmal: "; stty -echo; read -r P2; stty echo; echo
-[ ${#P} -ge 6 ] || { echo "Abbruch: mindestens 6 Zeichen"; exit 1; }
-[ "$P" = "$P2" ] || { echo "Abbruch: Eingaben ungleich"; exit 1; }
-case "$P" in *:*) echo "Abbruch: kein Doppelpunkt im Passwort"; exit 1;; esac
+[ -r ${DIET_ETC:-/etc}/diet-lang.sh ] && . ${DIET_ETC:-/etc}/diet-lang.sh || tx() { printf "%s" "$3"; }
+case "$U" in *[!a-zA-Z0-9_-]*|"") echo "$(tx "Nom d’utilisateur invalide" "Ungültiger Benutzername" "Invalid user name")"; exit 1;; esac
+printf "$(tx "Nouveau mot de passe web pour %s : " "Neues Web-Passwort für %s: " "New web password for %s: ")" "$U"; stty -echo; read -r P; stty echo; echo
+printf "$(tx "Encore une fois : " "Nochmal: " "Again: ")"; stty -echo; read -r P2; stty echo; echo
+[ ${#P} -ge 6 ] || { echo "$(tx "Abandon : 6 caractères minimum" "Abbruch: mindestens 6 Zeichen" "Aborted: 6 characters minimum")"; exit 1; }
+[ "$P" = "$P2" ] || { echo "$(tx "Abandon : les deux saisies diffèrent" "Abbruch: Eingaben ungleich" "Aborted: the two entries differ")"; exit 1; }
+case "$P" in *:*) echo "$(tx "Abandon : pas de deux-points dans le mot de passe" "Abbruch: kein Doppelpunkt im Passwort" "Aborted: no colon in the password")"; exit 1;; esac
 H=$(httpd -m "$P")
 umask 077
 cat > /etc/httpd.conf.new <<EOC
@@ -22,7 +23,7 @@ D:*
 .svg:image/svg+xml
 EOC
 mv /etc/httpd.conf.new /etc/httpd.conf
-if pidof httpd >/dev/null; then killall -HUP httpd; echo "Passwort geaendert."
+if pidof httpd >/dev/null; then killall -HUP httpd; echo "$(tx "Mot de passe modifié." "Passwort geändert." "Password changed.")"
 else
-  httpd -p 80 -h /www -c /etc/httpd.conf -r "$(hostname)" && echo "Web-Oberflaeche gestartet: http://$(ifconfig eth0 | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')/"
+  httpd -p 80 -h /www -c /etc/httpd.conf -r "$(hostname)" && echo "$(tx "Interface web lancée" "Web-Oberfläche gestartet" "Web interface started") : http://$(ifconfig eth0 | sed -n 's/.*inet addr:\([0-9.]*\).*/\1/p')/"
 fi

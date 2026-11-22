@@ -111,8 +111,28 @@ Tested on one NV+ v1 (4× 1 TB, RAID5): updates via Frontview, power button, LED
 spindown, Samba (SMB2, Linux cifs client), NFSv3, web UI, fallback to RAIDiator.
 **Not yet tested on real hardware:** a fresh install on a box that never had DIET (only in emulation
 with a copy of a real RAIDiator root), and `DIET_remove`. Feedback welcome.
-Not for the Duo v1 or other models (the installer refuses to run there).
-The web UI is German for now.
+Other models are refused by the installer, except the Duo v1 (see below).
+The web UI is French in this branch (it replaced the German one).
+
+### ReadyNAS Duo v1 (X-RAID)
+
+Tested on one Duo v1 (RAIDiator 4.1.14, 2 × 750 GB, X-RAID mirror), installed by running `install.sh` over SSH:
+boot, data volume, Samba, shares, users, fan control, alerts, clean shutdown and reboot without resync.
+Differences handled for the Duo:
+
+- system volume is `/dev/hde1` instead of `md0` (detected at install time, stored in `/etc/diet-rootdev`);
+- the data PV is a disk partition (`/dev/hde5`), so the LVM filter also accepts `hd[cegikmoq][5-9]` like RAIDiator's;
+- no board temperature sensor (`temp_0` is always 0): the warmest disk drives the fan, minimum PWM taken from RAIDiator;
+- no LCD: LCD writes are skipped and the web UI hides it;
+- RAID state is read from `/proc/xraid/configuration` (status page, `diet-status`, alerts).
+
+### Additions in this branch
+
+- Web UI: X-RAID volumes and disks, SMART summary per disk, temperature/fan history, dismissable SMART warning,
+  share management (create/remove, read-only, guest), Samba user management, system settings (name, time zone, DHCP/static).
+- Telegram notifications (`/sbin/diet-notify`) on RAID degradation, disk errors, overheating and recovery.
+- Shutdown no longer waits ~90 s when NFS is not running.
+- Tests (no hardware needed): `tools/ui-test/run.sh`, `shares-test.sh`, `users-test.sh`, `sys-test.sh`.
 
 ## Build
 
