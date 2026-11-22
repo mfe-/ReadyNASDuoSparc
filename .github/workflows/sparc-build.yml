@@ -86,12 +86,12 @@ jobs:
           expect -re {Password: ?$}
           log_user 0
           send -- "a\r"
-          expect -re {# ?$}
+          expect -re {debian-sparc:~# ?$}
           log_user 1
-          send -- "/sbin/ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up; /sbin/route add default gw 10.0.2.2 2>/dev/null; if test -x /usr/sbin/sshd; then /usr/sbin/sshd && echo CI_SSH_READY || echo CI_SSH_FAILED; else echo CI_NO_SSHD; fi\r"
+          send -- "/sbin/ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up; /sbin/route add default gw 10.0.2.2 2>/dev/null; if test -x /usr/sbin/sshd; then /usr/sbin/sshd && echo CI_SSH_''READY || echo CI_SSH_''FAILED; else echo CI_NO_''SSHD; fi\r"
           expect {
-            -re {\r?\nCI_SSH_READY\r?\n} {}
-            -re {\r?\n(CI_NO_SSHD|CI_SSH_FAILED)\r?\n} { puts stderr "Unable to start guest SSH daemon"; exit 1 }
+            -re {CI_SSH_READY} {}
+            -re {CI_NO_SSHD|CI_SSH_FAILED} { puts stderr "Unable to start guest SSH daemon"; exit 1 }
             timeout { puts stderr "Guest SSH initialization timed out"; exit 1 }
             eof { puts stderr "Guest serial connection closed"; exit 1 }
           }
